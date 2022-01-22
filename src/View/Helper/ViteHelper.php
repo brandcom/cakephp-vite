@@ -2,8 +2,12 @@
 
 namespace ViteHelper\View\Helper;
 
-use Cake\Core\Configure;
+use Cake\Log\Log;
 use Cake\View\Helper;
+use Nette\Utils\FileSystem;
+use Nette\Utils\Json;
+use Nette\Utils\Strings;
+use stdClass;
 
 /**
  * Usage:
@@ -27,9 +31,15 @@ use Cake\View\Helper;
  * Production Tags (available after running vite build):
  * $this->Vite->getCSS()
  * $->Vite->getJS()
+ *
+ * @property Helper\HtmlHelper $Html
  */
 class ViteHelper extends Helper
 {
+    public $helpers = [
+        "Html",
+    ];
+
     /**
      * Disable dev scripts and serve the production files.
      * Defaults to true, if the application is in debug mode.
@@ -37,6 +47,14 @@ class ViteHelper extends Helper
      * You must run the vite build command in order to be able to access production files.
      */
     private bool $forceProductionMode;
+
+    /**
+     * Defaults to "vprod"
+     *
+     * Visit the page with ?vprod=1 or save a cookie named "vprod" with a
+     * true-ish value (i.e. not 0 or empty) to enable production mode.
+     */
+    private string $productionHint;
 
     /**
      * Used in isDev() as a needle to test $_SERVER['HTTP_HOST'] if the site is running locally / in dev mode.
@@ -74,6 +92,7 @@ class ViteHelper extends Helper
 
         $this->forceProductionMode = $config['forceProductionMode'] ?? false;
         $this->devHostNeedle = $config['devHostNeedle'] ?? '.test';
+        $this->productionHint = $config['productionHint'] ?? 'vprod';
         $this->devPort = $config['devPort'] ?? 3000;
         $this->jsSrcDirectory = $config['jsSrcDirectory'] ?? 'webroot_src' . DS;
         $this->mainJS = $config['mainJs'] ?? 'main.js';
@@ -105,23 +124,21 @@ class ViteHelper extends Helper
      */
     public function getCSS(): string
     {
-        $manifest = $this->getManifest();
-        if (!$manifest) {
-            return '';
-        }
+        $manifest = $this->getManifest() ?? [];
+        $css_paths = [];
 
-        $style_tags = [];
-        foreach ($manifest as $item) {
+        foreach ($manifest ?? [] as $item) {
 
-            if (!empty($item->isEntry) && true === $item->isEntry && !empty($item->css)) {
+            if (empty($item->isEntry) || empty($item->css)) {
+                continue;
+            }
 
-                foreach ($item->css as $css_path) {
-                    $style_tags[] = $this->css(DS . $css_path);
-                }
+            foreach ($item->css as $css_path) {
+                $css_paths[] = DS . ltrim($css_path, DS);
             }
         }
 
-        return implode("\n", $style_tags);
+        return $this->Html->css($css_paths);
     }
 
     /**
@@ -133,20 +150,20 @@ class ViteHelper extends Helper
      */
     public function getJS(): string
     {
-        $manifest = $this->getManifest();
-        if (!$manifest) {
-            return '';
-        }
-
+        $manifest = $this->getManifest() ?? [];
         $script_tags = [];
-        foreach ($manifest as $item) {
 
+        foreach ($manifest as $file) {
             /**
-             * @var \stdClass $item
+             * @var stdClass $file
              */
-            if (!empty($item->isEntry) && true === $item->isEntry) {
-                $type = str_contains($item->src, 'legacy') ? 'nomodule' : 'module';
-                $script_tags[] = $this->script(DS . $item->file, $type);
+            if (!empty($file->isEntry)) {
+                $type = Strings::contains($file->src, "legacy") ? "nomodule" : "module";
+                $script_tags[] = $this->Html->script(
+                    DS . ltrim($file->file, DS), [
+                        'type' => $type
+                    ]
+                );
             }
         }
 
@@ -154,14 +171,14 @@ class ViteHelper extends Helper
          * Legacy Polyfills must come first.
          */
         usort($script_tags, function ($tag) {
-            return str_contains($tag, 'polyfills') ? 0 : 1;
+            return Strings::contains($tag, "polyfills") ? 0 : 1;
         });
 
         /**
          * ES-module scripts must come last.
          */
         usort($script_tags, function ($tag) {
-            return str_contains($tag, 'type="module"') ? 1 : 0;
+            return Strings::contains($tag, 'type="module"') ? 1 : 0;
         });
 
         return implode("\n", $script_tags);
@@ -172,7 +189,7 @@ class ViteHelper extends Helper
      */
     public function getDevScript(): string
     {
-        return $this->script('http://localhost:' . $this->devPort . '/@vite/client', 'module');
+        return $this->Html->script('http://localhost:' . $this->devPort . '/@vite/client', ['type' => 'module']);
     }
 
     /**
@@ -180,9 +197,10 @@ class ViteHelper extends Helper
      */
     public function getClientScript(): string
     {
-        return $this->script(
-            'http://localhost:' . $this->devPort . '/' . $this->jsSrcDirectory . $this->mainJS,
-            "module"
+        return $this->Html->script(
+            'http://localhost:' . $this->devPort . '/' . $this->jsSrcDirectory . $this->mainJS, [
+                'type' => 'module',
+            ]
         );
     }
 
@@ -190,26 +208,25 @@ class ViteHelper extends Helper
      * Get data on the files created by ViteJS
      * from /public/manifest.json
      */
-    private function getManifest(): ?\stdClass
+    private function getManifest(): ?array
     {
-        $path = WWW_ROOT . $this->manifestDir;
+        $path = WWW_ROOT . ltrim($this->manifestDir, DS);
 
-        if (!file_exists($path)) {
-            throw new \Exception('Could not find manifest.json at ' . $path);
+        try {
+            $json = FileSystem::read($path);
+
+            $json = str_replace([
+                "\u0000",
+            ], '', $json);
+
+            $manifest = Json::decode($json);
+
+        } catch (\Exception $e) {
+            Log::write('debug', "No valid manifest.json found for ViteHelper at path $path. Error: {$e->getMessage()}");
+            return null;
         }
 
-        $manifest = file_get_contents($path);
-        $manifest = utf8_encode($manifest);
-
-        if (!$manifest) {
-            throw new \Exception('No ViteDataExtension manifest.json found. ');
-        }
-
-        $manifest = str_replace([
-            "\u0000",
-        ], '', $manifest);
-
-        return json_decode($manifest);
+        return $manifest;
     }
 
     /**
@@ -228,28 +245,14 @@ class ViteHelper extends Helper
             return false;
         }
 
-        if (!empty($_COOKIE['vprod']) && $_COOKIE['vprod']) {
-
+        if ($this->getView()->getRequest()->getCookie($this->productionHint)) {
             return false;
         }
 
-        if (isset($_GET['vprod'])) {
-
+        if ($this->getView()->getRequest()->getQuery($this->productionHint)) {
             return false;
         }
 
-        return !empty($_SERVER['HTTP_HOST']) && str_contains($_SERVER['HTTP_HOST'], $this->devHostNeedle);
-    }
-
-    private function css(string $url): string
-    {
-        return '<link rel="stylesheet" href="' . $url . '">';
-    }
-
-    private function script(string $url, ?string $type = null): string
-    {
-        $type = $type ? ' type="' . $type . '"' : null;
-
-        return '<script src="' . $url . '"' . $type . '></script>';
+        return Strings::contains((string)$this->getView()->getRequest()->host(), $this->devHostNeedle);
     }
 }
