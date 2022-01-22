@@ -208,7 +208,7 @@ class ViteHelper extends Helper
      * Get data on the files created by ViteJS
      * from /public/manifest.json
      */
-    private function getManifest(): ?array
+    private function getManifest(): ?stdClass
     {
         $path = WWW_ROOT . ltrim($this->manifestDir, DS);
 
