@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\View\Helper;
+namespace ViteHelper\View\Helper;
 
 use Cake\Core\Configure;
 use Cake\View\Helper;
