@@ -31,22 +31,18 @@ bin/cake plugin load ViteHelper
 
 Load the Helper in your AppView.php:
 ```
-$config = [
-    'my-option' => 'example',
-];
-
-$this->loadHelper('ViteHelper.Vite', $config);
+$this->loadHelper('ViteHelper.ViteScripts');
 ```
 
 ### Configuration
 
 Available options:
-* forceProductionMode (bool): Defaults to `false`
-* devHostNeedle (string): defaults to `.test`
-* devPort (int): defaults to `3000`
-* jsSrcDirectory (string): defaults to `webroot_src`
-* mainTs (string): defaults to `main.js`
-* manifestDir (string): defaults to `manifest.json`
+* forceProductionMode `bool`: Defaults to `false`
+* devHostNeedles `string[]`: defaults to `['.test', 'localhost', '127.0.0.1']`
+* devPort `int`: defaults to `3000`
+* jsSrcDirectory `string`: defaults to `webroot_src`
+* mainTs `string`: defaults to `main.js`
+* manifestDir `string`: defaults to `manifest.json`
 
 ## Vite JS bundler / Dev server
 

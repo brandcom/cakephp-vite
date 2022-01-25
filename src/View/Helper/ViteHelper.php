@@ -33,6 +33,8 @@ use stdClass;
  * $->Vite->getJS()
  *
  * @property Helper\HtmlHelper $Html
+ *
+ * @deprecated
  */
 class ViteHelper extends Helper
 {

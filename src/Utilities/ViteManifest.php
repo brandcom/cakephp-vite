@@ -74,9 +74,21 @@ class ViteManifest
         return $script_paths;
     }
 
+    public function getPath(): string
+    {
+        return WWW_ROOT . ltrim($this->manifestDir, DS);
+    }
+
+    public function getBuildAssetsDir(): string
+    {
+        $file = current($this->getJsFiles());
+
+        return $this->getPath() . DS . Strings::before($file, DS, -1);
+    }
+
     protected function getManifest(): \stdClass
     {
-        $path = WWW_ROOT . ltrim($this->manifestDir, DS);
+        $path = $this->getPath();
 
         try {
             $json = FileSystem::read($path);
