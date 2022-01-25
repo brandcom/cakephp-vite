@@ -24,7 +24,8 @@ class ViteScriptsHelper extends Helper
     public function initialize(array $config): void
     {
         parent::initialize($config);
-        $this->_defaultConfig = $this->getConfig();
+
+        $this->setConfig(array_merge($this->getSettings(), $config));
         $this->manifest = new ViteManifest();
         $this->isDev = $this->isDev();
     }
@@ -37,7 +38,7 @@ class ViteScriptsHelper extends Helper
                 'http://localhost:'
                 . $this->_config['devPort'] . '/'
                 . $this->_config['jsSrcDirectory']
-                . $this->_config['mainJS'], [
+                . $this->_config['mainJs'], [
                     'type' => 'module',
                 ]
             );
@@ -74,7 +75,7 @@ class ViteScriptsHelper extends Helper
         return implode("\n", $tags);
     }
 
-    private function getConfig(): array
+    protected function getSettings(): array
     {
         $config = Configure::read('VitePlugin');
         if (!$config || !is_array($config)) {
