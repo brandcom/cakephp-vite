@@ -17,7 +17,7 @@ class ViteManifest
 
     public function __construct()
     {
-        $config = Configure::read('VitePlugin');
+        $config = Configure::read('ViteHelper');
 
         $this->devPort = $config['devPort'];
         $this->jsSrcDirectory = $config['jsSrcDirectory'];
