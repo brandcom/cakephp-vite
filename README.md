@@ -50,6 +50,8 @@ Available options:
 
 You can override the defaults in your `app.php`, `app_local.php`, or `app_vite.php`. 
 
+See the plugin's [app_vite.php](https://github.com/passchn/cakephp-vite/blob/main/config/app_vite.php) for reference. 
+
 Example: 
 
 ```
