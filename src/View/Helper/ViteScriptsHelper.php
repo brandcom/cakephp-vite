@@ -10,6 +10,13 @@ use ViteHelper\Utilities\ViteManifest;
 
 /**
  * ViteScripts helper
+ *
+ * After loading the Helper in your AppView.php, you can call
+ * $this->ViteScripts->head() in your html head, and
+ * $this->ViteScripts->body() in the body.
+ *
+ * You can override the default config in your app.php, app_local.php, or you create a app_vite.php file.
+ *
  * @property Helper\HtmlHelper $Html
  */
 class ViteScriptsHelper extends Helper

@@ -8,10 +8,14 @@ In production mode, the Helper loads the bundled files. `@vitejs/plugin-legacy` 
 insert `nomodule`-tags for older browsers, e.g. older iOS devices, which do not support js modules.
 
 In your php-template, include this in your html head: \
-`<?= $this->Vite->getHeaderTags() ?>`
+`<?= $this->ViteScripts->head() ?>`
 
 Just before the closing `</body>` tag, insert this line: \
-`<?= $this->Vite->getBodyTags() ?>`
+`<?= $this->ViteScripts->body() ?>`
+
+> New in **version 0.2**  
+> `$this->Vite->getHeaderTags()` etc. is deprecated. The ViteHelper got refactored to the new `ViteScriptsHelper`. 
+> Manifest handling is done by the new `Utilities/ViteManifest.php`.
 
 ## Installation
 
@@ -41,14 +45,27 @@ Available options:
 * devHostNeedles `string[]`: defaults to `['.test', 'localhost', '127.0.0.1']`
 * devPort `int`: defaults to `3000`
 * jsSrcDirectory `string`: defaults to `webroot_src`
-* mainTs `string`: defaults to `main.js`
+* mainJs `string`: defaults to `main.js`
 * manifestDir `string`: defaults to `manifest.json`
+
+You can override the defaults in your `app.php`, `app_local.php`, or `app_vite.php`. 
+
+Example: 
+
+```
+return [
+    'VitePlugin' => [
+        'forceProductionMode' => true,
+        'mainJs' => 'main.ts',
+    ],
+];
+```
 
 ## Vite JS bundler / Dev server
 
 Install Vite e.g. via yarn:
 ````
-yarn add -D vite
+yarn create vite
 ````
 
 It is recommended to add the legacy plugin:
@@ -56,13 +73,15 @@ It is recommended to add the legacy plugin:
 yarn add -D @vitejs/plugin-legacy
 ```
 
+> See [Scaffolding Your First Vite Project](https://vitejs.dev/guide/#scaffolding-your-first-vite-project) on vitejs.dev for more information.
+
 ### Configuration
 
-Vite comes with useful default configuration build in, however,
-in a php environment, some changes have to be made.
+After installing, you will need to refactor the files a bit to make sense of it in a php project. The default config of this plugin assumes that you put your js, ts, scss etc. in `/webroot_src`.
 
-The recommended configuration needs to be saved in the CakePHP
-root folder (not /webroot) as `vite.config.js` (or `.ts` if you are using TypeScript).
+The build files will end up in `/webroot/build` by default. Your `vite.config.js or *.ts` file for vite stays in the project root.
+
+#### Recommended configuration: 
 
 ```
 import { defineConfig } from 'vite';
