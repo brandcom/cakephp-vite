@@ -53,14 +53,20 @@ class ViteCommand extends Command
                 $this->tidy($io);
                 break;
             default:
-                $io->out($args->getArguments());
+                $this->getPossibleArguments($io);
                 break;
         }
 
         return null;
     }
 
-    private function tidy(ConsoleIo $io): bool
+    private function getPossibleArguments(ConsoleIo $io): void
+    {
+        $io->out("Welcome to the ViteHelper! Possible Arguments: ");
+        $io->out("tidy - remove outdated build files.");
+    }
+
+    private function tidy(ConsoleIo $io): void
     {
         $dir = $this->manifest->getBuildAssetsDir();
         $manifest_files = array_merge(
@@ -91,7 +97,7 @@ class ViteCommand extends Command
 
         if (count($outdated_files) === 0) {
             $io->out("There are no outdated files. ");
-            return true;
+            return;
         }
 
         $confirmation = $io->ask("Do you want to delete " . count($outdated_files) . " files? (Y / N)");
@@ -107,10 +113,9 @@ class ViteCommand extends Command
             }
 
             $io->out("OK. ");
-            return true;
+            return;
         }
 
         $io->out("Nothing was deleted. ");
-        return true;
     }
 }
