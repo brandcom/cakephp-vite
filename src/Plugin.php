@@ -38,8 +38,9 @@ class Plugin extends BasePlugin
 
     private function loadConfig(): void
     {
+        Configure::load("ViteHelper.app_vite");
+
         $configs = [
-            'VitePlugin.app_vite',
             'app_vite',
             'app',
             'app_local',
