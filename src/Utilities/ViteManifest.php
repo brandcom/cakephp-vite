@@ -44,7 +44,7 @@ class ViteManifest
         return $css_paths;
     }
 
-    public function getJsFiles(): array
+    public function getJsFiles(bool $only_entry=true): array
     {
         $script_paths = [];
 
@@ -52,7 +52,7 @@ class ViteManifest
             /**
              * @var \stdClass $file
              */
-            if (!empty($file->isEntry)) {
+            if (!$only_entry || !empty($file->isEntry)) {
                 $script_paths[] = DS . ltrim($file->file, DS);
             }
         }
@@ -82,8 +82,7 @@ class ViteManifest
     public function getBuildAssetsDir(): string
     {
         $file = current($this->getJsFiles());
-
-        return $this->getPath() . DS . Strings::before($file, DS, -1);
+        return WWW_ROOT . ltrim(Strings::before($file, DS, -1), DS);
     }
 
     protected function getManifest(): \stdClass

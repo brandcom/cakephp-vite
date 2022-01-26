@@ -7,12 +7,24 @@ use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Nette\Utils\FileSystem;
+use Nette\Utils\Finder;
+use Nette\Utils\Strings;
+use ViteHelper\Utilities\ViteManifest;
 
 /**
  * Vite command.
  */
 class ViteCommand extends Command
 {
+    private ViteManifest $manifest;
+
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->manifest = new ViteManifest();
+    }
+
     /**
      * Hook method for defining this command's option parser.
      *
@@ -36,5 +48,54 @@ class ViteCommand extends Command
      */
     public function execute(Arguments $args, ConsoleIo $io)
     {
+        switch ($args->getArgumentAt(0)) {
+            case 'tidy':
+                $this->tidy($io);
+                break;
+            default:
+                $io->out($args->getArguments());
+                break;
+        }
+
+        return null;
+    }
+
+    private function tidy(ConsoleIo $io): bool
+    {
+        $dir = $this->manifest->getBuildAssetsDir();
+        $manifest_files = array_merge(
+            $this->manifest->getJsFiles(false),
+            $this->manifest->getCssFiles()
+        );
+
+        $build_files = Finder::findFiles('*.js', '*.css')->in($dir);
+
+        $count = 0;
+        foreach ($build_files as $build_file) {
+
+            /**
+             * @var \SplFileInfo $build_file
+             */
+            if (!in_array(
+                DS . Strings::after($build_file->getRealPath(), WWW_ROOT),
+                $manifest_files
+            )) {
+
+                if (is_dir($build_file->getRealPath()) || !$build_file->getRealPath()) {
+                    continue;
+                }
+
+                try {
+                    $io->out("Deleting " . Strings::after($build_file->getRealPath(), ROOT));
+                    FileSystem::delete($build_file->getRealPath());
+                    $count ++;
+                } catch (\Exception $e) {
+                    $io->out("Coule not delete file " . $build_file->getFilename());
+                }
+            }
+        }
+
+        $io->out("Deleted {$count} files. ");
+        return true;
     }
 }
