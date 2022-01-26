@@ -125,3 +125,6 @@ These need to match the `$config` array when loading the ViteHelper.
 More about configuring Vite can be found here:
 [vitejs.dev/config](https://vitejs.dev/config/)
 
+## Contributions
+
+You can contribute to this plugin via pull requests. If you run into an error, you can open an issue. 
