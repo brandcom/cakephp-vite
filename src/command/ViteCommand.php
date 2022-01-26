@@ -70,7 +70,7 @@ class ViteCommand extends Command
 
         $build_files = Finder::findFiles('*.js', '*.css')->in($dir);
 
-        $count = 0;
+        $outdated_files = [];
         foreach ($build_files as $build_file) {
 
             /**
@@ -85,17 +85,33 @@ class ViteCommand extends Command
                     continue;
                 }
 
-                try {
-                    $io->out("Deleting " . Strings::after($build_file->getRealPath(), ROOT));
-                    FileSystem::delete($build_file->getRealPath());
-                    $count ++;
-                } catch (\Exception $e) {
-                    $io->out("Coule not delete file " . $build_file->getFilename());
-                }
+                $outdated_files[] = $build_file->getRealPath();
+
             }
         }
 
-        $io->out("Deleted {$count} files. ");
+        if (count($outdated_files) === 0) {
+            $io->out("There are no outdated files. ");
+            return true;
+        }
+
+        $confirmation = $io->ask("Do you want to delete " . count($outdated_files) . " files? (Y / N)");
+
+        if ("Y" === strtoupper($confirmation)) {
+            foreach ($outdated_files as $file) {
+                try {
+                    $io->out("Deleting " . Strings::after($file, ROOT));
+                    FileSystem::delete($file);
+                } catch (\Exception $e) {
+                    $io->out("Could not delete file " . $file);
+                }
+            }
+
+            $io->out("OK. ");
+            return true;
+        }
+
+        $io->out("Nothing was deleted. ");
         return true;
     }
 }
