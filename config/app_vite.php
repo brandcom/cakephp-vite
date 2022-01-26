@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'VitePlugin' => [
+    'ViteHelper' => [
         'forceProductionMode' => false,
         // deprecated, use devHostNeedles and pass a list of strings.
         'devHostNeedle' => null,

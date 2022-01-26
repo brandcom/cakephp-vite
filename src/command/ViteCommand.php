@@ -86,7 +86,6 @@ class ViteCommand extends Command
                 }
 
                 $outdated_files[] = $build_file->getRealPath();
-
             }
         }
 

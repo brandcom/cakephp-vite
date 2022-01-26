@@ -18,11 +18,11 @@ class ViteManifest
     public function __construct()
     {
         $config = Configure::read('VitePlugin');
+
         $this->devPort = $config['devPort'];
         $this->jsSrcDirectory = $config['jsSrcDirectory'];
         $this->mainJs = $config['mainJs'];
         $this->manifestDir = $config['manifestDir'];
-
         $this->manifest = $this->getManifest();
     }
 

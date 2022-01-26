@@ -77,9 +77,9 @@ class ViteScriptsHelper extends Helper
 
     protected function getSettings(): array
     {
-        $config = Configure::read('VitePlugin');
+        $config = Configure::read('ViteHelper');
         if (!$config || !is_array($config)) {
-            throw new \Exception("No valid configuration found for VitePlugin. ");
+            throw new \Exception("No valid configuration found for ViteHelper. ");
         }
 
         return $config;
