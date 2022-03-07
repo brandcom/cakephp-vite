@@ -56,7 +56,7 @@ Example:
 
 ```
 return [
-    'VitePlugin' => [
+    'ViteHelper' => [
         'forceProductionMode' => true,
         'mainJs' => 'main.ts',
     ],
