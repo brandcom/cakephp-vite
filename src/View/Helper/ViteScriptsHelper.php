@@ -73,10 +73,15 @@ class ViteScriptsHelper extends Helper
         $tags = [];
         foreach ($this->manifest->getJsFiles() as $path) {
 
-            $type = Strings::contains($path, "legacy") ? "nomodule" : "module";
-            $tags[] = $this->Html->script($path, [
-                'type' => $type,
-            ]);
+            $options = [];
+
+            if (Strings::contains($path, "legacy")) {
+                $options['nomodule'] = 'nomodule';
+            } else {
+                $options['type'] = 'module';
+            }
+
+            $tags[] = $this->Html->script($path, $options);
         }
 
         return implode("\n", $tags);
