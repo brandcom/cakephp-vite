@@ -37,7 +37,10 @@ class ViteScriptsHelper extends Helper
         $this->isDev = $this->isDev();
     }
 
-    public function head(): string
+    /**
+     * The $options array is directly passed to the Html-Helper.
+     */
+    public function head(array $options = []): string
     {
         if ($this->isDev) {
 
@@ -53,7 +56,7 @@ class ViteScriptsHelper extends Helper
 
         $tags = [];
         foreach ($this->manifest->getCssFiles() as $path) {
-            $tags[] = $this->Html->css($path);
+            $tags[] = $this->Html->css($path, $options);
         }
 
         return implode("\n", $tags);
