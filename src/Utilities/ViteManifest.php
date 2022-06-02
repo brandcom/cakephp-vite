@@ -12,16 +12,21 @@ class ViteManifest
     protected int $devPort;
     protected string $jsSrcDirectory;
     protected string $mainJs;
+    protected ?string $baseDir;
     protected string $manifestDir;
     protected \stdClass $manifest;
 
-    public function __construct()
+    public function __construct(array $config = [])
     {
-        $config = Configure::read('ViteHelper');
+        $config = array_merge(
+            Configure::read('ViteHelper', []),
+            $config,
+        );
 
         $this->devPort = $config['devPort'];
         $this->jsSrcDirectory = $config['jsSrcDirectory'];
         $this->mainJs = $config['mainJs'];
+        $this->baseDir = $config['baseDir'];
         $this->manifestDir = $config['manifestDir'];
         $this->manifest = $this->getManifest();
     }
@@ -76,12 +81,24 @@ class ViteManifest
 
     public function getPath(): string
     {
+        if ($this->baseDir) {
+
+            return rtrim($this->baseDir, DS) . DS . ltrim($this->manifestDir, DS);
+        }
+
         return WWW_ROOT . ltrim($this->manifestDir, DS);
     }
 
     public function getBuildAssetsDir(): string
     {
         $file = current($this->getJsFiles());
+
+
+        if ($this->baseDir) {
+
+            return rtrim($this->baseDir, DS) . DS . ltrim(Strings::before($file, DS, -1), DS);
+        }
+
         return WWW_ROOT . ltrim(Strings::before($file, DS, -1), DS);
     }
 

@@ -15,6 +15,7 @@ return [
         'devPort' => 3000,
         'jsSrcDirectory' => 'webroot_src' . DS,
         'mainJs' => 'main.js',
+        'baseDir' => null,
         'manifestDir' => 'manifest.json',
     ],
 ];
