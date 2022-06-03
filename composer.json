@@ -1,20 +1,31 @@
 {
-    "name": "passchn/cakephp-vite",
-    "description": "ViteJS plugin for CakePHP",
-    "type": "cakephp-plugin",
-    "license": "MIT",
-    "require": {
-        "php": ">=7.4",
-        "cakephp/cakephp": "^4.2.0",
-        "nette/finder": "^2.5",
-        "nette/utils": "^v3.0.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "ViteHelper\\": "src/"
-        }
-    },
+	"name": "passchn/cakephp-vite",
+	"description": "ViteJS plugin for CakePHP",
+	"type": "cakephp-plugin",
+	"license": "MIT",
+	"require": {
+		"php": ">=7.4",
+		"cakephp/cakephp": "^4.2.0",
+		"nette/finder": "^2.5",
+		"nette/utils": "^v3.0.0"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^8.5 || ^9.3",
+		"cakephp/cakephp-codesniffer": "^4.5"
+	},
+	"autoload": {
+		"psr-4": {
+			"ViteHelper\\": "src/"
+		}
+	},
 	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
 		"sort-packages": true
+	},
+	"scripts": {
+		"cs-check": "phpcs --colors --parallel=16 -p src/",
+		"cs-fix": "phpcbf --colors --parallel=16 -p src/"
 	}
 }
