@@ -7,6 +7,7 @@ use Cake\Core\Configure;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Json;
 use Nette\Utils\Strings;
+use ViteHelper\Errors\ManifestNotFoundException;
 
 class ViteManifest
 {
@@ -19,7 +20,7 @@ class ViteManifest
 
     /**
      * @param array $config see config/app_vite.php
-     * @throws \Exception
+     * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
     public function __construct(array $config = [])
     {
@@ -120,7 +121,7 @@ class ViteManifest
 
     /**
      * @return \stdClass
-     * @throws \Exception
+     * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
     protected function getManifest(): \stdClass
     {
@@ -135,7 +136,7 @@ class ViteManifest
 
             $manifest = Json::decode($json);
         } catch (\Exception $e) {
-            throw new \Exception("No valid manifest.json found at path $path. Did you build your js? Error: {$e->getMessage()}");
+            throw new ManifestNotFoundException("No valid manifest.json found at path $path. Did you build your js? Error: {$e->getMessage()}");
         }
 
         return $manifest;

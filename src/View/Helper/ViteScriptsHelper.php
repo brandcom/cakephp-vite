@@ -28,13 +28,12 @@ class ViteScriptsHelper extends Helper
     /**
      * @param array $config configuration array, see config/app_vite.php
      * @return void
-     * @throws \Exception
      */
     public function initialize(array $config): void
     {
         parent::initialize($config);
 
-        $this->setConfig(array_merge($this->getSettings(), $config));
+        $this->setConfig(array_merge(Configure::read('ViteHelper'), $config));
     }
 
     /**
@@ -44,6 +43,7 @@ class ViteScriptsHelper extends Helper
      * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
      * @param array $config config passed to ViteManifest
      * @return string
+     * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
     public function head(array $options = [], array $config = []): string
     {
@@ -76,6 +76,7 @@ class ViteScriptsHelper extends Helper
      * @param array $options set a plugin prefix, or pass to script-tag as parameters
      * @param array $config passed to ViteManifest
      * @return string
+     * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
     public function body(array $options = [], array $config = []): string
     {
@@ -107,23 +108,9 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
-     * @return array
-     * @throws \Exception
-     */
-    protected function getSettings(): array
-    {
-        $config = Configure::read('ViteHelper');
-        if (!$config || !is_array($config)) {
-            throw new \Exception('No valid configuration found for ViteHelper. ');
-        }
-
-        return $config;
-    }
-
-    /**
      * @param array $config see config/app_vite.php
      * @return \ViteHelper\Utilities\ViteManifest
-     * @throws \Exception
+     * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
     private function getViteManifest(array $config = []): ViteManifest
     {
