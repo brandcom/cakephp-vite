@@ -49,9 +49,14 @@ class ViteScriptsHelper extends Helper
             );
         }
 
+        if ($options['plugin']) {
+            $pluginPrefix = $options['plugin'] . '.';
+            unset($options['plugin']);
+        }
+
         $tags = [];
         foreach ($this->getViteManifest($config)->getCssFiles() as $path) {
-            $tags[] = $this->Html->css($path, $options);
+            $tags[] = $this->Html->css($pluginPrefix . $path, $options);
         }
 
         return implode("\n", $tags);
@@ -68,6 +73,11 @@ class ViteScriptsHelper extends Helper
             ]);
         }
 
+        if ($options['plugin']) {
+            $pluginPrefix = $options['plugin'] . '.';
+            unset($options['plugin']);
+        }
+
         $tags = [];
         foreach ($this->getViteManifest($config)->getJsFiles() as $path) {
 
@@ -77,7 +87,7 @@ class ViteScriptsHelper extends Helper
                 $options['type'] = 'module';
             }
 
-            $tags[] = $this->Html->script($path, $options);
+            $tags[] = $this->Html->script($pluginPrefix . $path, $options);
         }
 
         return implode("\n", $tags);
