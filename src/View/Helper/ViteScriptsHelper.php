@@ -76,8 +76,8 @@ class ViteScriptsHelper extends Helper
             ]);
         }
 
-		$pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
-		unset($options['plugin']);
+        $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
+        unset($options['plugin']);
 
         $tags = [];
         foreach ($this->getViteManifest()->getJsFiles() as $path) {

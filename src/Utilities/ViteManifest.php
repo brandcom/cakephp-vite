@@ -9,6 +9,11 @@ use Nette\Utils\Json;
 use Nette\Utils\Strings;
 use ViteHelper\Errors\ManifestNotFoundException;
 
+/**
+ * Reads the information in the manifest.json file provided by ViteJs after running 'vite build'
+ *
+ * FIXME php-stan error 'Argument of an invalid type stdClass supplied for foreach, only iterables are supported.' as $this->manifest is a stdClass
+ */
 class ViteManifest
 {
     protected int $devPort;
@@ -16,7 +21,7 @@ class ViteManifest
     protected string $mainJs;
     protected ?string $baseDir;
     protected string $manifestDir;
-    protected array $manifest;
+    protected \stdClass $manifest;
 
     /**
      * @throws \ViteHelper\Errors\ManifestNotFoundException
@@ -114,10 +119,10 @@ class ViteManifest
     }
 
     /**
-     * @return array
+     * @return \stdClass
      * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
-    protected function getManifest(): array
+    protected function getManifest(): \stdClass
     {
         $path = $this->getPath();
 
@@ -128,7 +133,7 @@ class ViteManifest
                 "\u0000",
             ], '', $json);
 
-            $manifest = Json::decode($json, Json::FORCE_ARRAY);
+            $manifest = Json::decode($json);
         } catch (\Exception $e) {
             throw new ManifestNotFoundException("No valid manifest.json found at path $path. Did you build your js? Error: {$e->getMessage()}");
         }
