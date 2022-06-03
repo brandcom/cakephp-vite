@@ -25,24 +25,19 @@ class ViteScriptsHelper extends Helper
         'Html',
     ];
 
-    protected ViteManifest $manifest;
-    protected bool $isDev;
-
     public function initialize(array $config): void
     {
         parent::initialize($config);
 
         $this->setConfig(array_merge($this->getSettings(), $config));
-        $this->manifest = new ViteManifest();
-        $this->isDev = $this->isDev();
     }
 
     /**
      * The $options array is directly passed to the Html-Helper.
      */
-    public function head(array $options = []): string
+    public function head(array $options = [], array $config = []): string
     {
-        if ($this->isDev) {
+        if ($this->isDev()) {
 
             return $this->Html->script(
                 'http://localhost:'
@@ -55,16 +50,16 @@ class ViteScriptsHelper extends Helper
         }
 
         $tags = [];
-        foreach ($this->manifest->getCssFiles() as $path) {
+        foreach ($this->getViteManifest($config)->getCssFiles() as $path) {
             $tags[] = $this->Html->css($path, $options);
         }
 
         return implode("\n", $tags);
     }
 
-    public function body(): string
+    public function body(array $options = [], array $config = []): string
     {
-        if ($this->isDev) {
+        if ($this->isDev()) {
 
             return $this->Html->script('http://localhost:'
                 . $this->_config['devPort']
@@ -74,9 +69,7 @@ class ViteScriptsHelper extends Helper
         }
 
         $tags = [];
-        foreach ($this->manifest->getJsFiles() as $path) {
-
-            $options = [];
+        foreach ($this->getViteManifest($config)->getJsFiles() as $path) {
 
             if (Strings::contains($path, "legacy")) {
                 $options['nomodule'] = 'nomodule';
@@ -100,6 +93,12 @@ class ViteScriptsHelper extends Helper
         return $config;
     }
 
+    private function getViteManifest(array $config = []): ViteManifest
+    {
+        $config = array_merge($this->_config, $config);
+
+        return new ViteManifest($config);
+    }
 
     /**
      * Decide what files to serve.
