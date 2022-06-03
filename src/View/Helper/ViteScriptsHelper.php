@@ -49,10 +49,8 @@ class ViteScriptsHelper extends Helper
             );
         }
 
-        if ($options['plugin']) {
-            $pluginPrefix = $options['plugin'] . '.';
-            unset($options['plugin']);
-        }
+        $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
+        unset($options['plugin']);
 
         $tags = [];
         foreach ($this->getViteManifest($config)->getCssFiles() as $path) {
