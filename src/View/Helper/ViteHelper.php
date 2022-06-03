@@ -88,6 +88,10 @@ class ViteHelper extends Helper
      */
     private string $manifestDir;
 
+    /**
+     * @param array $config see app_vite.php
+     * @return void
+     */
     public function initialize(array $config): void
     {
         parent::initialize($config);
@@ -104,6 +108,8 @@ class ViteHelper extends Helper
     /**
      * Serve script tags for insertion in the HTML head,
      * either for dev od production, depending on the isDev() method.
+     *
+     * @return string
      */
     public function getHeaderTags(): string
     {
@@ -113,6 +119,8 @@ class ViteHelper extends Helper
     /**
      * Serve script tags for insertion at the end of HTML body,
      * either for dev od production, depending on the isDev() method.
+     *
+     * @return string
      */
     public function getBodyTags(): string
     {
@@ -122,6 +130,8 @@ class ViteHelper extends Helper
     /**
      * For production. Available after build.
      * Return the css files created by ViteJS
+     *
+     * @return string
      */
     public function getCSS(): string
     {
@@ -147,6 +157,8 @@ class ViteHelper extends Helper
      *
      * Will return additional <script type="nomodule"> tags
      * if @vite/plugin-legacy is installed.
+     *
+     * @return string
      */
     public function getJS(): string
     {
@@ -187,6 +199,8 @@ class ViteHelper extends Helper
 
     /**
      * For dev mode at the end of HTML body.
+     *
+     * @return string
      */
     public function getDevScript(): string
     {
@@ -195,6 +209,8 @@ class ViteHelper extends Helper
 
     /**
      * For dev mode in HTML head.
+     *
+     * @return string
      */
     public function getClientScript(): string
     {
@@ -209,6 +225,8 @@ class ViteHelper extends Helper
     /**
      * Get data on the files created by ViteJS
      * from /public/manifest.json
+     *
+     * @return \stdClass|null
      */
     private function getManifest(): ?stdClass
     {
@@ -239,6 +257,8 @@ class ViteHelper extends Helper
      * * or a ?vprod URL-param is set,
      * * or a vprod Cookie not false-ish,
      * it will return false.
+     *
+     * @return bool
      */
     private function isDev(): bool
     {

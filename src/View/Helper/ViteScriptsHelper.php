@@ -25,6 +25,11 @@ class ViteScriptsHelper extends Helper
         'Html',
     ];
 
+    /**
+     * @param array $config configuration array, see config/app_vite.php
+     * @return void
+     * @throws \Exception
+     */
     public function initialize(array $config): void
     {
         parent::initialize($config);
@@ -33,7 +38,12 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
+     * Returns css-tags for use in <head>
      * The $options array is directly passed to the Html-Helper.
+     *
+     * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
+     * @param array $config config passed to ViteManifest
+     * @return string
      */
     public function head(array $options = [], array $config = []): string
     {
@@ -60,6 +70,13 @@ class ViteScriptsHelper extends Helper
         return implode("\n", $tags);
     }
 
+    /**
+     * Returns javascript-script tags for use at the end of <body>
+     *
+     * @param array $options set a plugin prefix, or pass to script-tag as parameters
+     * @param array $config passed to ViteManifest
+     * @return string
+     */
     public function body(array $options = [], array $config = []): string
     {
         if ($this->isDev()) {
@@ -89,6 +106,10 @@ class ViteScriptsHelper extends Helper
         return implode("\n", $tags);
     }
 
+    /**
+     * @return array
+     * @throws \Exception
+     */
     protected function getSettings(): array
     {
         $config = Configure::read('ViteHelper');
@@ -99,6 +120,11 @@ class ViteScriptsHelper extends Helper
         return $config;
     }
 
+    /**
+     * @param array $config see config/app_vite.php
+     * @return \ViteHelper\Utilities\ViteManifest
+     * @throws \Exception
+     */
     private function getViteManifest(array $config = []): ViteManifest
     {
         $config = array_merge($this->_config, $config);
@@ -114,6 +140,8 @@ class ViteScriptsHelper extends Helper
      * * or a ?vprod URL-param is set,
      * * or a vprod Cookie not false-ish,
      * it will return false.
+     *
+     * @return bool
      */
     private function isDev(): bool
     {

@@ -12,14 +12,12 @@ use Cake\Core\PluginApplicationInterface;
  */
 class Plugin extends BasePlugin
 {
+    /**
+     * @inheritDoc
+     */
     public function bootstrap(PluginApplicationInterface $app): void
     {
         parent::bootstrap($app);
-        $this->loadConfig();
-    }
-
-    private function loadConfig(): void
-    {
         Configure::load('ViteHelper.app_vite');
 
         if (file_exists(ROOT . DS . 'config' . DS . 'app_vite.php')) {

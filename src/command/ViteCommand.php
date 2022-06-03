@@ -19,6 +19,9 @@ class ViteCommand extends Command
 {
     private ViteManifest $manifest;
 
+    /**
+     * @inheritDoc
+     */
     public function initialize(): void
     {
         parent::initialize();
@@ -60,12 +63,20 @@ class ViteCommand extends Command
         return null;
     }
 
+    /**
+     * @param \Cake\Console\ConsoleIo $io io operations wrapper
+     * @return void
+     */
     private function getPossibleArguments(ConsoleIo $io): void
     {
         $io->out('Welcome to the ViteHelper! Possible Arguments: ');
         $io->out('tidy - remove outdated build files.');
     }
 
+    /**
+     * @param \Cake\Console\ConsoleIo $io io operations wrapper
+     * @return void
+     */
     private function tidy(ConsoleIo $io): void
     {
         $dir = $this->manifest->getBuildAssetsDir();

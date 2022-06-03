@@ -17,6 +17,10 @@ class ViteManifest
     protected string $manifestDir;
     protected \stdClass $manifest;
 
+    /**
+     * @param array $config see config/app_vite.php
+     * @throws \Exception
+     */
     public function __construct(array $config = [])
     {
         $config = array_merge(
@@ -32,6 +36,9 @@ class ViteManifest
         $this->manifest = $this->getManifest();
     }
 
+    /**
+     * @return array
+     */
     public function getCssFiles(): array
     {
         $css_paths = [];
@@ -49,6 +56,10 @@ class ViteManifest
         return $css_paths;
     }
 
+    /**
+     * @param bool $only_entry only return files that are entry points, e.g. the main.js or polyfills
+     * @return array
+     */
     public function getJsFiles(bool $only_entry = true): array
     {
         $script_paths = [];
@@ -57,9 +68,11 @@ class ViteManifest
             /**
              * @var \stdClass $file
              */
-            if (!$only_entry || !empty($file->isEntry)) {
-                $script_paths[] = DS . ltrim($file->file, DS);
+            if ($only_entry && empty($file->isEntry)) {
+                continue;
             }
+
+            $script_paths[] = DS . ltrim($file->file, DS);
         }
 
         /**
@@ -79,6 +92,9 @@ class ViteManifest
         return $script_paths;
     }
 
+    /**
+     * @return string
+     */
     public function getPath(): string
     {
         if ($this->baseDir) {
@@ -88,6 +104,9 @@ class ViteManifest
         return WWW_ROOT . ltrim($this->manifestDir, DS);
     }
 
+    /**
+     * @return string
+     */
     public function getBuildAssetsDir(): string
     {
         $file = current($this->getJsFiles());
@@ -99,6 +118,10 @@ class ViteManifest
         return WWW_ROOT . ltrim(Strings::before($file, DS, -1), DS);
     }
 
+    /**
+     * @return \stdClass
+     * @throws \Exception
+     */
     protected function getManifest(): \stdClass
     {
         $path = $this->getPath();
