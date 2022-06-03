@@ -19,21 +19,15 @@ class ViteManifest
     protected \stdClass $manifest;
 
     /**
-     * @param array $config see config/app_vite.php
      * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
-    public function __construct(array $config = [])
+    public function __construct()
     {
-        $config = array_merge(
-            Configure::read('ViteHelper', []),
-            $config,
-        );
-
-        $this->devPort = $config['devPort'];
-        $this->jsSrcDirectory = $config['jsSrcDirectory'];
-        $this->mainJs = $config['mainJs'];
-        $this->baseDir = $config['baseDir'];
-        $this->manifestDir = $config['manifestDir'];
+        $this->devPort = Configure::read('ViteHelper.devPort', ConfigDefaults::DEV_PORT);
+        $this->jsSrcDirectory = Configure::read('ViteHelper.jsSrcDirectory', ConfigDefaults::JS_SRC_DIRECTORY);
+        $this->mainJs = Configure::read('ViteHelper.mainJs', ConfigDefaults::MAIN_JS);
+        $this->baseDir = Configure::read('ViteHelper.baseDir', ConfigDefaults::BASE_DIR);
+        $this->manifestDir = Configure::read('ViteHelper.manifestDir', ConfigDefaults::MANIFEST_DIR);
         $this->manifest = $this->getManifest();
     }
 

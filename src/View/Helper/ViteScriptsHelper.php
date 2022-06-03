@@ -6,6 +6,7 @@ namespace ViteHelper\View\Helper;
 use Cake\Core\Configure;
 use Cake\View\Helper;
 use Nette\Utils\Strings;
+use ViteHelper\Utilities\ConfigDefaults;
 use ViteHelper\Utilities\ViteManifest;
 
 /**
@@ -26,33 +27,21 @@ class ViteScriptsHelper extends Helper
     ];
 
     /**
-     * @param array $config configuration array, see config/app_vite.php
-     * @return void
-     */
-    public function initialize(array $config): void
-    {
-        parent::initialize($config);
-
-        $this->setConfig(array_merge(Configure::read('ViteHelper'), $config));
-    }
-
-    /**
      * Returns css-tags for use in <head>
      * The $options array is directly passed to the Html-Helper.
      *
      * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
-     * @param array $config config passed to ViteManifest
      * @return string
      * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
-    public function head(array $options = [], array $config = []): string
+    public function head(array $options = []): string
     {
         if ($this->isDev()) {
             return $this->Html->script(
                 'http://localhost:'
-                . $this->_config['devPort'] . '/'
-                . $this->_config['jsSrcDirectory']
-                . $this->_config['mainJs'],
+                . Configure::read('ViteHelper.devPort', ConfigDefaults::DEV_PORT) . '/'
+                . Configure::read('ViteHelper.jsSrcDirectory', ConfigDefaults::JS_SRC_DIRECTORY)
+                . Configure::read('ViteHelper.mainJs', ConfigDefaults::MAIN_JS),
                 [
                     'type' => 'module',
                 ]
@@ -63,7 +52,7 @@ class ViteScriptsHelper extends Helper
         unset($options['plugin']);
 
         $tags = [];
-        foreach ($this->getViteManifest($config)->getCssFiles() as $path) {
+        foreach ($this->getViteManifest()->getCssFiles() as $path) {
             $tags[] = $this->Html->css($pluginPrefix . $path, $options);
         }
 
@@ -74,15 +63,14 @@ class ViteScriptsHelper extends Helper
      * Returns javascript-script tags for use at the end of <body>
      *
      * @param array $options set a plugin prefix, or pass to script-tag as parameters
-     * @param array $config passed to ViteManifest
      * @return string
      * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
-    public function body(array $options = [], array $config = []): string
+    public function body(array $options = []): string
     {
         if ($this->isDev()) {
             return $this->Html->script('http://localhost:'
-                . $this->_config['devPort']
+                . Configure::read('ViteHelper.devPort', ConfigDefaults::DEV_PORT)
                 . '/@vite/client', [
                 'type' => 'module',
             ]);
@@ -94,7 +82,7 @@ class ViteScriptsHelper extends Helper
         }
 
         $tags = [];
-        foreach ($this->getViteManifest($config)->getJsFiles() as $path) {
+        foreach ($this->getViteManifest()->getJsFiles() as $path) {
             if (Strings::contains($path, 'legacy')) {
                 $options['nomodule'] = 'nomodule';
             } else {
@@ -108,15 +96,11 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
-     * @param array $config see config/app_vite.php
      * @return \ViteHelper\Utilities\ViteManifest
-     * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
-    private function getViteManifest(array $config = []): ViteManifest
+    private function getViteManifest(): ViteManifest
     {
-        $config = array_merge($this->_config, $config);
-
-        return new ViteManifest($config);
+        return new ViteManifest();
     }
 
     /**
@@ -132,30 +116,22 @@ class ViteScriptsHelper extends Helper
      */
     private function isDev(): bool
     {
-        if ($this->_config['forceProductionMode']) {
+        if (Configure::read('ViteHelper.forceProductionMode', ConfigDefaults::FORCE_PRODUCTION_MODE)) {
             return false;
         }
 
+        $productionHint = Configure::read('ViteHelper.productionHint', ConfigDefaults::PRODUCTION_HINT);
         if (
-            $this->getView()->getRequest()->getCookie($this->_config['productionHint'])
-            || $this->getView()->getRequest()->getQuery($this->_config['productionHint'])
+            $this->getView()->getRequest()->getCookie($productionHint)
+            || $this->getView()->getRequest()->getQuery($productionHint)
         ) {
             return false;
         }
 
-        foreach ($this->_config['devHostNeedles'] ?? [] as $needle) {
+        foreach (Configure::read('ViteHelper.devHostNeedles', ConfigDefaults::DEV_HOST_NEEDLES) as $needle) {
             if (Strings::contains((string)$this->getView()->getRequest()->host(), $needle)) {
                 return true;
             }
-        }
-
-        /**
-         * @deprecated
-         *
-         * You should switch to the array-version "devHostNeedles".
-         */
-        if (!empty($this->_config['devHostNeedle'])) {
-            return Strings::contains((string)$this->getView()->getRequest()->host(), $this->_config['devHostNeedle']);
         }
 
         return false;

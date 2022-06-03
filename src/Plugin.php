@@ -18,7 +18,6 @@ class Plugin extends BasePlugin
     public function bootstrap(PluginApplicationInterface $app): void
     {
         parent::bootstrap($app);
-        Configure::load('ViteHelper.app_vite');
 
         if (file_exists(ROOT . DS . 'config' . DS . 'app_vite.php')) {
             Configure::load('app_vite');
