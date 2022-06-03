@@ -16,7 +16,7 @@ class ViteManifest
     protected string $mainJs;
     protected ?string $baseDir;
     protected string $manifestDir;
-    protected \stdClass $manifest;
+    protected array $manifest;
 
     /**
      * @throws \ViteHelper\Errors\ManifestNotFoundException
@@ -114,10 +114,10 @@ class ViteManifest
     }
 
     /**
-     * @return \stdClass
+     * @return array
      * @throws \ViteHelper\Errors\ManifestNotFoundException
      */
-    protected function getManifest(): \stdClass
+    protected function getManifest(): array
     {
         $path = $this->getPath();
 
@@ -128,7 +128,7 @@ class ViteManifest
                 "\u0000",
             ], '', $json);
 
-            $manifest = Json::decode($json);
+            $manifest = Json::decode($json, Json::FORCE_ARRAY);
         } catch (\Exception $e) {
             throw new ManifestNotFoundException("No valid manifest.json found at path $path. Did you build your js? Error: {$e->getMessage()}");
         }

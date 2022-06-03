@@ -1,0 +1,11 @@
+parameters:
+    level: 6
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    paths:
+        - src
+    bootstrapFiles:
+        - tests/bootstrap.php
+
+includes:
+	- vendor/cakedc/cakephp-phpstan/extension.neon
