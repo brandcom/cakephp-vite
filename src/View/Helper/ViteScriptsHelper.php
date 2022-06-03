@@ -17,7 +17,7 @@ use ViteHelper\Utilities\ViteManifest;
  *
  * You can override the default config in your app.php, app_local.php, or you create a app_vite.php file.
  *
- * @property Helper\HtmlHelper $Html
+ * @property \Cake\View\Helper\HtmlHelper $Html
  */
 class ViteScriptsHelper extends Helper
 {
@@ -38,12 +38,12 @@ class ViteScriptsHelper extends Helper
     public function head(array $options = [], array $config = []): string
     {
         if ($this->isDev()) {
-
             return $this->Html->script(
                 'http://localhost:'
                 . $this->_config['devPort'] . '/'
                 . $this->_config['jsSrcDirectory']
-                . $this->_config['mainJs'], [
+                . $this->_config['mainJs'],
+                [
                     'type' => 'module',
                 ]
             );
@@ -63,11 +63,10 @@ class ViteScriptsHelper extends Helper
     public function body(array $options = [], array $config = []): string
     {
         if ($this->isDev()) {
-
             return $this->Html->script('http://localhost:'
                 . $this->_config['devPort']
                 . '/@vite/client', [
-                'type' => 'module'
+                'type' => 'module',
             ]);
         }
 
@@ -78,8 +77,7 @@ class ViteScriptsHelper extends Helper
 
         $tags = [];
         foreach ($this->getViteManifest($config)->getJsFiles() as $path) {
-
-            if (Strings::contains($path, "legacy")) {
+            if (Strings::contains($path, 'legacy')) {
                 $options['nomodule'] = 'nomodule';
             } else {
                 $options['type'] = 'module';
@@ -95,7 +93,7 @@ class ViteScriptsHelper extends Helper
     {
         $config = Configure::read('ViteHelper');
         if (!$config || !is_array($config)) {
-            throw new \Exception("No valid configuration found for ViteHelper. ");
+            throw new \Exception('No valid configuration found for ViteHelper. ');
         }
 
         return $config;
@@ -120,21 +118,18 @@ class ViteScriptsHelper extends Helper
     private function isDev(): bool
     {
         if ($this->_config['forceProductionMode']) {
-
             return false;
         }
 
-        if ($this->getView()->getRequest()->getCookie($this->_config['productionHint'])
+        if (
+            $this->getView()->getRequest()->getCookie($this->_config['productionHint'])
             || $this->getView()->getRequest()->getQuery($this->_config['productionHint'])
         ) {
-
             return false;
         }
 
         foreach ($this->_config['devHostNeedles'] ?? [] as $needle) {
-
             if (Strings::contains((string)$this->getView()->getRequest()->host(), $needle)) {
-
                 return true;
             }
         }
@@ -145,7 +140,6 @@ class ViteScriptsHelper extends Helper
          * You should switch to the array-version "devHostNeedles".
          */
         if (!empty($this->_config['devHostNeedle'])) {
-
             return Strings::contains((string)$this->getView()->getRequest()->host(), $this->_config['devHostNeedle']);
         }
 

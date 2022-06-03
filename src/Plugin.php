@@ -20,10 +20,10 @@ class Plugin extends BasePlugin
 
     private function loadConfig(): void
     {
-        Configure::load("ViteHelper.app_vite");
+        Configure::load('ViteHelper.app_vite');
 
-		if (file_exists(ROOT . DS . 'config' . DS . 'app_vite.php')) {
-			Configure::load('app_vite');
-		}
+        if (file_exists(ROOT . DS . 'config' . DS . 'app_vite.php')) {
+            Configure::load('app_vite');
+        }
     }
 }

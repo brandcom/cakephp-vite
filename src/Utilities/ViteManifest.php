@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
@@ -36,7 +37,6 @@ class ViteManifest
         $css_paths = [];
 
         foreach ($this->manifest as $file) {
-
             if (empty($file->isEntry) || empty($file->css)) {
                 continue;
             }
@@ -49,7 +49,7 @@ class ViteManifest
         return $css_paths;
     }
 
-    public function getJsFiles(bool $only_entry=true): array
+    public function getJsFiles(bool $only_entry = true): array
     {
         $script_paths = [];
 
@@ -66,14 +66,14 @@ class ViteManifest
          * Legacy Polyfills must come first.
          */
         usort($script_paths, function ($tag) {
-            return Strings::contains($tag, "polyfills") ? 0 : 1;
+            return Strings::contains($tag, 'polyfills') ? 0 : 1;
         });
 
         /**
          * ES-module scripts must come last.
          */
         usort($script_paths, function ($tag) {
-            return !Strings::contains($tag, "legacy") ? 1 : 0;
+            return !Strings::contains($tag, 'legacy') ? 1 : 0;
         });
 
         return $script_paths;
@@ -82,7 +82,6 @@ class ViteManifest
     public function getPath(): string
     {
         if ($this->baseDir) {
-
             return rtrim($this->baseDir, DS) . DS . ltrim($this->manifestDir, DS);
         }
 
@@ -93,9 +92,7 @@ class ViteManifest
     {
         $file = current($this->getJsFiles());
 
-
         if ($this->baseDir) {
-
             return rtrim($this->baseDir, DS) . DS . ltrim(Strings::before($file, DS, -1), DS);
         }
 
@@ -114,7 +111,6 @@ class ViteManifest
             ], '', $json);
 
             $manifest = Json::decode($json);
-
         } catch (\Exception $e) {
             throw new \Exception("No valid manifest.json found at path $path. Did you build your js? Error: {$e->getMessage()}");
         }

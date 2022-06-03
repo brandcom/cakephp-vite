@@ -62,8 +62,8 @@ class ViteCommand extends Command
 
     private function getPossibleArguments(ConsoleIo $io): void
     {
-        $io->out("Welcome to the ViteHelper! Possible Arguments: ");
-        $io->out("tidy - remove outdated build files.");
+        $io->out('Welcome to the ViteHelper! Possible Arguments: ');
+        $io->out('tidy - remove outdated build files.');
     }
 
     private function tidy(ConsoleIo $io): void
@@ -82,11 +82,12 @@ class ViteCommand extends Command
             /**
              * @var \SplFileInfo $build_file
              */
-            if (!in_array(
-                DS . Strings::after($build_file->getRealPath(), WWW_ROOT),
-                $manifest_files
-            )) {
-
+            if (
+                !in_array(
+                    DS . Strings::after($build_file->getRealPath(), WWW_ROOT),
+                    $manifest_files
+                )
+            ) {
                 if (is_dir($build_file->getRealPath()) || !$build_file->getRealPath()) {
                     continue;
                 }
@@ -96,26 +97,28 @@ class ViteCommand extends Command
         }
 
         if (count($outdated_files) === 0) {
-            $io->out("There are no outdated files. ");
+            $io->out('There are no outdated files. ');
+
             return;
         }
 
-        $confirmation = $io->ask("Do you want to delete " . count($outdated_files) . " files? (Y / N)");
+        $confirmation = $io->ask('Do you want to delete ' . count($outdated_files) . ' files? (Y / N)');
 
-        if ("Y" === strtoupper($confirmation)) {
+        if (strtoupper($confirmation) === 'Y') {
             foreach ($outdated_files as $file) {
                 try {
-                    $io->out("Deleting " . Strings::after($file, ROOT));
+                    $io->out('Deleting ' . Strings::after($file, ROOT));
                     FileSystem::delete($file);
                 } catch (\Exception $e) {
-                    $io->out("Could not delete file " . $file);
+                    $io->out('Could not delete file ' . $file);
                 }
             }
 
-            $io->out("OK. ");
+            $io->out('OK. ');
+
             return;
         }
 
-        $io->out("Nothing was deleted. ");
+        $io->out('Nothing was deleted. ');
     }
 }

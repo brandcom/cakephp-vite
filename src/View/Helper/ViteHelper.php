@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace ViteHelper\View\Helper;
 
@@ -32,14 +33,13 @@ use stdClass;
  * $this->Vite->getCSS()
  * $->Vite->getJS()
  *
- * @property Helper\HtmlHelper $Html
- *
+ * @property \Cake\View\Helper\HtmlHelper $Html
  * @deprecated
  */
 class ViteHelper extends Helper
 {
     public $helpers = [
-        "Html",
+        'Html',
     ];
 
     /**
@@ -101,7 +101,6 @@ class ViteHelper extends Helper
         $this->manifestDir = $config['manifestDir'] ?? 'manifest.json';
     }
 
-
     /**
      * Serve script tags for insertion in the HTML head,
      * either for dev od production, depending on the isDev() method.
@@ -130,7 +129,6 @@ class ViteHelper extends Helper
         $css_paths = [];
 
         foreach ($manifest ?? [] as $item) {
-
             if (empty($item->isEntry) || empty($item->css)) {
                 continue;
             }
@@ -157,13 +155,14 @@ class ViteHelper extends Helper
 
         foreach ($manifest as $file) {
             /**
-             * @var stdClass $file
+             * @var \stdClass $file
              */
             if (!empty($file->isEntry)) {
-                $type = Strings::contains($file->src, "legacy") ? "nomodule" : "module";
+                $type = Strings::contains($file->src, 'legacy') ? 'nomodule' : 'module';
                 $script_tags[] = $this->Html->script(
-                    DS . ltrim($file->file, DS), [
-                        'type' => $type
+                    DS . ltrim($file->file, DS),
+                    [
+                        'type' => $type,
                     ]
                 );
             }
@@ -173,7 +172,7 @@ class ViteHelper extends Helper
          * Legacy Polyfills must come first.
          */
         usort($script_tags, function ($tag) {
-            return Strings::contains($tag, "polyfills") ? 0 : 1;
+            return Strings::contains($tag, 'polyfills') ? 0 : 1;
         });
 
         /**
@@ -200,7 +199,8 @@ class ViteHelper extends Helper
     public function getClientScript(): string
     {
         return $this->Html->script(
-            'http://localhost:' . $this->devPort . '/' . $this->jsSrcDirectory . $this->mainJS, [
+            'http://localhost:' . $this->devPort . '/' . $this->jsSrcDirectory . $this->mainJS,
+            [
                 'type' => 'module',
             ]
         );
@@ -222,9 +222,9 @@ class ViteHelper extends Helper
             ], '', $json);
 
             $manifest = Json::decode($json);
-
         } catch (\Exception $e) {
             Log::write('debug', "No valid manifest.json found for ViteHelper at path $path. Error: {$e->getMessage()}");
+
             return null;
         }
 
@@ -243,7 +243,6 @@ class ViteHelper extends Helper
     private function isDev(): bool
     {
         if ($this->forceProductionMode === true) {
-
             return false;
         }
 
