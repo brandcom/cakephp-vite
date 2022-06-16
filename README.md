@@ -85,7 +85,7 @@ The build files will end up in `/webroot/build` by default. Your `vite.config.js
 
 #### Recommended configuration: 
 
-See the example [vite.config.ts content here](https://github.com/brandcom/cakephp-vite/wiki/example-vite-config#vite-below-290). Note that the config changes when upgrading to vite version `2.9.0` or higher. 
+See the example [vite.config.ts content here](https://github.com/brandcom/cakephp-vite/wiki/example-vite-config). Note that the config changes when upgrading to vite version `2.9.0` or higher. 
 
 A difference to other dev servers, e.g. webpack or gulp is that you won't access your
 local site via the port where Vite is serving. This does not work with php.
