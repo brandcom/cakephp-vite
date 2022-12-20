@@ -6,7 +6,6 @@ namespace ViteHelper\Utilities;
 use Cake\Core\Configure;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Json;
-use Nette\Utils\Strings;
 use ViteHelper\Exception\ManifestNotFoundException;
 
 /**
@@ -15,9 +14,34 @@ use ViteHelper\Exception\ManifestNotFoundException;
 class ViteManifest
 {
     protected ?string $baseDir;
+
+    /**
+     * Relative path to the output directory
+     *
+     * @see https://vitejs.dev/config/build-options.html#build-outdir
+     * @var string
+     */
     protected string $outDir;
+
+    /**
+     * Manifest file's name
+     *
+     * @var string
+     */
     protected string $manifest;
-    public array $manifestElements;
+
+    /**
+     * Contains all records from a manifest.json file
+     *
+     * @var array<\ViteHelper\Utilities\ManifestRecord>
+     */
+    public array $manifestRecords;
+
+    /**
+     * This class instance
+     *
+     * @var \ViteHelper\Utilities\ViteManifest|null
+     */
     private static ?ViteManifest $instance = null;
 
     /**
@@ -30,7 +54,7 @@ class ViteManifest
         $this->baseDir = Configure::read('ViteHelper.baseDirectory', ConfigDefaults::BASE_DIR);
         $this->outDir = Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY);
         $this->manifest = Configure::read('ViteHelper.build.manifest', ConfigDefaults::BUILD_MANIFEST);
-        $this->manifestElements = $this->getManifest();
+        $this->manifestRecords = $this->getManifest();
     }
 
     /**
@@ -46,6 +70,16 @@ class ViteManifest
 
         return self::$instance;
     }
+
+	/**
+	 * Returns all manifest records
+	 *
+	 * @return array|\ViteHelper\Utilities\ManifestRecord[]
+	 */
+	public function getRecords(): array
+	{
+		return $this->manifestRecords;
+	}
 
     /**
      * @return array
@@ -76,65 +110,26 @@ class ViteManifest
 
         $manifestArray = [];
         foreach (get_object_vars($manifest) as $property => $value) {
-            $manifestArray[$property] = $value;
+            $manifestArray[$property] = new ManifestRecord($property, $value);
         }
+
+		/**
+		 * Legacy Polyfills must come first.
+		 */
+		usort($manifestArray, function ($file) {
+			/** @var \ViteHelper\Utilities\ManifestRecord $file */
+			return $file->isPolyfill() ? 0 : 1;
+		});
+
+		/**
+		 * ES-module scripts must come last.
+		 */
+		usort($manifestArray, function ($file) {
+			/** @var \ViteHelper\Utilities\ManifestRecord $file */
+			return !$file->isPolyfill() && !$file->isLegacy() ? 1 : 0;
+		});
 
         return $manifestArray;
     }
 
-    /**
-     * @return array
-     */
-    public function getCssFiles(): array
-    {
-        $css_paths = [];
-
-        foreach ($this->manifestElements as $file) {
-            if (empty($file->isEntry) || empty($file->css)) {
-                continue;
-            }
-
-            foreach ($file->css as $css_path) {
-                $css_paths[] = DS . ltrim($css_path, DS);
-            }
-        }
-
-        return $css_paths;
-    }
-
-    /**
-     * @param bool $only_entry only return files that are entry points, e.g. the main.js or polyfills
-     * @return array
-     */
-    public function getJsFiles(bool $only_entry = true): array
-    {
-        $script_paths = [];
-
-        foreach ($this->manifestElements as $file) {
-            /**
-             * @var \stdClass $file
-             */
-            if ($only_entry && empty($file->isEntry)) {
-                continue;
-            }
-
-            $script_paths[] = DS . ltrim($file->file, DS);
-        }
-
-        /**
-         * Legacy Polyfills must come first.
-         */
-        usort($script_paths, function ($tag) {
-            return Strings::contains($tag, 'polyfills') ? 0 : 1;
-        });
-
-        /**
-         * ES-module scripts must come last.
-         */
-        usort($script_paths, function ($tag) {
-            return !Strings::contains($tag, 'legacy') ? 1 : 0;
-        });
-
-        return $script_paths;
-    }
 }

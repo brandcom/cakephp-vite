@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ViteHelper\View\Helper;
 
 use Cake\Core\Configure;
+use Cake\Utility\Text;
 use Cake\View\Helper;
 use Nette\Utils\Strings;
 use ViteHelper\Utilities\ConfigDefaults;
@@ -22,11 +23,39 @@ use ViteHelper\Utilities\ViteManifest;
  */
 class ViteScriptsHelper extends Helper
 {
-    public $helpers = [
-        'Html',
-    ];
+    public $helpers = ['Html'];
 
-    /**
+	protected $_defaultConfig = [
+		'bodyBlock' => 'script',
+		'headBlock' => 'css',
+		'isDevelopment' => null,
+	];
+
+	/**
+	 * @inheritDoc
+	 */
+	public function initialize(array $config): void
+	{
+		parent::initialize($config);
+		$this->setConfig($config);
+
+		if (is_null($this->getConfig('isDevelopment'))) {
+			$this->setConfig('isDevelopment', $this->isDev());
+		}
+
+		if ($this->getConfig('isDevelopment')) {
+			$this->Html->script(
+				Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
+				. '/@vite/client',
+				[
+					'type' => 'module',
+					'block' => $this->getConfig('headBlock')
+				]
+			);
+		}
+	}
+
+	/**
      * Decide what files to serve.
      *
      * If
@@ -37,7 +66,7 @@ class ViteScriptsHelper extends Helper
      *
      * @return bool
      */
-    private function isDev(): bool
+    public function isDev(): bool
     {
         if (Configure::read('ViteHelper.forceProductionMode', ConfigDefaults::FORCE_PRODUCTION_MODE)) {
             return false;
@@ -62,69 +91,82 @@ class ViteScriptsHelper extends Helper
         return false;
     }
 
-    /**
-     * Returns css-tags for use in <head>
-     * The $options array is directly passed to the Html-Helper.
-     *
-     * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
-     * @return string
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
-     */
-    public function head(array $options = []): string
+	/**
+	 * Adds the gives scripts to the configured block
+	 *
+	 * @param array|string $files the source path of javascript files, without extension
+	 * @param array $options Additional option to the script tag
+	 * @return void
+	 */
+	public function script(array|string $files = 'webroot_src/js/main', array $options = []): void
+	{
+		$files = (array)$files;
+		$options['block'] = $this->getConfig('bodyBlock');
+		// in development
+		if ($this->getConfig('isDevelopment')) {
+			$options['type'] = 'module';
+			foreach ($files as $file) {
+				$this->Html->script(Text::insert(':url/:file.js', [
+					'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
+					'file' => ltrim($file, '/'),
+				]), $options);
+			}
+			return;
+		}
+
+		$pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
+		unset($options['plugin']);
+
+		// in production
+		foreach ($files as $_filter) {
+			foreach (ViteManifest::getInstance()->getRecords() as $record) {
+				if (
+					!(
+						$record->isEntry() &&
+						(($record->isJavascript() && $record->match($_filter)) || $record->isPolyfill())
+					)
+				) {
+					continue;
+				}
+
+				if ($record->isLegacy()) {
+					$options['nomodule'] = 'nomodule';
+				} else {
+					$options['type'] = 'module';
+				}
+
+				$this->Html->script($record->url($pluginPrefix), $options);
+
+				// the js files has css dependency ?
+				$css_files = $record->getCss($pluginPrefix);
+				if (!empty($css_files)) {
+					$this->Html->css($css_files, ['block' => $this->getConfig('headBlock')]);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Adds the gives CSS styles to the configured block
+	 * The $options array is directly passed to the Html-Helper.
+	 *
+	 * @param array|string $files the CSS files
+	 * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
+	 * @return void
+	 */
+    public function css(array|string $files = 'webroot_src/js/main', array $options = []): void
     {
-        if ($this->isDev()) {
-            return $this->Html->script(
-                Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL) . '/' .
-                Configure::read('ViteHelper.jsSrcDirectory', 'webroot_src') . '/' .
-                Configure::read('ViteHelper.mainJs', 'main.js'),
-                [
-                    'type' => 'module',
-                ]
-            );
-        }
+		$pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
+		unset($options['plugin']);
 
-        $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
-        unset($options['plugin']);
+		// add CSS files to head
+		foreach (ViteManifest::getInstance()->getRecords() as $record) {
+			if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
+				continue;
+			}
 
-        $tags = [];
-        foreach (ViteManifest::getInstance()->getCssFiles() as $path) {
-            $tags[] = $this->Html->css($pluginPrefix . $path, $options);
-        }
-
-        return implode("\n", $tags);
+			$this->Html->css($record->url($pluginPrefix), $options);
+		}
     }
 
-    /**
-     * Returns javascript-script tags for use at the end of <body>
-     *
-     * @param array $options set a plugin prefix, or pass to script-tag as parameters
-     * @return string
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
-     */
-    public function body(array $options = []): string
-    {
-        if ($this->isDev()) {
-            return $this->Html->script(
-                Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
-                . '/@vite/client',
-                ['type' => 'module']
-            );
-        }
-
-        $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
-        unset($options['plugin']);
-
-        $tags = [];
-        foreach (ViteManifest::getInstance()->getJsFiles() as $path) {
-            if (Strings::contains($path, 'legacy')) {
-                $options['nomodule'] = 'nomodule';
-            } else {
-                $options['type'] = 'module';
-            }
-
-            $tags[] = $this->Html->script($pluginPrefix . $path, $options);
-        }
-
-        return implode("\n", $tags);
-    }
 }

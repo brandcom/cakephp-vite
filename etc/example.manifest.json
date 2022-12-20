@@ -1,6 +1,6 @@
 {
 	"_sweetalert2.all-legacy-3aabaac6.js": {
-		"file": "css/sweetalert2.all-legacy-3aabaac6.js"
+		"file": "assets/sweetalert2.all-legacy-3aabaac6.js"
 	},
 	"webroot_src/js/timetables-legacy.js": {
 		"file": "timetables-legacy.819019cc.min.js",
@@ -29,15 +29,15 @@
 		"isEntry": true
 	},
 	"webroot_src/js/main.css": {
-		"file": "css/main-cbf508da.css",
+		"file": "assets/main-cbf508da.css",
 		"src": "webroot_src/js/main.css"
 	},
 	"webroot_src/js/timetables.css": {
-		"file": "css/timetables-f05820bf.css",
+		"file": "assets/timetables-f05820bf.css",
 		"src": "webroot_src/js/timetables.css"
 	},
 	"webroot_src/scss/style.scss": {
-		"file": "css/style-22e5a2b0.css",
+		"file": "assets/style-22e5a2b0.css",
 		"src": "webroot_src/scss/style.scss",
 		"isEntry": true
 	},
@@ -49,7 +49,7 @@
 			"_sweetalert2.all-8d3ac045.js"
 		],
 		"css": [
-			"css/main-cbf508da.css"
+			"assets/main-cbf508da.css"
 		]
 	},
 	"webroot_src/js/timetables.js": {
@@ -60,10 +60,10 @@
 			"_sweetalert2.all-8d3ac045.js"
 		],
 		"css": [
-			"css/timetables-f05820bf.css"
+			"assets/timetables-f05820bf.css"
 		]
 	},
 	"_sweetalert2.all-8d3ac045.js": {
-		"file": "css/sweetalert2.all-8d3ac045.js"
+		"file": "assets/sweetalert2.all-8d3ac045.js"
 	}
 }

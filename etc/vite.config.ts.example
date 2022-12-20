@@ -33,11 +33,12 @@ export default defineConfig({
     build: {
         emptyOutDir: true,
         outDir: './webroot/build',
-        assetsDir: 'css',
+        assetsDir: 'assets',
         manifest: true,
         rollupOptions: {
             input: [
                 './webroot_src/js/main.js',
+                './webroot_src/js/timetables.js',
                 './webroot_src/scss/style.scss',
             ],
             output: {
