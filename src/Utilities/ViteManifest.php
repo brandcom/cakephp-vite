@@ -14,11 +14,9 @@ use ViteHelper\Errors\ManifestNotFoundException;
  */
 class ViteManifest
 {
-    protected int $devPort;
-    protected string $jsSrcDirectory;
-    protected string $mainJs;
-    protected ?string $baseDir;
-    protected string $manifestDir;
+	protected ?string $baseDir;
+	protected string $outDir;
+    protected string $manifestFile;
     protected array $manifest;
 
     /**
@@ -26,11 +24,9 @@ class ViteManifest
      */
     public function __construct()
     {
-        $this->devPort = Configure::read('ViteHelper.devPort', ConfigDefaults::DEV_PORT);
-        $this->jsSrcDirectory = Configure::read('ViteHelper.jsSrcDirectory', ConfigDefaults::JS_SRC_DIRECTORY);
-        $this->mainJs = Configure::read('ViteHelper.mainJs', ConfigDefaults::MAIN_JS);
-        $this->baseDir = Configure::read('ViteHelper.baseDir', ConfigDefaults::BASE_DIR);
-        $this->manifestDir = Configure::read('ViteHelper.manifestDir', ConfigDefaults::MANIFEST_DIR);
+        $this->baseDir = Configure::read('ViteHelper.baseDirectory', ConfigDefaults::BASE_DIR);
+		$this->outDir = Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY);
+        $this->manifestFile = Configure::read('ViteHelper.build.manifest', ConfigDefaults::BUILD_MANIFEST);
         $this->manifest = $this->getManifest();
     }
 
@@ -93,24 +89,14 @@ class ViteManifest
     /**
      * @return string
      */
-    public function getPath(): string
-    {
-        if ($this->baseDir) {
-            return rtrim($this->baseDir, DS) . DS . ltrim($this->manifestDir, DS);
-        }
-
-        return WWW_ROOT . ltrim($this->manifestDir, DS);
-    }
-
-    /**
-     * @return string
-     */
     public function getBuildAssetsDir(): string
     {
         $file = current($this->getJsFiles());
 
         if ($this->baseDir) {
-            return rtrim($this->baseDir, DS) . DS . ltrim(Strings::before($file, DS, -1), DS);
+            return rtrim($this->baseDir, DS)
+				. DS . rtrim($this->outDir, DS)
+				. DS . ltrim(Strings::before($file, DS, -1), DS);
         }
 
         return WWW_ROOT . ltrim(Strings::before($file, DS, -1), DS);
@@ -122,7 +108,14 @@ class ViteManifest
      */
     protected function getManifest(): array
     {
-        $path = $this->getPath();
+		if ($this->baseDir) {
+			$path =
+				rtrim($this->baseDir, DS) . DS .
+				rtrim($this->outDir, DS) . DS .
+				ltrim($this->manifestFile, DS);
+		} else {
+			$path = rtrim($this->outDir, DS) . DS . ltrim($this->manifestFile, DS);
+		}
 
         try {
             $json = FileSystem::read($path);

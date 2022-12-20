@@ -38,10 +38,9 @@ class ViteScriptsHelper extends Helper
     {
         if ($this->isDev()) {
             return $this->Html->script(
-                'http://localhost:'
-                . Configure::read('ViteHelper.devPort', ConfigDefaults::DEV_PORT) . '/'
-                . Configure::read('ViteHelper.jsSrcDirectory', ConfigDefaults::JS_SRC_DIRECTORY)
-                . Configure::read('ViteHelper.mainJs', ConfigDefaults::MAIN_JS),
+				Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL) . '/' .
+                Configure::read('ViteHelper.jsSrcDirectory', 'webroot_src') . '/' .
+                Configure::read('ViteHelper.mainJs', 'main.js'),
                 [
                     'type' => 'module',
                 ]
@@ -69,11 +68,11 @@ class ViteScriptsHelper extends Helper
     public function body(array $options = []): string
     {
         if ($this->isDev()) {
-            return $this->Html->script('http://localhost:'
-                . Configure::read('ViteHelper.devPort', ConfigDefaults::DEV_PORT)
-                . '/@vite/client', [
-                'type' => 'module',
-            ]);
+            return $this->Html->script(
+				Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
+				. '/@vite/client',
+				['type' => 'module']
+			);
         }
 
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
@@ -126,7 +125,9 @@ class ViteScriptsHelper extends Helper
             return false;
         }
 
-        foreach (Configure::read('ViteHelper.devHostNeedles', ConfigDefaults::DEV_HOST_NEEDLES) as $needle) {
+        foreach (
+			Configure::read('ViteHelper.developmentHostNeedles', ConfigDefaults::DEV_HOST_NEEDLES) as $needle
+		) {
             if (Strings::contains((string)$this->getView()->getRequest()->host(), $needle)) {
                 return true;
             }
