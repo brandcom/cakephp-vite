@@ -16,19 +16,71 @@ class ViteManifest
 {
 	protected ?string $baseDir;
 	protected string $outDir;
-    protected string $manifestFile;
-    protected array $manifest;
+    protected string $manifest;
+    protected array $manifestElements;
+	private static ViteManifest $instance;
 
     /**
+	 * Default constructor
+	 *
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    public function __construct()
+    private function __construct()
     {
         $this->baseDir = Configure::read('ViteHelper.baseDirectory', ConfigDefaults::BASE_DIR);
 		$this->outDir = Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY);
-        $this->manifestFile = Configure::read('ViteHelper.build.manifest', ConfigDefaults::BUILD_MANIFEST);
-        $this->manifest = $this->getManifest();
+        $this->manifest = Configure::read('ViteHelper.build.manifest', ConfigDefaults::BUILD_MANIFEST);
+        $this->manifestElements = $this->getManifest();
     }
+
+	/**
+	 * Returns a ViteManifest instance
+	 *
+	 * @return ViteManifest
+	 */
+	public static function getInstance(): ViteManifest
+	{
+		if (!self::$instance) {
+			self::$instance = new ViteManifest();
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * @return array
+	 * @throws \ViteHelper\Exception\ManifestNotFoundException
+	 */
+	protected function getManifest(): array
+	{
+		if ($this->baseDir) {
+			$path =
+				rtrim($this->baseDir, DS) . DS .
+				rtrim($this->outDir, DS) . DS .
+				ltrim($this->manifest, DS);
+		} else {
+			$path = rtrim($this->outDir, DS) . DS . ltrim($this->manifest, DS);
+		}
+
+		try {
+			$json = FileSystem::read($path);
+
+			$json = str_replace([
+				"\u0000",
+			], '', $json);
+
+			$manifest = Json::decode($json);
+		} catch (\Exception $e) {
+			throw new ManifestNotFoundException("No valid manifest.json found at path $path. Did you build your js? Error: {$e->getMessage()}");
+		}
+
+		$manifestArray = [];
+		foreach (get_object_vars($manifest) as $property => $value) {
+			$manifestArray[$property] = $value;
+		}
+
+		return $manifestArray;
+	}
 
     /**
      * @return array
@@ -37,7 +89,7 @@ class ViteManifest
     {
         $css_paths = [];
 
-        foreach ($this->manifest as $file) {
+        foreach ($this->manifestElements as $file) {
             if (empty($file->isEntry) || empty($file->css)) {
                 continue;
             }
@@ -58,7 +110,7 @@ class ViteManifest
     {
         $script_paths = [];
 
-        foreach ($this->manifest as $file) {
+        foreach ($this->manifestElements as $file) {
             /**
              * @var \stdClass $file
              */
@@ -102,38 +154,4 @@ class ViteManifest
         return WWW_ROOT . ltrim(Strings::before($file, DS, -1), DS);
     }
 
-    /**
-     * @return array
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
-     */
-    protected function getManifest(): array
-    {
-		if ($this->baseDir) {
-			$path =
-				rtrim($this->baseDir, DS) . DS .
-				rtrim($this->outDir, DS) . DS .
-				ltrim($this->manifestFile, DS);
-		} else {
-			$path = rtrim($this->outDir, DS) . DS . ltrim($this->manifestFile, DS);
-		}
-
-        try {
-            $json = FileSystem::read($path);
-
-            $json = str_replace([
-                "\u0000",
-            ], '', $json);
-
-            $manifest = Json::decode($json);
-        } catch (\Exception $e) {
-            throw new ManifestNotFoundException("No valid manifest.json found at path $path. Did you build your js? Error: {$e->getMessage()}");
-        }
-
-        $manifestArray = [];
-        foreach (get_object_vars($manifest) as $property => $value) {
-            $manifestArray[$property] = $value;
-        }
-
-        return $manifestArray;
-    }
 }

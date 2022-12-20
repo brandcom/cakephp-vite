@@ -26,6 +26,42 @@ class ViteScriptsHelper extends Helper
         'Html',
     ];
 
+	/**
+	 * Decide what files to serve.
+	 *
+	 * If
+	 * * $this->forceProductionMode is set to true
+	 * * or a ?vprod URL-param is set,
+	 * * or a vprod Cookie not false-ish,
+	 * it will return false.
+	 *
+	 * @return bool
+	 */
+	private function isDev(): bool
+	{
+		if (Configure::read('ViteHelper.forceProductionMode', ConfigDefaults::FORCE_PRODUCTION_MODE)) {
+			return false;
+		}
+
+		$productionHint = Configure::read('ViteHelper.productionHint', ConfigDefaults::PRODUCTION_HINT);
+		if (
+			$this->getView()->getRequest()->getCookie($productionHint)
+			|| $this->getView()->getRequest()->getQuery($productionHint)
+		) {
+			return false;
+		}
+
+		foreach (
+			Configure::read('ViteHelper.developmentHostNeedles', ConfigDefaults::DEV_HOST_NEEDLES) as $needle
+		) {
+			if (Strings::contains((string)$this->getView()->getRequest()->host(), $needle)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
     /**
      * Returns css-tags for use in <head>
      * The $options array is directly passed to the Html-Helper.
@@ -51,7 +87,7 @@ class ViteScriptsHelper extends Helper
         unset($options['plugin']);
 
         $tags = [];
-        foreach ($this->getViteManifest()->getCssFiles() as $path) {
+        foreach (ViteManifest::getInstance()->getCssFiles() as $path) {
             $tags[] = $this->Html->css($pluginPrefix . $path, $options);
         }
 
@@ -79,7 +115,7 @@ class ViteScriptsHelper extends Helper
         unset($options['plugin']);
 
         $tags = [];
-        foreach ($this->getViteManifest()->getJsFiles() as $path) {
+        foreach (ViteManifest::getInstance()->getJsFiles() as $path) {
             if (Strings::contains($path, 'legacy')) {
                 $options['nomodule'] = 'nomodule';
             } else {
@@ -92,47 +128,4 @@ class ViteScriptsHelper extends Helper
         return implode("\n", $tags);
     }
 
-    /**
-     * @return \ViteHelper\Utilities\ViteManifest
-     */
-    private function getViteManifest(): ViteManifest
-    {
-        return new ViteManifest();
-    }
-
-    /**
-     * Decide what files to serve.
-     *
-     * If
-     * * $this->forceProductionMode is set to true
-     * * or a ?vprod URL-param is set,
-     * * or a vprod Cookie not false-ish,
-     * it will return false.
-     *
-     * @return bool
-     */
-    private function isDev(): bool
-    {
-        if (Configure::read('ViteHelper.forceProductionMode', ConfigDefaults::FORCE_PRODUCTION_MODE)) {
-            return false;
-        }
-
-        $productionHint = Configure::read('ViteHelper.productionHint', ConfigDefaults::PRODUCTION_HINT);
-        if (
-            $this->getView()->getRequest()->getCookie($productionHint)
-            || $this->getView()->getRequest()->getQuery($productionHint)
-        ) {
-            return false;
-        }
-
-        foreach (
-			Configure::read('ViteHelper.developmentHostNeedles', ConfigDefaults::DEV_HOST_NEEDLES) as $needle
-		) {
-            if (Strings::contains((string)$this->getView()->getRequest()->host(), $needle)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
