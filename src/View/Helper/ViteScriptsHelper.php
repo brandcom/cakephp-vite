@@ -32,7 +32,7 @@ class ViteScriptsHelper extends Helper
      *
      * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
      * @return string
-     * @throws \ViteHelper\Errors\ManifestNotFoundException
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
     public function head(array $options = []): string
     {
@@ -63,7 +63,7 @@ class ViteScriptsHelper extends Helper
      *
      * @param array $options set a plugin prefix, or pass to script-tag as parameters
      * @return string
-     * @throws \ViteHelper\Errors\ManifestNotFoundException
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
     public function body(array $options = []): string
     {

@@ -7,7 +7,7 @@ use Cake\Core\Configure;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Json;
 use Nette\Utils\Strings;
-use ViteHelper\Errors\ManifestNotFoundException;
+use ViteHelper\Exception\ManifestNotFoundException;
 
 /**
  * Reads the information in the manifest.json file provided by ViteJs after running 'vite build'
@@ -20,7 +20,7 @@ class ViteManifest
     protected array $manifest;
 
     /**
-     * @throws \ViteHelper\Errors\ManifestNotFoundException
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
     public function __construct()
     {
@@ -104,7 +104,7 @@ class ViteManifest
 
     /**
      * @return array
-     * @throws \ViteHelper\Errors\ManifestNotFoundException
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
     protected function getManifest(): array
     {

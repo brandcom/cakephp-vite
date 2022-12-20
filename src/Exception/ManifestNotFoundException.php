@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ViteHelper\Errors;
+namespace ViteHelper\Exception;
 
 class ManifestNotFoundException extends \Exception
 {
