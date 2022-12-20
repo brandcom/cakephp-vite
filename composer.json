@@ -1,5 +1,5 @@
 {
-	"name": "passchn/cakephp-vite",
+	"name": "bor-attila/cakephp-vite",
 	"description": "ViteJS plugin for CakePHP",
 	"type": "cakephp-plugin",
 	"license": "MIT",
