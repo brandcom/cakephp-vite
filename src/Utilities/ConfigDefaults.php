@@ -41,17 +41,17 @@ class ConfigDefaults
      */
     public const BASE_DIR = null;
 
-	/**
-	 * Output directory
-	 *
-	 * @see https://vitejs.dev/config/build-options.html#build-outdir
-	 */
-	public const BUILD_OUT_DIRECTORY = 'webroot' . DS . 'build';
+    /**
+     * Output directory
+     *
+     * @see https://vitejs.dev/config/build-options.html#build-outdir
+     */
+    public const BUILD_OUT_DIRECTORY = 'build';
 
-	/**
-	 * The manifest file name
-	 *
-	 * @see https://vitejs.dev/config/build-options.html#build-manifest
-	 */
-	public const BUILD_MANIFEST = 'manifest.json';
+    /**
+     * The manifest file name
+     *
+     * @see https://vitejs.dev/config/build-options.html#build-manifest
+     */
+    public const BUILD_MANIFEST = 'manifest.json';
 }

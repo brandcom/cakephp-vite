@@ -26,41 +26,41 @@ class ViteScriptsHelper extends Helper
         'Html',
     ];
 
-	/**
-	 * Decide what files to serve.
-	 *
-	 * If
-	 * * $this->forceProductionMode is set to true
-	 * * or a ?vprod URL-param is set,
-	 * * or a vprod Cookie not false-ish,
-	 * it will return false.
-	 *
-	 * @return bool
-	 */
-	private function isDev(): bool
-	{
-		if (Configure::read('ViteHelper.forceProductionMode', ConfigDefaults::FORCE_PRODUCTION_MODE)) {
-			return false;
-		}
+    /**
+     * Decide what files to serve.
+     *
+     * If
+     * * $this->forceProductionMode is set to true
+     * * or a ?vprod URL-param is set,
+     * * or a vprod Cookie not false-ish,
+     * it will return false.
+     *
+     * @return bool
+     */
+    private function isDev(): bool
+    {
+        if (Configure::read('ViteHelper.forceProductionMode', ConfigDefaults::FORCE_PRODUCTION_MODE)) {
+            return false;
+        }
 
-		$productionHint = Configure::read('ViteHelper.productionHint', ConfigDefaults::PRODUCTION_HINT);
-		if (
-			$this->getView()->getRequest()->getCookie($productionHint)
-			|| $this->getView()->getRequest()->getQuery($productionHint)
-		) {
-			return false;
-		}
+        $productionHint = Configure::read('ViteHelper.productionHint', ConfigDefaults::PRODUCTION_HINT);
+        if (
+            $this->getView()->getRequest()->getCookie($productionHint)
+            || $this->getView()->getRequest()->getQuery($productionHint)
+        ) {
+            return false;
+        }
 
-		foreach (
-			Configure::read('ViteHelper.developmentHostNeedles', ConfigDefaults::DEV_HOST_NEEDLES) as $needle
-		) {
-			if (Strings::contains((string)$this->getView()->getRequest()->host(), $needle)) {
-				return true;
-			}
-		}
+        foreach (
+            Configure::read('ViteHelper.developmentHostNeedles', ConfigDefaults::DEV_HOST_NEEDLES) as $needle
+        ) {
+            if (Strings::contains((string)$this->getView()->getRequest()->host(), $needle)) {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
     /**
      * Returns css-tags for use in <head>
@@ -74,7 +74,7 @@ class ViteScriptsHelper extends Helper
     {
         if ($this->isDev()) {
             return $this->Html->script(
-				Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL) . '/' .
+                Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL) . '/' .
                 Configure::read('ViteHelper.jsSrcDirectory', 'webroot_src') . '/' .
                 Configure::read('ViteHelper.mainJs', 'main.js'),
                 [
@@ -105,10 +105,10 @@ class ViteScriptsHelper extends Helper
     {
         if ($this->isDev()) {
             return $this->Html->script(
-				Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
-				. '/@vite/client',
-				['type' => 'module']
-			);
+                Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
+                . '/@vite/client',
+                ['type' => 'module']
+            );
         }
 
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
@@ -127,5 +127,4 @@ class ViteScriptsHelper extends Helper
 
         return implode("\n", $tags);
     }
-
 }
