@@ -1,29 +1,48 @@
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
+import {defineConfig} from 'vite'
+import vue from '@vitejs/plugin-vue'
 import legacy from '@vitejs/plugin-legacy';
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
+        basicSsl(),
         vue(),
         legacy({
-            targets: ['defaults', 'not IE 11'],
-        }),
+            targets: ['defaults', 'not IE 11']
+        })
     ],
+    /*resolve: {
+        alias: {
+            vue: 'vue/dist/vue.esm-bundler.js',
+        },
+    },*/
+    server: {
+        https: true,
+        host: '0.0.0.0',
+        port: 3000,
+        strictPort: true,
+        hmr: {
+            protocol: 'wss',
+        },
+        watch: {
+            ignored: [/bin/, /config/, /plugins/, /resources/, /tests/, /vendor/, /logs/, /tmp/],
+            depth: 5,
+        }
+    },
     build: {
-        emptyOutDir: false,
-        outDir: './webroot/',
-        assetsDir: 'build',
+        emptyOutDir: true,
+        outDir: './webroot/build',
+        assetsDir: 'css',
         manifest: true,
         rollupOptions: {
-            input: './webroot_src/main.ts',
-        },
-    },
-    server: {
-        hmr: {
-            protocol: 'ws',
-            host: 'localhost',
-            port: 3000,
-        },
+            input: [
+                './webroot_src/js/main.js',
+                './webroot_src/scss/style.scss',
+            ],
+            output: {
+                entryFileNames: '[name].[hash].min.js',
+            }
+        }
     },
 });

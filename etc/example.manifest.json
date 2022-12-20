@@ -1,32 +1,69 @@
 {
-  "webroot_src/main-legacy.ts": {
-    "file": "build/main-legacy.1da63977.js",
-    "src": "webroot_src/main-legacy.ts",
-    "isEntry": true,
-    "imports": [
-      "_vendor-legacy.399f3044.js"
-    ]
-  },
-  "_vendor-legacy.399f3044.js": {
-    "file": "build/vendor-legacy.399f3044.js"
-  },
-  "\u0000vite/legacy-polyfills": {
-    "file": "build/polyfills-legacy.f1b77ef5.js",
-    "src": "\u0000vite/legacy-polyfills",
-    "isEntry": true
-  },
-  "webroot_src/main.ts": {
-    "file": "build/main.68da72b2.js",
-    "src": "webroot_src/main.ts",
-    "isEntry": true,
-    "imports": [
-      "_vendor.4ccb90c4.js"
-    ],
-    "css": [
-      "build/main.0f6e801b.css"
-    ]
-  },
-  "_vendor.4ccb90c4.js": {
-    "file": "build/vendor.4ccb90c4.js"
-  }
+	"_sweetalert2.all-legacy-3aabaac6.js": {
+		"file": "css/sweetalert2.all-legacy-3aabaac6.js"
+	},
+	"webroot_src/js/timetables-legacy.js": {
+		"file": "timetables-legacy.819019cc.min.js",
+		"src": "webroot_src/js/timetables-legacy.js",
+		"isEntry": true,
+		"imports": [
+			"_sweetalert2.all-legacy-3aabaac6.js"
+		]
+	},
+	"webroot_src/scss/style-legacy.scss": {
+		"file": "style-legacy.d965a21c.min.js",
+		"src": "webroot_src/scss/style-legacy.scss",
+		"isEntry": true
+	},
+	"webroot_src/js/main-legacy.js": {
+		"file": "main-legacy.c661ef31.min.js",
+		"src": "webroot_src/js/main-legacy.js",
+		"isEntry": true,
+		"imports": [
+			"_sweetalert2.all-legacy-3aabaac6.js"
+		]
+	},
+	"vite/legacy-polyfills-legacy": {
+		"file": "polyfills-legacy.0957d7fe.min.js",
+		"src": "vite/legacy-polyfills-legacy",
+		"isEntry": true
+	},
+	"webroot_src/js/main.css": {
+		"file": "css/main-cbf508da.css",
+		"src": "webroot_src/js/main.css"
+	},
+	"webroot_src/js/timetables.css": {
+		"file": "css/timetables-f05820bf.css",
+		"src": "webroot_src/js/timetables.css"
+	},
+	"webroot_src/scss/style.scss": {
+		"file": "css/style-22e5a2b0.css",
+		"src": "webroot_src/scss/style.scss",
+		"isEntry": true
+	},
+	"webroot_src/js/main.js": {
+		"file": "main.e947a80c.min.js",
+		"src": "webroot_src/js/main.js",
+		"isEntry": true,
+		"imports": [
+			"_sweetalert2.all-8d3ac045.js"
+		],
+		"css": [
+			"css/main-cbf508da.css"
+		]
+	},
+	"webroot_src/js/timetables.js": {
+		"file": "timetables.283aef92.min.js",
+		"src": "webroot_src/js/timetables.js",
+		"isEntry": true,
+		"imports": [
+			"_sweetalert2.all-8d3ac045.js"
+		],
+		"css": [
+			"css/timetables-f05820bf.css"
+		]
+	},
+	"_sweetalert2.all-8d3ac045.js": {
+		"file": "css/sweetalert2.all-8d3ac045.js"
+	}
 }
