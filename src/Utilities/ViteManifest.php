@@ -138,20 +138,4 @@ class ViteManifest
         return $script_paths;
     }
 
-    /**
-     * @return string
-     */
-    public function getBuildAssetsDir(): string
-    {
-        $file = current($this->getJsFiles());
-
-        if ($this->baseDir) {
-            return rtrim($this->baseDir, DS)
-				. DS . rtrim($this->outDir, DS)
-				. DS . ltrim(Strings::before($file, DS, -1), DS);
-        }
-
-        return WWW_ROOT . ltrim(Strings::before($file, DS, -1), DS);
-    }
-
 }
