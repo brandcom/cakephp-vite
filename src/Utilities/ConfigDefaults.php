@@ -49,9 +49,9 @@ class ConfigDefaults
     public const BUILD_OUT_DIRECTORY = 'build';
 
     /**
-     * The manifest file name
+     * The full absolute path to the manifest file
      *
      * @see https://vitejs.dev/config/build-options.html#build-manifest
      */
-    public const BUILD_MANIFEST = 'manifest.json';
+    public const BUILD_MANIFEST = WWW_ROOT . 'build' . DS . 'manifest.json';
 }

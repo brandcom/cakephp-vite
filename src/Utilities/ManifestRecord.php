@@ -87,19 +87,27 @@ class ManifestRecord
     }
 
     /**
-     * Returns the files relative path
+     * Returns the files (URL) relative path
      *
      * @param string|null $pluginPrefix Plugin prefix
      * @return string
      */
-    public function url(?string $pluginPrefix = null): string
+    public function url(?string $pluginPrefix = null, ?string $path = null): string
     {
-        return sprintf(
-            '%s/%s/%s',
-            $pluginPrefix ?? '',
-            Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY),
-            $this->chunk->file
-        );
+		if ($pluginPrefix) {
+			return sprintf(
+				'%s%s/%s',
+				$pluginPrefix,
+				Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY),
+				$path ?? $this->chunk->file
+			);
+		}
+
+		return sprintf(
+			'/%s/%s',
+			Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY),
+			$path ?? $this->chunk->file
+		);
     }
 
 	/**
@@ -116,12 +124,7 @@ class ManifestRecord
 
 		$css = [];
 		foreach ($this->chunk->css as $css_file) {
-			$css[] = sprintf(
-				'%s/%s/%s',
-				$pluginPrefix ?? '',
-				Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY),
-				$css_file
-			);
+			$css[] = $this->url($pluginPrefix, $css_file);
 		}
 
 		return $css;

@@ -17,7 +17,7 @@ class ViteManifestTest extends TestCase
 			'baseDirectory' => null,
 			'build' => [
 				'outDir' => 'etc',
-				'manifest' => 'example.manifest.json'
+				'manifest' => 'etc/example.manifest.json'
 			],
 			'developmentUrl' => ConfigDefaults::DEVELOPMENT_URL,
 			'developmentHostNeedles' => ConfigDefaults::DEV_HOST_NEEDLES,
@@ -35,7 +35,7 @@ class ViteManifestTest extends TestCase
 	public function testRecords(): void
 	{
 		$viteManifest = ViteManifest::getInstance();
-		
+
 		// we have one polyfill
 		$this->assertEquals(1, count(array_filter($viteManifest->getRecords(), function ($file) {
 			return $file->isPolyfill();

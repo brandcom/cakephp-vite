@@ -87,17 +87,8 @@ class ViteManifest
      */
     protected function getManifest(): array
     {
-        if ($this->baseDir) {
-            $path =
-                rtrim($this->baseDir, DS) . DS .
-                rtrim($this->outDir, DS) . DS .
-                ltrim($this->manifest, DS);
-        } else {
-            $path = rtrim($this->outDir, DS) . DS . ltrim($this->manifest, DS);
-        }
-
         try {
-            $json = FileSystem::read($path);
+            $json = FileSystem::read($this->manifest);
 
             $json = str_replace([
                 "\u0000",
@@ -105,7 +96,7 @@ class ViteManifest
 
             $manifest = Json::decode($json);
         } catch (\Exception $e) {
-            throw new ManifestNotFoundException("No valid manifest.json found at path {$path}. Did you build your js? Error: {$e->getMessage()}");
+            throw new ManifestNotFoundException("No valid manifest.json found at path {$this->manifest}. Did you build your js? Error: {$e->getMessage()}");
         }
 
         $manifestArray = [];

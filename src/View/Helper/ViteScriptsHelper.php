@@ -37,21 +37,8 @@ class ViteScriptsHelper extends Helper
 	public function initialize(array $config): void
 	{
 		parent::initialize($config);
-		$this->setConfig($config);
-
 		if (is_null($this->getConfig('isDevelopment'))) {
 			$this->setConfig('isDevelopment', $this->isDev());
-		}
-
-		if ($this->getConfig('isDevelopment')) {
-			$this->Html->script(
-				Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
-				. '/@vite/client',
-				[
-					'type' => 'module',
-					'block' => $this->getConfig('headBlock')
-				]
-			);
 		}
 	}
 
@@ -104,9 +91,18 @@ class ViteScriptsHelper extends Helper
 		$options['block'] = $this->getConfig('bodyBlock');
 		// in development
 		if ($this->getConfig('isDevelopment')) {
+			$this->Html->script(
+				Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
+				. '/@vite/client',
+				[
+					'type' => 'module',
+					'block' => $this->getConfig('headBlock')
+				]
+			);
+
 			$options['type'] = 'module';
 			foreach ($files as $file) {
-				$this->Html->script(Text::insert(':url/:file.js', [
+				$this->Html->script(Text::insert(':host/:file.js', [
 					'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
 					'file' => ltrim($file, '/'),
 				]), $options);
