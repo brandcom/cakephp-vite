@@ -71,15 +71,15 @@ class ViteManifest
         return self::$instance;
     }
 
-	/**
-	 * Returns all manifest records
-	 *
-	 * @return array|\ViteHelper\Utilities\ManifestRecord[]
-	 */
-	public function getRecords(): array
-	{
-		return $this->manifestRecords;
-	}
+    /**
+     * Returns all manifest records
+     *
+     * @return array|\ViteHelper\Utilities\ManifestRecord[]
+     */
+    public function getRecords(): array
+    {
+        return $this->manifestRecords;
+    }
 
     /**
      * @return array
@@ -96,7 +96,9 @@ class ViteManifest
 
             $manifest = Json::decode($json);
         } catch (\Exception $e) {
-            throw new ManifestNotFoundException("No valid manifest.json found at path {$this->manifest}. Did you build your js? Error: {$e->getMessage()}");
+            throw new ManifestNotFoundException(
+                "No valid manifest.json found at path {$this->manifest}. Did you build your js? Error: {$e->getMessage()}"
+            );
         }
 
         $manifestArray = [];
@@ -104,23 +106,22 @@ class ViteManifest
             $manifestArray[$property] = new ManifestRecord($property, $value);
         }
 
-		/**
-		 * Legacy Polyfills must come first.
-		 */
-		usort($manifestArray, function ($file) {
-			/** @var \ViteHelper\Utilities\ManifestRecord $file */
-			return $file->isPolyfill() ? 0 : 1;
-		});
+        /**
+         * Legacy Polyfills must come first.
+         */
+        usort($manifestArray, function ($file) {
+            /** @var \ViteHelper\Utilities\ManifestRecord $file */
+            return $file->isPolyfill() ? 0 : 1;
+        });
 
-		/**
-		 * ES-module scripts must come last.
-		 */
-		usort($manifestArray, function ($file) {
-			/** @var \ViteHelper\Utilities\ManifestRecord $file */
-			return !$file->isPolyfill() && !$file->isLegacy() ? 1 : 0;
-		});
+        /**
+         * ES-module scripts must come last.
+         */
+        usort($manifestArray, function ($file) {
+            /** @var \ViteHelper\Utilities\ManifestRecord $file */
+            return !$file->isPolyfill() && !$file->isLegacy() ? 1 : 0;
+        });
 
         return $manifestArray;
     }
-
 }

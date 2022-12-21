@@ -83,50 +83,51 @@ class ManifestRecord
      */
     public function match(string $name): bool
     {
-        return property_exists($this->chunk, 'src') && Strings::contains($this->chunk->src, DS . $name);
+        return property_exists($this->chunk, 'src') && Strings::contains($this->chunk->src, $name);
     }
 
     /**
      * Returns the files (URL) relative path
      *
      * @param string|null $pluginPrefix Plugin prefix
+     * @param string|null $path the path to format. default is the chunk's file property
      * @return string
      */
     public function url(?string $pluginPrefix = null, ?string $path = null): string
     {
-		if ($pluginPrefix) {
-			return sprintf(
-				'%s%s/%s',
-				$pluginPrefix,
-				Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY),
-				$path ?? $this->chunk->file
-			);
-		}
+        if ($pluginPrefix) {
+            return sprintf(
+                '%s%s/%s',
+                $pluginPrefix,
+                Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY),
+                $path ?? $this->chunk->file
+            );
+        }
 
-		return sprintf(
-			'/%s/%s',
-			Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY),
-			$path ?? $this->chunk->file
-		);
+        return sprintf(
+            '/%s/%s',
+            Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY),
+            $path ?? $this->chunk->file
+        );
     }
 
-	/**
-	 * Returns all dependent CSS file
-	 *
-	 * @param string|null $pluginPrefix Plugin prefix
-	 * @return array
-	 */
-	public function getCss(?string $pluginPrefix = null): array
-	{
-		if (!(property_exists($this->chunk, 'css') && is_array($this->chunk->css))) {
-			return [];
-		}
+    /**
+     * Returns all dependent CSS file
+     *
+     * @param string|null $pluginPrefix Plugin prefix
+     * @return array
+     */
+    public function getCss(?string $pluginPrefix = null): array
+    {
+        if (!(property_exists($this->chunk, 'css') && is_array($this->chunk->css))) {
+            return [];
+        }
 
-		$css = [];
-		foreach ($this->chunk->css as $css_file) {
-			$css[] = $this->url($pluginPrefix, $css_file);
-		}
+        $css = [];
+        foreach ($this->chunk->css as $css_file) {
+            $css[] = $this->url($pluginPrefix, $css_file);
+        }
 
-		return $css;
-	}
+        return $css;
+    }
 }
