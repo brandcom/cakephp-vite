@@ -7,14 +7,26 @@ When running the Vite dev server, the Helper provides the right script tags for 
 In production mode, the Helper loads the bundled files. `@vitejs/plugin-legacy` is supported, which will
 insert `nomodule`-tags for older browsers, e.g. older iOS devices, which do not support js modules.
 
-In your php-template, include this in your html head: \
-`<?= $this->ViteScripts->head() ?>`
+In your php-layout, include this in your html head: \
+`<?= $this->fetch('css') ?>`
 
 Just before the closing `</body>` tag, insert this line: \
-`<?= $this->ViteScripts->body() ?>`
+`<?= $this->fetch('script') ?>`
 
-> New in **version 0.2**  
-> `$this->Vite->getHeaderTags()` etc. is deprecated. The ViteHelper got refactored to the new `ViteScriptsHelper`. 
+(These tags are default in cakephp-app.)
+
+In your php-template or in layout you can import javascript files with: \
+`<?= $this->ViteScripts->script(['webroot_src/js/main']) ?>`
+
+If you imported CSS files in the Js file, this method automatically appends to the __css__ tag.
+
+In your php-template you can import css files with: \
+`<?= $this->ViteScripts->css(['webroot_src/css/style']) ?>`
+
+If the source was a __webroot_src/css/style.scss__ will be imported to the __css__ tag automatically.
+
+> New in **version 0.2**
+> `$this->Vite->getHeaderTags()` etc. is deprecated. The ViteHelper got refactored to the new `ViteScriptsHelper`.
 > Manifest handling is done by the new `Utilities/ViteManifest.php`.
 
 ## Installation
@@ -41,24 +53,29 @@ $this->loadHelper('ViteHelper.ViteScripts');
 ### Configuration
 
 Available options:
+* build.outDir `string`: Defaults to `build`
+* build.manifest `string`: Defaults to `WWW_ROOT . 'build' . DS . 'manifest.json'`
+* developmentUrl `string`: Defaults to `http://localhost:3000`
+* developmentHostNeedles `string[]`: defaults to `['.test', 'localhost', '127.0.0.1']`
 * forceProductionMode `bool`: Defaults to `false`
-* devHostNeedles `string[]`: defaults to `['.test', 'localhost', '127.0.0.1']`
-* devPort `int`: defaults to `3000`
-* jsSrcDirectory `string`: defaults to `webroot_src`
-* mainJs `string`: defaults to `main.js`
-* manifestDir `string`: defaults to `manifest.json`
+* productionHint `string`: Defaults to `vprod`
 
-You can override the defaults in your `app.php`, `app_local.php`, or `app_vite.php`. 
+Deprecated options:
+* `devPort` use the `developmentUrl` instead
+* `jsSrcDirectory` and `mainJS` was replaced by parameters when calling the helper method
+* `manifestDir` was replaced with `build.manifest`
 
-See the plugin's [app_vite.php](https://github.com/passchn/cakephp-vite/blob/main/config/app_vite.php) for reference. 
+You can override the defaults in your `app.php`, `app_local.php`, or `app_vite.php`.
 
-Example: 
+See the plugin's [app_vite.php](https://github.com/passchn/cakephp-vite/blob/main/config/app_vite.php) for reference.
+
+Example:
 
 ```
 return [
     'ViteHelper' => [
-        'forceProductionMode' => true,
-        'mainJs' => 'main.ts',
+        'developmentUrl' => 'https://192.168.0.88:3000',
+        'developmentHostNeedles' => ['mydomain.local'],
     ],
 ];
 ```
@@ -83,9 +100,9 @@ After installing, you will need to refactor the files a bit to make sense of it 
 
 The build files will end up in `/webroot/build` by default. Your `vite.config.js or *.ts` file for vite stays in the project root.
 
-#### Recommended configuration: 
+#### Recommended configuration:
 
-See the example [vite.config.ts content here](https://github.com/brandcom/cakephp-vite/wiki/example-vite-config). Note that the config changes when upgrading to vite version `2.9.0` or higher. 
+See the example [vite.config.ts content here](https://github.com/brandcom/cakephp-vite/wiki/example-vite-config). Note that the config changes when upgrading to vite version `2.9.0` or higher.
 
 A difference to other dev servers, e.g. webpack or gulp is that you won't access your
 local site via the port where Vite is serving. This does not work with php.
@@ -100,4 +117,4 @@ More about configuring Vite can be found here:
 
 ## Contributions
 
-You can contribute to this plugin via pull requests. If you run into an error, you can open an issue. 
+You can contribute to this plugin via pull requests. If you run into an error, you can open an issue.

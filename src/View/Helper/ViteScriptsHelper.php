@@ -153,8 +153,21 @@ class ViteScriptsHelper extends Helper
      * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
      * @return void
      */
-    public function css(array|string $files = 'webroot_src/js/main', array $options = []): void
+    public function css(array|string $files = 'webroot_src/scss/style', array $options = []): void
     {
+        // in development
+        if ($this->getConfig('isDevelopment')) {
+            $options['block'] = $this->getConfig('headBlock');
+            foreach ($files as $file) {
+                $this->Html->css(Text::insert(':host/:file.scss', [
+                    'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
+                    'file' => ltrim($file, '/'),
+                ]), $options);
+            }
+
+            return;
+        }
+
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
         unset($options['plugin']);
 
