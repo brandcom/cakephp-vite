@@ -81,13 +81,14 @@ class ViteScriptsHelper extends Helper
 
         $tags = [];
         foreach ($this->getViteManifest()->getJsFiles() as $path) {
-            if (Strings::contains($path, 'legacy')) {
-                $options['nomodule'] = 'nomodule';
-            } else {
-                $options['type'] = 'module';
-            }
+            $isLegacy = Strings::contains($path, 'legacy');
 
-            $tags[] = $this->Html->script($pluginPrefix . $path, $options);
+			$tagOptions = array_merge($options, [
+				'nomodule' => $isLegacy ? 'nomodule' : false,
+				'type' => $isLegacy ? false : 'module',
+			]);
+
+            $tags[] = $this->Html->script($pluginPrefix . $path, $tagOptions);
         }
 
         return implode("\n", $tags);
