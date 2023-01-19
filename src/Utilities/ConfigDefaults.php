@@ -31,6 +31,16 @@ class ConfigDefaults
     public const PRODUCTION_HINT = 'vprod';
 
     /**
+     * http or https during developpent
+     */
+    public const DEV_PROTOCOL = 'http';
+
+    /**
+     * your domain during local development
+     */
+    public const  DEV_DOMAIN = 'localhost';
+
+    /**
      * port of the ViteJS dev server
      */
     public const DEV_PORT = 3000;

@@ -38,7 +38,8 @@ class ViteScriptsHelper extends Helper
     {
         if ($this->isDev()) {
             return $this->Html->script(
-                'http://localhost:'
+                Configure::read('ViteHelper.devProtocol', ConfigDefaults::DEV_PROTOCOL) . '://'
+                . Configure::read('ViteHelper.devHost', ConfigDefaults::DEV_DOMAIN) . ':'
                 . Configure::read('ViteHelper.devPort', ConfigDefaults::DEV_PORT) . '/'
                 . Configure::read('ViteHelper.jsSrcDirectory', ConfigDefaults::JS_SRC_DIRECTORY)
                 . Configure::read('ViteHelper.mainJs', ConfigDefaults::MAIN_JS),
@@ -83,10 +84,10 @@ class ViteScriptsHelper extends Helper
         foreach ($this->getViteManifest()->getJsFiles() as $path) {
             $isLegacy = Strings::contains($path, 'legacy');
 
-			$tagOptions = array_merge($options, [
-				'nomodule' => $isLegacy ? 'nomodule' : false,
-				'type' => $isLegacy ? false : 'module',
-			]);
+            $tagOptions = array_merge($options, [
+                'nomodule' => $isLegacy ? 'nomodule' : false,
+                'type' => $isLegacy ? false : 'module',
+            ]);
 
             $tags[] = $this->Html->script($pluginPrefix . $path, $tagOptions);
         }
