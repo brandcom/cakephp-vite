@@ -7,21 +7,32 @@ When running the Vite dev server, the Helper provides the right script tags for 
 In production mode, the Helper loads the bundled files. `@vitejs/plugin-legacy` is supported, which will
 insert `nomodule`-tags for older browsers, e.g. older iOS devices, which do not support js modules.
 
-In your php-layout, include this in your html head: \
-`<?= $this->fetch('css') ?>`
+In your php-layout, include this in your html head:
 
-Just before the closing `</body>` tag, insert this line: \
-`<?= $this->fetch('script') ?>`
+```php
+<?= $this->fetch('css') ?>
+```
+
+Just before the closing `</body>` tag, insert this line:
+
+```php
+<?= $this->fetch('script') ?>
+```
 
 (These tags are default in cakephp-app.)
 
-In your php-template or in layout you can import javascript files with: \
-`<?php $this->ViteScripts->script(['webroot_src/js/main.js']) ?>`
+In your php-template or in layout you can import javascript files with:
+
+```php
+<?php $this->ViteScripts->script(['webroot_src/js/main.js']) ?>
+```
 
 If you imported CSS files in the Js file, this method automatically appends to the __css__ tag.
 
 In your php-template you can import css files with: \
-`<?php $this->ViteScripts->css(['webroot_src/css/style.scss']) ?>`
+```php
+<?php $this->ViteScripts->css(['webroot_src/css/style.scss']) ?>
+```
 
 If the source was a __webroot_src/css/style.scss__ will be imported to the __css__ tag automatically.
 
@@ -31,18 +42,19 @@ You can install this plugin into your CakePHP application using [composer](https
 
 The recommended way to install composer packages is:
 
-```
+```shell
 composer require passchn/cakephp-vite
 ```
 
 Load the plugin in your Application.php:
 
-```
+```shell
 bin/cake plugin load ViteHelper
 ```
 
 Load the Helper in your AppView.php:
-```
+
+```php
 $this->loadHelper('ViteHelper.ViteScripts');
 ```
 
@@ -67,7 +79,7 @@ See the plugin's [app_vite.php](https://github.com/passchn/cakephp-vite/blob/mai
 
 Example:
 
-```
+```php
 return [
     'ViteHelper' => [
         'developmentUrl' => 'https://192.168.0.88:3000',
@@ -79,12 +91,14 @@ return [
 ## Vite JS bundler / Dev server
 
 Install Vite e.g. via yarn:
-````
+
+```shell
 yarn create vite
-````
+```
 
 It is recommended to add the legacy plugin:
-```
+
+```shell
 yarn add -D @vitejs/plugin-legacy
 ```
 
@@ -108,8 +122,7 @@ Therefore, the `server.hmr` config will enable you to use hot module replacement
 The `build` options define where the bundled js and css will end up.
 These need to match the `$config` array when loading the ViteHelper.
 
-More about configuring Vite can be found here:
-[vitejs.dev/config](https://vitejs.dev/config/)
+More about configuring Vite can be found at [vitejs.dev/config](https://vitejs.dev/config/).
 
 ## Contributions
 
