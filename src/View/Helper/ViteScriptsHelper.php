@@ -155,6 +155,8 @@ class ViteScriptsHelper extends Helper
      */
     public function css(array|string $files = 'webroot_src/scss/style', array $options = []): void
     {
+        $files = (array)$files;
+
         // in development
         if ($this->getConfig('isDevelopment')) {
             $options['block'] = $this->getConfig('headBlock');
