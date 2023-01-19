@@ -130,4 +130,20 @@ class ManifestRecord
 
         return $css;
     }
+
+    /**
+     * Check whether this record is a javascript entry point
+     * and should be appended to the script block.
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function isEntryScript(string $name): bool
+    {
+        if (!$this->isEntry()) {
+            return false;
+        }
+
+        return $this->isPolyfill() || ($this->isJavascript() && $this->match($name));
+    }
 }

@@ -117,20 +117,15 @@ class ViteScriptsHelper extends Helper
         // in production
         foreach ($files as $_filter) {
             foreach (ViteManifest::getInstance()->getRecords() as $record) {
-                if (
-                    !(
-                        $record->isEntry() &&
-                        (($record->isJavascript() && $record->match($_filter)) || $record->isPolyfill())
-                    )
-                ) {
+                if (!$record->isEntryScript($_filter)) {
                     continue;
                 }
 
+                unset($options['type']);
+                unset($options['nomodule']);
                 if ($record->isLegacy()) {
-                    unset($options['type']);
                     $options['nomodule'] = 'nomodule';
                 } else {
-                    unset($options['nomodule']);
                     $options['type'] = 'module';
                 }
 
