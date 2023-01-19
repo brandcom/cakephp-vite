@@ -40,6 +40,8 @@ to
 
 Where `$files` can e.g. be `webroot_src/js/main.js`.
 
+**Note:** The new `ViteScriptsHelper::script()` method is now `void`.
+
 ### CSS
 
 **Note:** If you are importing your css/scss from within your JavaScript, this is unnecessary.
