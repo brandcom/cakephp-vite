@@ -4,7 +4,7 @@ Version 1 of the ViteHelper plugin is coming with some major changes to the api 
 
 ## Serving JS and CSS
 
-The signature of the js and css method have changed significantly. In 0.x, the methods returned a html tag as a string. Now, the plugin utilizes view blocks to render your tags.
+The signature of the js and css method have changed significantly. In 0.x, the methods returned a html tag as a string. Now, the plugin utilizes [view blocks](https://book.cakephp.org/4/en/views.html#using-view-blocks) to render your tags.
 
 ### view blocks
 
