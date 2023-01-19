@@ -39,7 +39,7 @@ class ConfigDefaults
      * If the project is not in the webroot, define a base directory as an absolute path.
      * This is useful for plugins.
      */
-    public const BASE_DIR = null;
+    public const BASE_DIRECTORY = null;
 
     /**
      * Output directory

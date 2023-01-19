@@ -51,8 +51,8 @@ class ViteManifest
      */
     private function __construct()
     {
-        $this->baseDir = Configure::read('ViteHelper.baseDirectory', ConfigDefaults::BASE_DIR);
-        $this->outDir = Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY);
+        $this->baseDir = Configure::read('ViteHelper.baseDirectory', ConfigDefaults::BASE_DIRECTORY);
+        $this->outDir = Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY);
         $this->manifest = Configure::read('ViteHelper.build.manifest', ConfigDefaults::BUILD_MANIFEST);
         $this->manifestRecords = $this->getManifest();
     }

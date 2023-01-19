@@ -4,9 +4,9 @@ use \ViteHelper\Utilities\ConfigDefaults;
 
 return [
 	'ViteHelper' => [
-		'baseDirectory' => ConfigDefaults::BASE_DIR,
+		'baseDirectory' => ConfigDefaults::BASE_DIRECTORY,
 		'build' => [
-			'outDir' => ConfigDefaults::BUILD_OUT_DIRECTORY,
+			'outDirectory' => ConfigDefaults::BUILD_OUT_DIRECTORY,
 			'manifest' => ConfigDefaults::BUILD_MANIFEST,
 		],
 		'developmentUrl' => ConfigDefaults::DEVELOPMENT_URL,

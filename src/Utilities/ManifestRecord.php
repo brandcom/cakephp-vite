@@ -99,14 +99,14 @@ class ManifestRecord
             return sprintf(
                 '%s%s/%s',
                 $pluginPrefix,
-                Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY),
+                Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY),
                 $path ?? $this->chunk->file
             );
         }
 
         return sprintf(
             '/%s/%s',
-            Configure::read('ViteHelper.build.outDir', ConfigDefaults::BUILD_OUT_DIRECTORY),
+            Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY),
             $path ?? $this->chunk->file
         );
     }
