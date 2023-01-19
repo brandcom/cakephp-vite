@@ -26,9 +26,9 @@ class ViteScriptsHelper extends Helper
     public $helpers = ['Html'];
 
     protected $_defaultConfig = [
-        'bodyBlock' => 'script',
-        'headBlock' => 'css',
         'isDevelopment' => null,
+        'bodyBlock' => true,
+        'headBlock' => true,
     ];
 
     /**
