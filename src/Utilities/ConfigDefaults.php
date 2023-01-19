@@ -31,19 +31,9 @@ class ConfigDefaults
     public const PRODUCTION_HINT = 'vprod';
 
     /**
-     * port of the ViteJS dev server
+     * the url of the ViteJS dev server
      */
-    public const DEV_PORT = 3000;
-
-    /**
-     * Directory where the javascript files are located
-     */
-    public const JS_SRC_DIRECTORY = 'webroot_src' . DS;
-
-    /**
-     * Name of the entry js file
-     */
-    public const MAIN_JS = 'main.js';
+    public const DEVELOPMENT_URL = 'http://localhost:3000';
 
     /**
      * If the project is not in the webroot, define a base directory as an absolute path.
@@ -52,7 +42,16 @@ class ConfigDefaults
     public const BASE_DIR = null;
 
     /**
-     * Directory/name of the manifest.json file
+     * Output directory
+     *
+     * @see https://vitejs.dev/config/build-options.html#build-outdir
      */
-    public const MANIFEST_DIR = 'manifest.json';
+    public const BUILD_OUT_DIRECTORY = 'build';
+
+    /**
+     * The full absolute path to the manifest file
+     *
+     * @see https://vitejs.dev/config/build-options.html#build-manifest
+     */
+    public const BUILD_MANIFEST = WWW_ROOT . 'build' . DS . 'manifest.json';
 }
