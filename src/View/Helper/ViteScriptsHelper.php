@@ -102,7 +102,7 @@ class ViteScriptsHelper extends Helper
 
             $options['type'] = 'module';
             foreach ($files as $file) {
-                $this->Html->script(Text::insert(':host/:file.js', [
+                $this->Html->script(Text::insert(':host/:file', [
                     'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
                     'file' => ltrim($file, '/'),
                 ]), $options);
@@ -161,7 +161,7 @@ class ViteScriptsHelper extends Helper
         if ($this->getConfig('isDevelopment')) {
             $options['block'] = $this->getConfig('headBlock');
             foreach ($files as $file) {
-                $this->Html->css(Text::insert(':host/:file.scss', [
+                $this->Html->css(Text::insert(':host/:file', [
                     'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
                     'file' => ltrim($file, '/'),
                 ]), $options);
