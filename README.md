@@ -1,4 +1,4 @@
-# ViteHelper plugin for CakePHP
+# ViteHelper plugin for CakePHP v1.x
 
 The plugin provides a Helper Class for CakePHP to facilitate the use of [Vite JS](https://vitejs.dev/).
 
@@ -16,18 +16,14 @@ Just before the closing `</body>` tag, insert this line: \
 (These tags are default in cakephp-app.)
 
 In your php-template or in layout you can import javascript files with: \
-`<?= $this->ViteScripts->script(['webroot_src/js/main']) ?>`
+`<?php $this->ViteScripts->script(['webroot_src/js/main.js']) ?>`
 
 If you imported CSS files in the Js file, this method automatically appends to the __css__ tag.
 
 In your php-template you can import css files with: \
-`<?= $this->ViteScripts->css(['webroot_src/css/style']) ?>`
+`<?php $this->ViteScripts->css(['webroot_src/css/style.scss']) ?>`
 
 If the source was a __webroot_src/css/style.scss__ will be imported to the __css__ tag automatically.
-
-> New in **version 0.2**
-> `$this->Vite->getHeaderTags()` etc. is deprecated. The ViteHelper got refactored to the new `ViteScriptsHelper`.
-> Manifest handling is done by the new `Utilities/ViteManifest.php`.
 
 ## Installation
 
@@ -53,7 +49,7 @@ $this->loadHelper('ViteHelper.ViteScripts');
 ### Configuration
 
 Available options:
-* build.outDir `string`: Defaults to `build`
+* build.outDirectory `string`: Defaults to `build`
 * build.manifest `string`: Defaults to `WWW_ROOT . 'build' . DS . 'manifest.json'`
 * developmentUrl `string`: Defaults to `http://localhost:3000`
 * developmentHostNeedles `string[]`: defaults to `['.test', 'localhost', '127.0.0.1']`
