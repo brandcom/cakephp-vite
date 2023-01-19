@@ -63,3 +63,18 @@ to
 Where `$files` can e.g. be `webroot_src/css/style.scss`.
 
 **Note:** The new `ViteScriptsHelper::css()` method is now `void`.
+
+## Other breaking changes
+
+### Configuration
+
+The configuration structure has changed, e.g., some config keys have been renamed or nested. Check the current `app_vite.php` and compare it with your app's config file.
+
+### Namespaces
+
+* Exceptions this plugin is throwing are now in the `ViteHelper\Exception` namespace. Before, the namespace was `ViteHelper\Errors`.
+
+### Deprecations and removed code
+
+* The `ViteHelper` which was deprecated since v0.2 has been removed.
+* The `ViteCommand` has been removed since the same result can be achieved by vite itself, [see the _build.emptyOutDir_ config](https://vitejs.dev/config/build-options.html#build-emptyoutdir).
