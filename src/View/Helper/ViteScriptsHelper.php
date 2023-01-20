@@ -123,10 +123,10 @@ class ViteScriptsHelper extends Helper
 
                 unset($options['type']);
                 unset($options['nomodule']);
-                if ($record->isLegacy()) {
-                    $options['nomodule'] = 'nomodule';
-                } else {
+                if ($record->isModuleEntryScript()) {
                     $options['type'] = 'module';
+                } else {
+                    $options['nomodule'] = 'nomodule';
                 }
 
                 $this->Html->script($record->url($pluginPrefix), $options);

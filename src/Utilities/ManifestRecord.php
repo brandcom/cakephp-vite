@@ -146,4 +146,15 @@ class ManifestRecord
 
         return $this->isPolyfill() || ($this->isJavascript() && $this->match($name));
     }
+
+	/**
+	 * Check whether this record is an entry script and a module file,
+	 *   i.e. not a polyfill or legacy build
+	 *
+	 * @return bool
+	 */
+	public function isModuleEntryScript(): bool
+	{
+		return $this->isEntry() && $this->isJavascript() && !$this->isLegacy() && !$this->isPolyfill();
+	}
 }
