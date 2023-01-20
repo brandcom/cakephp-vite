@@ -68,58 +68,76 @@ class ViteScriptsHelper extends Helper
     public function script(array|string $files = 'webroot_src/js/main', array $options = []): void
     {
         $files = (array)$files;
-        $viewBlockCss = Configure::read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
         $options['block'] = Configure::read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
-        // in development
-        if ($this->isDev()) {
-            $this->Html->script(
-                Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
-                . '/@vite/client',
-                [
-                    'type' => 'module',
-                    'block' => $viewBlockCss,
-                ]
-            );
 
-            $options['type'] = 'module';
-            foreach ($files as $file) {
-                $this->Html->script(Text::insert(':host/:file', [
-                    'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
-                    'file' => ltrim($file, '/'),
-                ]), $options);
-            }
+		if ($this->isDev()) {
 
-            return;
-        }
+			$this->devScript($files);
+			return;
+		}
 
-        $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
-        unset($options['plugin']);
-
-        // in production
-        foreach ($files as $_filter) {
-            foreach (ViteManifest::getInstance()->getRecords() as $record) {
-                if (!$record->isEntryScript($_filter)) {
-                    continue;
-                }
-
-                unset($options['type']);
-                unset($options['nomodule']);
-                if ($record->isModuleEntryScript()) {
-                    $options['type'] = 'module';
-                } else {
-                    $options['nomodule'] = 'nomodule';
-                }
-
-                $this->Html->script($record->url($pluginPrefix), $options);
-
-                // the js files has css dependency ?
-                $css_files = $record->getCss($pluginPrefix);
-                if (!empty($css_files)) {
-                    $this->Html->css($css_files, ['block' => $viewBlockCss]);
-                }
-            }
-        }
+		$this->productionScript($files, $options);
     }
+
+	/**
+	 * @param array<string> $files list of files
+	 * @return void
+	 */
+	private function devScript(array $files): void
+	{
+		$this->Html->script(
+			Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
+			. '/@vite/client',
+			[
+				'type' => 'module',
+				'block' => Configure::read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS),
+			]
+		);
+
+		$options['type'] = 'module';
+		foreach ($files as $file) {
+			$this->Html->script(Text::insert(':host/:file', [
+				'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
+				'file' => ltrim($file, '/'),
+			]), $options);
+		}
+	}
+
+	/**
+	 * @param array<string> $files list of files
+	 * @param array $options will be passed to script tag
+	 * @return void
+	 */
+	private function productionScript(array $files, array $options): void
+	{
+		$pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
+		unset($options['plugin']);
+		foreach ($files as $_filter) {
+			foreach (ViteManifest::getInstance()->getRecords() as $record) {
+				if (!$record->isEntryScript($_filter)) {
+					continue;
+				}
+
+				unset($options['type']);
+				unset($options['nomodule']);
+				if ($record->isModuleEntryScript()) {
+					$options['type'] = 'module';
+				} else {
+					$options['nomodule'] = 'nomodule';
+				}
+
+				$this->Html->script($record->url($pluginPrefix), $options);
+
+				// the js files has css dependency ?
+				$cssFiles = $record->getCss($pluginPrefix);
+				if (!empty($cssFiles)) {
+					$this->Html->css($cssFiles, [
+						'block' => Configure::read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS)
+					]);
+				}
+			}
+		}
+	}
 
     /**
      * Adds the gives CSS styles to the configured block
@@ -132,8 +150,6 @@ class ViteScriptsHelper extends Helper
     public function css(array|string $files = 'webroot_src/scss/style', array $options = []): void
     {
         $files = (array)$files;
-
-        // in development
         if ($this->isDev()) {
             $options['block'] = Configure::read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
             foreach ($files as $file) {
@@ -148,8 +164,6 @@ class ViteScriptsHelper extends Helper
 
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
         unset($options['plugin']);
-
-        // add CSS files to head
         foreach (ViteManifest::getInstance()->getRecords() as $record) {
             if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
                 continue;
