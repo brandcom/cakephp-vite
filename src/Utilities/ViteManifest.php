@@ -72,13 +72,22 @@ class ViteManifest
     }
 
     /**
-     * Returns all manifest records
+     * Returns the manifest records
+	 *
+	 * Can be filtered by keys with the $filters argument
      *
+     * @param array<string> $filters filter by record-keys
      * @return array|\ViteHelper\Utilities\ManifestRecord[]
      */
-    public function getRecords(): array
+    public function getRecords(array $filters = []): array
     {
-        return $this->manifestRecords;
+        if (!count($filters)) {
+            return $this->manifestRecords;
+        }
+
+        return array_filter($this->manifestRecords, function (ManifestRecord $record) use ($filters) {
+            return in_array($record->getKey(), $filters);
+        });
     }
 
     /**

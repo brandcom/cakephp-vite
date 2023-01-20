@@ -53,7 +53,7 @@ class ConfigDefaults
      *
      * @see https://vitejs.dev/config/build-options.html#build-manifest
      */
-    public const BUILD_MANIFEST = WWW_ROOT . 'build' . DS . 'manifest.json';
+    public const BUILD_MANIFEST = WWW_ROOT . 'manifest.json';
 
     /**
      * Name of the view block where the link tags for css should be rendered.
