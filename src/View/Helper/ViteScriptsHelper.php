@@ -25,31 +25,14 @@ class ViteScriptsHelper extends Helper
 {
     public $helpers = ['Html'];
 
-    protected $_defaultConfig = [
-        'bodyBlock' => true,
-        'headBlock' => true,
-        'isDevelopment' => false,
-    ];
-
     /**
-     * @inheritDoc
-     */
-    public function initialize(array $config): void
-    {
-        parent::initialize($config);
-        if (is_null($this->getConfig('isDevelopment'))) {
-            $this->setConfig('isDevelopment', $this->isDev());
-        }
-    }
-
-    /**
-     * Decide what files to serve.
+     * Check if the app is currently in development state.
      *
-     * If
-     * * $this->forceProductionMode is set to true
-     * * or a ?vprod URL-param is set,
-     * * or a vprod Cookie not false-ish,
-     * it will return false.
+     * Production mode can be forced in config through `forceProductionMode`,
+     *   or by setting a cookie or a url-parameter.
+     *
+     * Otherwise, it will look for a hint that the app
+     *   is in development mode through the  `developmentHostNeedles`
      *
      * @return bool
      */
@@ -60,16 +43,13 @@ class ViteScriptsHelper extends Helper
         }
 
         $productionHint = Configure::read('ViteHelper.productionHint', ConfigDefaults::PRODUCTION_HINT);
-        if (
-            $this->getView()->getRequest()->getCookie($productionHint)
-            || $this->getView()->getRequest()->getQuery($productionHint)
-        ) {
+        $hasCookieOrQuery = $this->getView()->getRequest()->getCookie($productionHint) || $this->getView()->getRequest()->getQuery($productionHint);
+        if ($hasCookieOrQuery) {
             return false;
         }
 
-        foreach (
-            Configure::read('ViteHelper.developmentHostNeedles', ConfigDefaults::DEV_HOST_NEEDLES) as $needle
-        ) {
+        $needles = Configure::read('ViteHelper.developmentHostNeedles', ConfigDefaults::DEVELOPMENT_HOST_NEEDLES);
+        foreach ($needles as $needle) {
             if (Strings::contains((string)$this->getView()->getRequest()->host(), $needle)) {
                 return true;
             }
@@ -88,15 +68,16 @@ class ViteScriptsHelper extends Helper
     public function script(array|string $files = 'webroot_src/js/main', array $options = []): void
     {
         $files = (array)$files;
-        $options['block'] = $this->getConfig('bodyBlock');
+        $viewBlockCss = Configure::read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
+        $options['block'] = Configure::read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         // in development
-        if ($this->getConfig('isDevelopment')) {
+        if ($this->isDev()) {
             $this->Html->script(
                 Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
                 . '/@vite/client',
                 [
                     'type' => 'module',
-                    'block' => $this->getConfig('headBlock'),
+                    'block' => $viewBlockCss,
                 ]
             );
 
@@ -134,7 +115,7 @@ class ViteScriptsHelper extends Helper
                 // the js files has css dependency ?
                 $css_files = $record->getCss($pluginPrefix);
                 if (!empty($css_files)) {
-                    $this->Html->css($css_files, ['block' => $this->getConfig('headBlock')]);
+                    $this->Html->css($css_files, ['block' => $viewBlockCss]);
                 }
             }
         }
@@ -153,8 +134,8 @@ class ViteScriptsHelper extends Helper
         $files = (array)$files;
 
         // in development
-        if ($this->getConfig('isDevelopment')) {
-            $options['block'] = $this->getConfig('headBlock');
+        if ($this->isDev()) {
+            $options['block'] = Configure::read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
             foreach ($files as $file) {
                 $this->Html->css(Text::insert(':host/:file', [
                     'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),

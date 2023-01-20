@@ -20,7 +20,7 @@ class ViteManifestTest extends TestCase
 				'manifest' => 'etc/example.manifest.json'
 			],
 			'developmentUrl' => ConfigDefaults::DEVELOPMENT_URL,
-			'developmentHostNeedles' => ConfigDefaults::DEV_HOST_NEEDLES,
+			'developmentHostNeedles' => ConfigDefaults::DEVELOPMENT_HOST_NEEDLES,
 			'forceProductionMode' => true,
 			'productionHint' => ConfigDefaults::PRODUCTION_HINT,
 		]);

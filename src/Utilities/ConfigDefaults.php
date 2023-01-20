@@ -18,7 +18,7 @@ class ConfigDefaults
     /**
      * The Dev-Server files will be loaded if one of these needles is present in the URL
      */
-    public const DEV_HOST_NEEDLES = [
+    public const DEVELOPMENT_HOST_NEEDLES = [
         '.test',
         '.local',
         'localhost',
@@ -54,4 +54,18 @@ class ConfigDefaults
      * @see https://vitejs.dev/config/build-options.html#build-manifest
      */
     public const BUILD_MANIFEST = WWW_ROOT . 'build' . DS . 'manifest.json';
+
+    /**
+     * Name of the view block where the link tags for css should be rendered.
+     *
+     * @see https://book.cakephp.org/4/en/views.html#using-view-blocks
+     */
+    public const VIEW_BLOCK_CSS = 'css';
+
+    /**
+     * Name of the view block where the script tags should be rendered.
+     *
+     * @see https://book.cakephp.org/4/en/views.html#using-view-blocks
+     */
+    public const VIEW_BLOCK_SCRIPT = 'script';
 }
