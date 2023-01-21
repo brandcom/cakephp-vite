@@ -136,7 +136,7 @@ class ViteScriptsHelper extends Helper
             }
 
             $matchingFiles = array_filter($files, function ($file) use ($record) {
-                return str_contains($record->getFileUrl(), $file);
+                return $record->match($file);
             });
 
             if (count($files) && !count($matchingFiles)) {

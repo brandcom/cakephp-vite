@@ -49,6 +49,18 @@ class ManifestRecord
     }
 
     /**
+     * Checks if a string matches with the filename
+     *
+     * @param string $name the name to check
+     * @param string $property the property of the chunk, defaults to `src`
+     * @return bool
+     */
+    public function match(string $name, string $property = 'src'): bool
+    {
+        return property_exists($this->chunk, $property) && Strings::contains($this->chunk->{$property}, $name);
+    }
+
+    /**
      * The current Record is legacy
      *
      * @return bool
