@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
+use Cake\Core\Configure;
 use Nette\Utils\Strings;
 use stdClass;
 
@@ -89,9 +90,9 @@ class ManifestRecord
      *
      * @return string
      */
-    public function url(): string
+    public function getFileUrl(): string
     {
-        return '/' . $this->chunk->file;
+        return DS . Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY) . DS . $this->chunk->file;
     }
 
     /**
@@ -101,15 +102,13 @@ class ManifestRecord
      */
     public function getCss(): array
     {
-        $files = $this->chunk?->css ?? [];
+        $files = $this->chunk->css ?? [];
         if (!count($files)) {
             return $files;
         }
 
         return array_map(function ($file) {
-            $file = trim($file);
-
-            return '/' . ltrim($file, '/');
+            return DS . Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY) . DS . $file;
         }, $files);
     }
 

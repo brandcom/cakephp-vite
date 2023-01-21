@@ -35,12 +35,12 @@ class ConfigDefaults
      */
     public const DEVELOPMENT_URL = 'http://localhost:3000';
 
-	/**
-	 * path to entry files during development
-	 */
+    /**
+     * path to entry files during development
+     */
     public const DEVELOPMENT_ENTRY_FILES = [
-		'webroot_src/js/main.js',
-	];
+        'webroot_src/js/main.js',
+    ];
 
     /**
      * If the project is not in the webroot, define a base directory as an absolute path.

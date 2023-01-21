@@ -73,8 +73,8 @@ class ViteManifest
 
     /**
      * Returns the manifest records
-	 *
-	 * Can be filtered by keys with the $filters argument
+     *
+     * Can be filtered by keys with the $filters argument
      *
      * @param array<string> $filters filter by record-keys
      * @return array|\ViteHelper\Utilities\ManifestRecord[]

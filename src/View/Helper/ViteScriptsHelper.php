@@ -79,11 +79,11 @@ class ViteScriptsHelper extends Helper
         $this->productionScript($files, $options);
     }
 
-	/**
-	 * @param array $files
-	 * @param array $options
-	 * @return void
-	 */
+    /**
+     * @param array $files
+     * @param array $options
+     * @return void
+     */
     private function devScript(array $files, array $options): void
     {
         $this->Html->script(
@@ -95,9 +95,9 @@ class ViteScriptsHelper extends Helper
             ]
         );
 
-		if (empty($files)) {
-			$files = Configure::read('ViteHelper.developmentEntryFiles', ConfigDefaults::DEVELOPMENT_ENTRY_FILES);
-		}
+        if (empty($files)) {
+            $files = Configure::read('ViteHelper.developmentEntryFiles', ConfigDefaults::DEVELOPMENT_ENTRY_FILES);
+        }
 
         $options['type'] = 'module';
         foreach ($files as $file) {
@@ -130,7 +130,7 @@ class ViteScriptsHelper extends Helper
                 $options['nomodule'] = 'nomodule';
             }
 
-            $this->Html->script($record->url($pluginPrefix), $options);
+            $this->Html->script($record->getFileUrl($pluginPrefix), $options);
 
             // the js files has css dependency ?
             $cssFiles = $record->getCss();
@@ -173,7 +173,7 @@ class ViteScriptsHelper extends Helper
                 continue;
             }
 
-            $this->Html->css($record->url($pluginPrefix), $options);
+            $this->Html->css($record->getFileUrl($pluginPrefix), $options);
         }
     }
 }
