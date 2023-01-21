@@ -88,9 +88,11 @@ class ManifestRecord
     /**
      * Returns the file's relative url
      *
+	 * todo support plugin build assets
+	 * @param string|null $pluginPrefix
      * @return string
      */
-    public function getFileUrl(): string
+    public function getFileUrl(?string $pluginPrefix = null): string
     {
         return DS . ltrim(Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY), DS)
             . DS . $this->chunk->file;
