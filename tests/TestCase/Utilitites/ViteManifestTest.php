@@ -49,7 +49,7 @@ class ViteManifestTest extends TestCase
 		// we have 1 stylesheet + 1 legacy
 		$this->assertEquals(2, $records->filter(fn (ManifestRecord $file) => $file->match('style'))->count());
 
-		$this->assertEquals(4, $records->filter(fn (ManifestRecord $file) => $file->isJavascript())->count());
+		$this->assertEquals(8, $records->filter(fn (ManifestRecord $file) => $file->isJavascript())->count());
 	}
 }
 
