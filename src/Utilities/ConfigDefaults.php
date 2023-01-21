@@ -47,14 +47,21 @@ class ConfigDefaults
     public const BASE_DIRECTORY = null;
 
     /**
-     * Output directory
+     * Directory where your assets go, under the build.outDir
+     *
+     * @see https://vitejs.dev/config/build-options.html#build-assetsdir
+     */
+    public const BUILD_ASSETS_DIRECTORY = 'assets';
+
+    /**
+     * Output directory (build.outDir)
      *
      * @see https://vitejs.dev/config/build-options.html#build-outdir
      */
-    public const BUILD_OUT_DIRECTORY = 'build';
+    public const BUILD_OUT_DIRECTORY = 'dist';
 
     /**
-     * The full absolute path to the manifest file
+     * The absolute path to the manifest file
      *
      * @see https://vitejs.dev/config/build-options.html#build-manifest
      */

@@ -99,9 +99,9 @@ class ViteScriptsHelper extends Helper
         if (empty($files)) {
             $files = Configure::read('ViteHelper.developmentEntryFiles', ConfigDefaults::DEVELOPMENT_ENTRY_FILES);
 
-			if (empty($files)) {
-				throw new ConfigurationException('There are no entry points for the dev server. Be sure to set the ViteHelper.developmentEntryFiles config.');
-			}
+            if (empty($files)) {
+                throw new ConfigurationException('There are no entry points for the dev server. Be sure to set the ViteHelper.developmentEntryFiles config.');
+            }
         }
 
         $options['type'] = 'module';
@@ -140,7 +140,6 @@ class ViteScriptsHelper extends Helper
             // the js files has css dependency ?
             $cssFiles = $record->getCss();
             if (count($cssFiles)) {
-                $this->getView()->append('css', '123123313');
                 $this->Html->css($cssFiles, [
                     'block' => Configure::read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS),
                 ]);
