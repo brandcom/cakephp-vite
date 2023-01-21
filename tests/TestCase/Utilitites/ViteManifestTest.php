@@ -7,6 +7,7 @@ use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
 use ViteHelper\Utilities\ConfigDefaults;
 use ViteHelper\Utilities\ManifestRecord;
+use ViteHelper\Utilities\ViteHelperConfig;
 use ViteHelper\Utilities\ViteManifest;
 
 class ViteManifestTest extends TestCase
@@ -29,12 +30,12 @@ class ViteManifestTest extends TestCase
 
 	public function testGetManifest(): void
 	{
-		$this->assertGreaterThan(0, ViteManifest::getRecords()->count());
+		$this->assertGreaterThan(0, ViteManifest::getRecords(ViteHelperConfig::create())->count());
 	}
 
 	public function testRecords(): void
 	{
-		$records = ViteManifest::getRecords();
+		$records = ViteManifest::getRecords(ViteHelperConfig::create());
 
 		// we have one polyfill
 		$this->assertEquals(1, $records->filter(fn (ManifestRecord $record) => $record->isPolyfill())->count());

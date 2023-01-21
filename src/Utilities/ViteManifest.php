@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
-use Cake\Core\Configure;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Json;
 use ViteHelper\Exception\ManifestNotFoundException;
@@ -16,12 +15,14 @@ class ViteManifest
     /**
      * Returns the manifest records as a Collection
      *
+     * @param \ViteHelper\Utilities\ViteHelperConfig $config plugin config instance
      * @return \ViteHelper\Utilities\ManifestRecords|\ViteHelper\Utilities\ManifestRecord[]
      * @throws \ViteHelper\Exception\ManifestNotFoundException
+     * @internal
      */
-    public static function getRecords(): ManifestRecords
+    public static function getRecords(ViteHelperConfig $config): ManifestRecords
     {
-        $manifestPath = Configure::read('ViteHelper.build.manifest', ConfigDefaults::BUILD_MANIFEST);
+        $manifestPath = $config->read('build.manifest', ConfigDefaults::BUILD_MANIFEST);
 
         try {
             $json = FileSystem::read($manifestPath);
@@ -39,7 +40,7 @@ class ViteManifest
 
         $manifestArray = [];
         foreach (get_object_vars($manifest) as $property => $value) {
-            $manifestArray[$property] = new ManifestRecord($property, $value);
+            $manifestArray[$property] = new ManifestRecord($property, $value, $config);
         }
 
         /**

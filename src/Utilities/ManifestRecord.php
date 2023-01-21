@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
-use Cake\Core\Configure;
 use Nette\Utils\Strings;
 use stdClass;
 
@@ -13,17 +12,21 @@ class ManifestRecord
 
     private stdClass $chunk;
 
+    private ViteHelperConfig $config;
+
     /**
      * Default constructor
      *
      * @param string $key The unique key for this record
      * @param \stdClass $chunk The chunks
+     * @param \ViteHelper\Utilities\ViteHelperConfig $config config instance
      * @see https://vitejs.dev/guide/backend-integration.html
      */
-    public function __construct(string $key, stdClass $chunk)
+    public function __construct(string $key, stdClass $chunk, ViteHelperConfig $config)
     {
         $this->key = $key;
         $this->chunk = $chunk;
+        $this->config = $config;
     }
 
     /**
@@ -110,7 +113,7 @@ class ManifestRecord
      */
     public function getFileUrl(?string $pluginPrefix = null): string
     {
-        return DS . ltrim(Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY), DS)
+        return DS . ltrim($this->config->read('build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY), DS)
             . DS . $this->chunk->file;
     }
 
@@ -131,7 +134,7 @@ class ManifestRecord
 
         return array_map(function ($file) {
             return DS .
-                ltrim(Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY), DS)
+                ltrim($this->config->read('build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY), DS)
                 . DS . $file;
         }, $files);
     }
