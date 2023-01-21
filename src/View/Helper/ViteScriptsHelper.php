@@ -7,6 +7,7 @@ use Cake\Core\Configure;
 use Cake\Utility\Text;
 use Cake\View\Helper;
 use Nette\Utils\Strings;
+use ViteHelper\Exception\ConfigurationException;
 use ViteHelper\Utilities\ConfigDefaults;
 use ViteHelper\Utilities\ViteManifest;
 
@@ -97,13 +98,17 @@ class ViteScriptsHelper extends Helper
 
         if (empty($files)) {
             $files = Configure::read('ViteHelper.developmentEntryFiles', ConfigDefaults::DEVELOPMENT_ENTRY_FILES);
+
+			if (empty($files)) {
+				throw new ConfigurationException('There are no entry points for the dev server. Be sure to set the ViteHelper.developmentEntryFiles config.');
+			}
         }
 
         $options['type'] = 'module';
         foreach ($files as $file) {
             $this->Html->script(Text::insert(':host/:file', [
                 'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
-                'file' => ltrim($file, '/'),
+                'file' => ltrim($file, DS),
             ]), $options);
         }
     }
