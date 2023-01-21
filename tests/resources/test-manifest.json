@@ -1,0 +1,69 @@
+{
+	"_sweetalert2.all-legacy-3aabaac6.js": {
+		"file": "assets/sweetalert2.all-legacy-3aabaac6.js"
+	},
+	"webroot_src/js/timetables-legacy.js": {
+		"file": "timetables-legacy.819019cc.min.js",
+		"src": "webroot_src/js/timetables-legacy.js",
+		"isEntry": true,
+		"imports": [
+			"_sweetalert2.all-legacy-3aabaac6.js"
+		]
+	},
+	"webroot_src/scss/style-legacy.scss": {
+		"file": "style-legacy.d965a21c.min.js",
+		"src": "webroot_src/scss/style-legacy.scss",
+		"isEntry": true
+	},
+	"webroot_src/js/main-legacy.js": {
+		"file": "main-legacy.c661ef31.min.js",
+		"src": "webroot_src/js/main-legacy.js",
+		"isEntry": true,
+		"imports": [
+			"_sweetalert2.all-legacy-3aabaac6.js"
+		]
+	},
+	"vite/legacy-polyfills-legacy": {
+		"file": "polyfills-legacy.0957d7fe.min.js",
+		"src": "vite/legacy-polyfills-legacy",
+		"isEntry": true
+	},
+	"webroot_src/js/main.css": {
+		"file": "assets/main-cbf508da.css",
+		"src": "webroot_src/js/main.css"
+	},
+	"webroot_src/js/timetables.css": {
+		"file": "assets/timetables-f05820bf.css",
+		"src": "webroot_src/js/timetables.css"
+	},
+	"webroot_src/scss/style.scss": {
+		"file": "assets/style-22e5a2b0.css",
+		"src": "webroot_src/scss/style.scss",
+		"isEntry": true
+	},
+	"webroot_src/js/main.js": {
+		"file": "main.e947a80c.min.js",
+		"src": "webroot_src/js/main.js",
+		"isEntry": true,
+		"imports": [
+			"_sweetalert2.all-8d3ac045.js"
+		],
+		"css": [
+			"assets/main-cbf508da.css"
+		]
+	},
+	"webroot_src/js/timetables.js": {
+		"file": "timetables.283aef92.min.js",
+		"src": "webroot_src/js/timetables.js",
+		"isEntry": true,
+		"imports": [
+			"_sweetalert2.all-8d3ac045.js"
+		],
+		"css": [
+			"assets/timetables-f05820bf.css"
+		]
+	},
+	"_sweetalert2.all-8d3ac045.js": {
+		"file": "assets/sweetalert2.all-8d3ac045.js"
+	}
+}

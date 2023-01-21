@@ -21,7 +21,7 @@ class ViteManifestTest extends TestCase
 			'baseDirectory' => null,
 			'build' => [
 				'outDir' => 'etc',
-				'manifest' => 'etc/example.manifest.json'
+				'manifest' => 'tests/resources/test-manifest.json',
 			],
 			'developmentUrl' => ConfigDefaults::DEVELOPMENT_URL,
 			'developmentHostNeedles' => ConfigDefaults::DEVELOPMENT_HOST_NEEDLES,
@@ -32,41 +32,24 @@ class ViteManifestTest extends TestCase
 
 	public function testGetManifest(): void
 	{
-		$this->assertGreaterThan(0, count(ViteManifest::getRecords()));
+		$this->assertGreaterThan(0, ViteManifest::getRecords()->count());
 	}
 
 	public function testRecords(): void
 	{
 		// we have one polyfill
-		$this->assertEquals(1, count(ViteManifest::getRecords(fn (ManifestRecord $record) => $record->isPolyfill())));
-
-		return;
+		$records = ViteManifest::getRecords();
+		$this->assertEquals(1, $records->filter(fn (ManifestRecord $record) => $record->isPolyfill())->count());
 
 		// 3 main, compiled, legacy, css
-		$this->assertEquals(3, count(array_filter($records, function ($file) {
-			return $file->match('main');
-		})));
+		$this->assertEquals(3, $records->filter(fn (ManifestRecord $file) => $file->match('main'))->count());
 
-		$this->assertEquals(1, count(array_filter($records, function ($file) {
-			return $file->match('main') && $file->isStylesheet();
-		})));
-
-		$this->assertEquals(2, count(array_filter($records, function ($file) {
-			return $file->match('main') && !$file->isStylesheet();
-		})));
+		$this->assertEquals(1, $records->filter(fn (ManifestRecord $file) => $file->match('main') && $file->isStylesheet())->count());
 
 		// we have 1 stylesheet + 1 legacy
-		$this->assertEquals(2, count(array_filter($records, function ($file) {
-			return $file->match('style');
-		})));
+		$this->assertEquals(2, $records->filter(fn (ManifestRecord $file) => $file->match('style'))->count());
 
-		$this->assertEquals(4, count(array_filter($records, function ($file) {
-			return $file->isJavascript();
-		})));
-
-		$this->assertEquals(4, count(array_filter($records, function ($file) {
-			return $file->isJavascript();
-		})));
+		$this->assertEquals(4, $records->filter(fn (ManifestRecord $file) => $file->isJavascript())->count());
 	}
 }
 
