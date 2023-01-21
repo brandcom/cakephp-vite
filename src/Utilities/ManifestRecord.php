@@ -86,7 +86,7 @@ class ManifestRecord
     }
 
     /**
-     * Returns the files (URL) relative path
+     * Returns the file's relative url
      *
      * @return string
      */
@@ -97,7 +97,10 @@ class ManifestRecord
     }
 
     /**
-     * Returns all dependent CSS file
+     * Returns the urls to dependent CSS files
+	 *
+	 * This is the case if styles are imported in javascript and this record
+	 * represents a javascript file.
      *
      * @return array
      */

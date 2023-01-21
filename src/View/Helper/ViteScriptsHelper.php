@@ -65,6 +65,8 @@ class ViteScriptsHelper extends Helper
      * @param array|string $files the source path of javascript file or files
      * @param array $options Additional options for the script tag
      * @return void
+	 * @throws ConfigurationException
+	 * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
     public function script(array|string $files = [], array $options = []): void
     {
@@ -84,6 +86,7 @@ class ViteScriptsHelper extends Helper
      * @param array $files
      * @param array $options
      * @return void
+	 * @throws ConfigurationException
      */
     private function devScript(array $files, array $options): void
     {
