@@ -93,7 +93,6 @@ class ManifestRecord
     public function getFileUrl(): string
     {
         return DS . ltrim(Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY), DS)
-            . DS . ltrim(Configure::read('ViteHelper.assetsDirectory', ConfigDefaults::BUILD_ASSETS_DIRECTORY), DS)
             . DS . $this->chunk->file;
     }
 
@@ -112,7 +111,6 @@ class ManifestRecord
         return array_map(function ($file) {
             return DS .
                 ltrim(Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY), DS)
-                . DS . ltrim(Configure::read('ViteHelper.assetsDirectory', ConfigDefaults::BUILD_ASSETS_DIRECTORY), DS)
                 . DS . $file;
         }, $files);
     }

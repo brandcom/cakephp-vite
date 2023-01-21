@@ -6,7 +6,6 @@ return [
 	'ViteHelper' => [
 		'baseDirectory' => ConfigDefaults::BASE_DIRECTORY,
 		'build' => [
-			'assetsDirectory' => ConfigDefaults::BUILD_ASSETS_DIRECTORY,
 			'outDirectory' => ConfigDefaults::BUILD_OUT_DIRECTORY,
 			'manifest' => ConfigDefaults::BUILD_MANIFEST,
 		],

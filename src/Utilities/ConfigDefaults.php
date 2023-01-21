@@ -47,13 +47,6 @@ class ConfigDefaults
     public const BASE_DIRECTORY = null;
 
     /**
-     * Directory where your assets go, under the build.outDir
-     *
-     * @see https://vitejs.dev/config/build-options.html#build-assetsdir
-     */
-    public const BUILD_ASSETS_DIRECTORY = 'assets';
-
-    /**
      * Output directory (build.outDir)
      *
      * @see https://vitejs.dev/config/build-options.html#build-outdir
