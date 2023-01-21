@@ -6,9 +6,11 @@ namespace ViteHelper\View\Helper;
 use Cake\Core\Configure;
 use Cake\Utility\Text;
 use Cake\View\Helper;
+use Nette\Utils\Arrays;
 use Nette\Utils\Strings;
 use ViteHelper\Exception\ConfigurationException;
 use ViteHelper\Utilities\ConfigDefaults;
+use ViteHelper\Utilities\ManifestRecords;
 use ViteHelper\Utilities\ViteManifest;
 
 /**
@@ -62,33 +64,31 @@ class ViteScriptsHelper extends Helper
     /**
      * Adds scripts to the script view block
      *
-     * @param array|string $files the source path of javascript file or files
-     * @param array $options Additional options for the script tag
+     * @param array $options options for the script tag
+     * @param \ViteHelper\Utilities\ManifestRecords|null $records arbitrary records e.g. from a plugin's vite manifest
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    public function script(array|string $files = [], array $options = []): void
+    public function script(array $options = [], ?ManifestRecords $records = null): void
     {
-        $files = (array)$files;
         $options['block'] = Configure::read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
 
         if ($this->isDev()) {
-            $this->devScript($files, $options);
+            $this->devScript($options);
 
             return;
         }
 
-        $this->productionScript($files, $options);
+        $this->productionScript($options, $records);
     }
 
     /**
-     * @param array $files files to filter by
      * @param array $options passed to script tag
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
      */
-    private function devScript(array $files, array $options): void
+    private function devScript(array $options): void
     {
         $this->Html->script(
             Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
@@ -99,18 +99,8 @@ class ViteScriptsHelper extends Helper
             ]
         );
 
-        if (empty($files)) {
-            $files = Configure::read('ViteHelper.developmentEntryFiles', ConfigDefaults::DEVELOPMENT_ENTRY_FILES);
-
-            if (empty($files)) {
-                throw new ConfigurationException(
-                    'There are no entry points for the dev server. Be sure to set the ViteHelper.developmentEntryFiles config.'
-                );
-            }
-        }
-
         $options['type'] = 'module';
-        foreach ($files as $file) {
+        foreach ($this->getFiles('scriptEntries') as $file) {
             $this->Html->script(Text::insert(':host/:file', [
                 'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
                 'file' => ltrim($file, DS),
@@ -119,27 +109,19 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
-     * @param array<string> $files list of files
-     * @param array $options will be passed to script tag
+     * @param array $options vite manifest records to use
+     * @param \ViteHelper\Utilities\ManifestRecords|null $records will be passed to script tag
      * @return void
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    private function productionScript(array $files, array $options): void
+    private function productionScript(array $options, ?ManifestRecords $records): void
     {
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
         unset($options['plugin']);
 
-        $records = ViteManifest::getRecords();
+        $records = $records ?: ViteManifest::getRecords();
         foreach ($records as $record) {
             if (!$record->isEntryScript()) {
-                continue;
-            }
-
-            $matchingFiles = array_filter($files, function ($file) use ($record) {
-                return $record->match($file);
-            });
-
-            if (count($files) && !count($matchingFiles)) {
                 continue;
             }
 
@@ -167,17 +149,17 @@ class ViteScriptsHelper extends Helper
      * Adds the gives CSS styles to the configured block
      * The $options array is directly passed to the Html-Helper.
      *
-     * @param array|string $files the CSS files
      * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
+     * @param \ViteHelper\Utilities\ManifestRecords|null $records arbitrary records e.g. from a plugin's vite manifest
      * @return void
      * @throws \ViteHelper\Exception\ManifestNotFoundException
+     * @throws \ViteHelper\Exception\ConfigurationException
      */
-    public function css(array|string $files = 'webroot_src/scss/style', array $options = []): void
+    public function css(array $options = [], ?ManifestRecords $records = null): void
     {
-        $files = (array)$files;
         if ($this->isDev()) {
             $options['block'] = Configure::read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
-            foreach ($files as $file) {
+            foreach ($this->getFiles('styleEntries') as $file) {
                 $this->Html->css(Text::insert(':host/:file', [
                     'host' => Configure::read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
                     'file' => ltrim($file, '/'),
@@ -187,14 +169,38 @@ class ViteScriptsHelper extends Helper
             return;
         }
 
+        $records = $records ?: ViteManifest::getRecords();
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
         unset($options['plugin']);
-        foreach (ViteManifest::getRecords() as $record) {
+        foreach ($records as $record) {
             if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
                 continue;
             }
 
             $this->Html->css($record->getFileUrl($pluginPrefix), $options);
         }
+    }
+
+    /**
+     * @param string $configKey key for ViteHelper.development.*Entries
+     * @return array
+     * @throws \ViteHelper\Exception\ConfigurationException
+     */
+    private function getFiles(string $configKey): array
+    {
+        $files = Configure::read('ViteHelper.development.' . $configKey, ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES);
+
+        if (empty($files) || !Arrays::isList($files)) {
+            throw new ConfigurationException(
+                'There are no valid entry points for the dev server. Be sure to set the ViteHelper.development.scriptEntries config.'
+            );
+        }
+        foreach ($files as $file) {
+            if (!file_exists(ROOT . DS . ltrim($file, DS))) {
+                throw new ConfigurationException(sprintf('The entry file "%s" does not exist.', $file));
+            }
+        }
+
+        return $files;
     }
 }

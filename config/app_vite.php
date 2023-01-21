@@ -9,9 +9,12 @@ return [
 			'outDirectory' => ConfigDefaults::BUILD_OUT_DIRECTORY,
 			'manifest' => ConfigDefaults::BUILD_MANIFEST,
 		],
-		'developmentEntryFiles' => ConfigDefaults::DEVELOPMENT_ENTRY_FILES,
-		'developmentHostNeedles' => ConfigDefaults::DEVELOPMENT_HOST_NEEDLES,
-		'developmentUrl' => ConfigDefaults::DEVELOPMENT_URL,
+		'development' => [
+			'scriptEntries' => ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES,
+			'styleEntries' => ConfigDefaults::DEVELOPMENT_STYLE_ENTRIES,
+			'HostNeedles' => ConfigDefaults::DEVELOPMENT_HOST_NEEDLES,
+			'Url' => ConfigDefaults::DEVELOPMENT_URL,
+		],
 		'forceProductionMode' => ConfigDefaults::FORCE_PRODUCTION_MODE,
 		'productionHint' => ConfigDefaults::PRODUCTION_HINT,
 		'viewBlocks' => [
