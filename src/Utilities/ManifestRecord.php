@@ -26,6 +26,9 @@ class ManifestRecord
         $this->chunk = $chunk;
     }
 
+    /**
+     * @return string
+     */
     public function getKey(): string
     {
         return $this->key;
@@ -90,7 +93,7 @@ class ManifestRecord
      *
      * todo support plugin build assets
      *
-     * @param string|null $pluginPrefix
+     * @param string|null $pluginPrefix for plugin build assets
      * @return string
      */
     public function getFileUrl(?string $pluginPrefix = null): string

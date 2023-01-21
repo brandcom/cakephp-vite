@@ -17,7 +17,7 @@ class ViteManifest
     /**
      * Returns the manifest records as a Collection
      *
-     * @return \Cake\Collection\Collection
+     * @return \Cake\Collection\Collection|\ViteHelper\Utilities\ManifestRecord[]
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
     public static function getRecords(): Collection

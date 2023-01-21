@@ -9,7 +9,6 @@ use Cake\View\Helper;
 use Nette\Utils\Strings;
 use ViteHelper\Exception\ConfigurationException;
 use ViteHelper\Utilities\ConfigDefaults;
-use ViteHelper\Utilities\ManifestRecord;
 use ViteHelper\Utilities\ViteManifest;
 
 /**
@@ -84,8 +83,8 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
-     * @param array $files
-     * @param array $options
+     * @param array $files files to filter by
+     * @param array $options passed to script tag
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
      */
@@ -104,7 +103,9 @@ class ViteScriptsHelper extends Helper
             $files = Configure::read('ViteHelper.developmentEntryFiles', ConfigDefaults::DEVELOPMENT_ENTRY_FILES);
 
             if (empty($files)) {
-                throw new ConfigurationException('There are no entry points for the dev server. Be sure to set the ViteHelper.developmentEntryFiles config.');
+                throw new ConfigurationException(
+                    'There are no entry points for the dev server. Be sure to set the ViteHelper.developmentEntryFiles config.'
+                );
             }
         }
 
@@ -128,21 +129,17 @@ class ViteScriptsHelper extends Helper
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
         unset($options['plugin']);
 
-		$records = ViteManifest::getRecords();
-		if (count($files)) {
-			$records->filter(function (ManifestRecord $record) use ($files) {
-				foreach ($files as $file) {
-					if (str_contains($record->getKey(), $file)) {
-						return true;
-					}
-				}
-
-				return false;
-			});
-		}
-
+        $records = ViteManifest::getRecords();
         foreach ($records as $record) {
             if (!$record->isEntryScript()) {
+                continue;
+            }
+
+            $matchingFiles = array_filter($files, function ($file) use ($record) {
+                return str_contains($record->getFileUrl(), $file);
+            });
+
+            if (count($files) && !count($matchingFiles)) {
                 continue;
             }
 
