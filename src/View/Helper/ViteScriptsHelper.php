@@ -59,13 +59,13 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
-     * Adds the gives scripts to the configured block
+     * Adds scripts to the script view block
      *
-     * @param array|string $files the source path of javascript files, without extension
-     * @param array $options Additional option to the script tag
+     * @param array|string $files the source path of javascript file or files
+     * @param array $options Additional options for the script tag
      * @return void
      */
-    public function script(array|string $files = 'webroot_src/js/main', array $options = []): void
+    public function script(array|string $files = [], array $options = []): void
     {
         $files = (array)$files;
         $options['block'] = Configure::read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
@@ -79,10 +79,11 @@ class ViteScriptsHelper extends Helper
         $this->productionScript($files, $options);
     }
 
-    /**
-     * @param array<string> $files list of files
-     * @return void
-     */
+	/**
+	 * @param array $files
+	 * @param array $options
+	 * @return void
+	 */
     private function devScript(array $files, array $options): void
     {
         $this->Html->script(
@@ -93,6 +94,10 @@ class ViteScriptsHelper extends Helper
                 'block' => Configure::read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS),
             ]
         );
+
+		if (empty($files)) {
+			$files = Configure::read('ViteHelper.developmentEntryFiles', ConfigDefaults::DEVELOPMENT_ENTRY_FILES);
+		}
 
         $options['type'] = 'module';
         foreach ($files as $file) {

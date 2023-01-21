@@ -9,6 +9,7 @@ return [
 			'outDirectory' => ConfigDefaults::BUILD_OUT_DIRECTORY,
 			'manifest' => ConfigDefaults::BUILD_MANIFEST,
 		],
+		'developmentEntryFiles' => ConfigDefaults::DEVELOPMENT_ENTRY_FILES,
 		'developmentHostNeedles' => ConfigDefaults::DEVELOPMENT_HOST_NEEDLES,
 		'developmentUrl' => ConfigDefaults::DEVELOPMENT_URL,
 		'forceProductionMode' => ConfigDefaults::FORCE_PRODUCTION_MODE,
