@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
-use Cake\Collection\Collection;
 use Cake\Core\Configure;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Json;
@@ -17,10 +16,10 @@ class ViteManifest
     /**
      * Returns the manifest records as a Collection
      *
-     * @return \Cake\Collection\Collection|\ViteHelper\Utilities\ManifestRecord[]
+     * @return \ViteHelper\Utilities\ManifestRecords|\ViteHelper\Utilities\ManifestRecord[]
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    public static function getRecords(): Collection
+    public static function getRecords(): ManifestRecords
     {
         $manifestPath = Configure::read('ViteHelper.build.manifest', ConfigDefaults::BUILD_MANIFEST);
 
@@ -59,6 +58,6 @@ class ViteManifest
             return !$file->isPolyfill() && !$file->isLegacy() ? 1 : 0;
         });
 
-        return new Collection($manifestArray);
+        return new ManifestRecords($manifestArray, $manifestPath);
     }
 }
