@@ -9,9 +9,6 @@ use ViteHelper\Utilities\ConfigDefaults;
 use ViteHelper\Utilities\ManifestRecord;
 use ViteHelper\Utilities\ViteManifest;
 
-/**
- * todo fix
- */
 class ViteManifestTest extends TestCase
 {
 	protected function setUp(): void
@@ -37,13 +34,13 @@ class ViteManifestTest extends TestCase
 
 	public function testRecords(): void
 	{
-		// we have one polyfill
 		$records = ViteManifest::getRecords();
+
+		// we have one polyfill
 		$this->assertEquals(1, $records->filter(fn (ManifestRecord $record) => $record->isPolyfill())->count());
 
 		// 3 main, compiled, legacy, css
 		$this->assertEquals(3, $records->filter(fn (ManifestRecord $file) => $file->match('main'))->count());
-
 		$this->assertEquals(1, $records->filter(fn (ManifestRecord $file) => $file->match('main') && $file->isStylesheet())->count());
 
 		// we have 1 stylesheet + 1 legacy

@@ -45,5 +45,4 @@ class ViteScriptsHelperTest extends TestCase
 		Configure::write('ViteHelper.forceProductionMode', false);
 		$this->assertEquals(false, $this->helper->isDev());
 	}
-
 }
