@@ -12,7 +12,7 @@ use ViteHelper\View\Helper\ViteScriptsHelper;
 
 class ViteScriptsHelperTest extends TestCase
 {
-	public $helper = null;
+	public ViteScriptsHelper $helper;
 
 	use IntegrationTestTrait;
 
@@ -31,10 +31,15 @@ class ViteScriptsHelperTest extends TestCase
 			'forceProductionMode' => false,
 			'productionHint' => ConfigDefaults::PRODUCTION_HINT,
 		]);
-		$View = new View();
-		$this->helper = new ViteScriptsHelper($View);
+
+		$this->helper = new ViteScriptsHelper(new View);
 	}
 
+	/**
+	 * fixme isDev is always false, because if can only be true due to a http request (url, query-param, cookie).
+	 *
+	 * @return void
+	 */
 	public function testIsDev(): void
 	{
 		Configure::write('ViteHelper.forceProductionMode', false);
