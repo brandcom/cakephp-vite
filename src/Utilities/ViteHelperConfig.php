@@ -33,7 +33,7 @@ class ViteHelperConfig
      * @param mixed $default default value
      * @return mixed
      */
-    public function read(string $path, mixed $default): mixed
+    public function read(string $path, mixed $default = null): mixed
     {
         return Hash::get($this->config, $path, $default);
     }
