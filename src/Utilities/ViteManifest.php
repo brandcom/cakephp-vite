@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
+use Cake\Collection\Collection;
 use Cake\Core\Configure;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Json;
@@ -14,36 +15,12 @@ use ViteHelper\Exception\ManifestNotFoundException;
 class ViteManifest
 {
     /**
-     * Returns the manifest records
+     * Returns the manifest records as a Collection
      *
-     * Can be filtered by keys with the $filters argument
-     *
-     * @param array<string> $filters filter by record-keys
-     * @return array<\ViteHelper\Utilities\ManifestRecord>
+     * @return \Cake\Collection\Collection
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    public static function getRecords(array $filters = []): array
-    {
-        $records = self::readAndCreateRecords();
-
-        if (!count($filters)) {
-            return $records;
-        }
-
-        return array_filter($records, function (ManifestRecord $record) use ($filters) {
-            return in_array($record->getKey(), $filters);
-        });
-    }
-
-    /**
-     * Converts the manifest json file from vite to more useful objects.
-     * Entries are sorted so that legacy polyfills come before legacy scripts.
-     *
-     * @internal
-     * @return array
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
-     */
-    protected static function readAndCreateRecords(): array
+    public static function getRecords(): Collection
     {
         $manifestPath = Configure::read('ViteHelper.build.manifest', ConfigDefaults::BUILD_MANIFEST);
 
@@ -82,6 +59,6 @@ class ViteManifest
             return !$file->isPolyfill() && !$file->isLegacy() ? 1 : 0;
         });
 
-        return $manifestArray;
+        return new Collection($manifestArray);
     }
 }

@@ -88,8 +88,9 @@ class ManifestRecord
     /**
      * Returns the file's relative url
      *
-	 * todo support plugin build assets
-	 * @param string|null $pluginPrefix
+     * todo support plugin build assets
+     *
+     * @param string|null $pluginPrefix
      * @return string
      */
     public function getFileUrl(?string $pluginPrefix = null): string
@@ -100,9 +101,9 @@ class ManifestRecord
 
     /**
      * Returns the urls to dependent CSS files
-	 *
-	 * This is the case if styles are imported in javascript and this record
-	 * represents a javascript file.
+     *
+     * This is the case if styles are imported in javascript and this record
+     * represents a javascript file.
      *
      * @return array
      */

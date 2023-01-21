@@ -9,6 +9,7 @@ use Cake\View\Helper;
 use Nette\Utils\Strings;
 use ViteHelper\Exception\ConfigurationException;
 use ViteHelper\Utilities\ConfigDefaults;
+use ViteHelper\Utilities\ManifestRecord;
 use ViteHelper\Utilities\ViteManifest;
 
 /**
@@ -65,8 +66,8 @@ class ViteScriptsHelper extends Helper
      * @param array|string $files the source path of javascript file or files
      * @param array $options Additional options for the script tag
      * @return void
-	 * @throws ConfigurationException
-	 * @throws \ViteHelper\Exception\ManifestNotFoundException
+     * @throws \ViteHelper\Exception\ConfigurationException
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
     public function script(array|string $files = [], array $options = []): void
     {
@@ -86,7 +87,7 @@ class ViteScriptsHelper extends Helper
      * @param array $files
      * @param array $options
      * @return void
-	 * @throws ConfigurationException
+     * @throws \ViteHelper\Exception\ConfigurationException
      */
     private function devScript(array $files, array $options): void
     {
@@ -126,7 +127,21 @@ class ViteScriptsHelper extends Helper
     {
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
         unset($options['plugin']);
-        foreach (ViteManifest::getRecords($files) as $record) {
+
+		$records = ViteManifest::getRecords();
+		if (count($files)) {
+			$records->filter(function (ManifestRecord $record) use ($files) {
+				foreach ($files as $file) {
+					if (str_contains($record->getKey(), $file)) {
+						return true;
+					}
+				}
+
+				return false;
+			});
+		}
+
+        foreach ($records as $record) {
             if (!$record->isEntryScript()) {
                 continue;
             }
