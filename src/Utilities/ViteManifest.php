@@ -13,91 +13,42 @@ use ViteHelper\Exception\ManifestNotFoundException;
  */
 class ViteManifest
 {
-    protected ?string $baseDir;
-
-    /**
-     * Relative path to the output directory
-     *
-     * @see https://vitejs.dev/config/build-options.html#build-outdir
-     * @var string
-     */
-    protected string $outDir;
-
-    /**
-     * Manifest file's name
-     *
-     * @var string
-     */
-    protected string $manifest;
-
-    /**
-     * Contains all records from a manifest.json file
-     *
-     * @var array<\ViteHelper\Utilities\ManifestRecord>
-     */
-    public array $manifestRecords;
-
-    /**
-     * This class instance
-     *
-     * @var \ViteHelper\Utilities\ViteManifest|null
-     */
-    private static ?ViteManifest $instance = null;
-
-    /**
-     * Default constructor
-     *
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
-     */
-    private function __construct()
-    {
-        $this->baseDir = Configure::read('ViteHelper.baseDirectory', ConfigDefaults::BASE_DIRECTORY);
-        $this->outDir = Configure::read('ViteHelper.build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY);
-        $this->manifest = Configure::read('ViteHelper.build.manifest', ConfigDefaults::BUILD_MANIFEST);
-        $this->manifestRecords = $this->getManifest();
-    }
-
-    /**
-     * Returns a ViteManifest instance
-     *
-     * @return self
-     */
-    public static function getInstance(): ViteManifest
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new ViteManifest();
-        }
-
-        return self::$instance;
-    }
-
     /**
      * Returns the manifest records
      *
      * Can be filtered by keys with the $filters argument
      *
      * @param array<string> $filters filter by record-keys
-     * @return array|\ViteHelper\Utilities\ManifestRecord[]
+     * @return array<\ViteHelper\Utilities\ManifestRecord>
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    public function getRecords(array $filters = []): array
+    public static function getRecords(array $filters = []): array
     {
+        $records = self::readAndCreateRecords();
+
         if (!count($filters)) {
-            return $this->manifestRecords;
+            return $records;
         }
 
-        return array_filter($this->manifestRecords, function (ManifestRecord $record) use ($filters) {
+        return array_filter($records, function (ManifestRecord $record) use ($filters) {
             return in_array($record->getKey(), $filters);
         });
     }
 
     /**
+     * Converts the manifest json file from vite to more useful objects.
+     * Entries are sorted so that legacy polyfills come before legacy scripts.
+     *
+     * @internal
      * @return array
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    protected function getManifest(): array
+    protected static function readAndCreateRecords(): array
     {
+        $manifestPath = Configure::read('ViteHelper.build.manifest', ConfigDefaults::BUILD_MANIFEST);
+
         try {
-            $json = FileSystem::read($this->manifest);
+            $json = FileSystem::read($manifestPath);
 
             $json = str_replace([
                 "\u0000",
@@ -106,7 +57,7 @@ class ViteManifest
             $manifest = Json::decode($json);
         } catch (\Exception $e) {
             throw new ManifestNotFoundException(
-                "No valid manifest.json found at path {$this->manifest}. Did you build your js? Error: {$e->getMessage()}"
+                "No valid manifest.json found at path {$manifestPath}. Did you build your js? Error: {$e->getMessage()}"
             );
         }
 

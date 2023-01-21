@@ -8,6 +8,9 @@ use Cake\TestSuite\TestCase;
 use ViteHelper\Utilities\ConfigDefaults;
 use ViteHelper\Utilities\ViteManifest;
 
+/**
+ * todo fix
+ */
 class ViteManifestTest extends TestCase
 {
 	protected function setUp(): void

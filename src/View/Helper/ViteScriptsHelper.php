@@ -117,12 +117,13 @@ class ViteScriptsHelper extends Helper
      * @param array<string> $files list of files
      * @param array $options will be passed to script tag
      * @return void
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
     private function productionScript(array $files, array $options): void
     {
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
         unset($options['plugin']);
-        foreach (ViteManifest::getInstance()->getRecords($files) as $record) {
+        foreach (ViteManifest::getRecords($files) as $record) {
             if (!$record->isEntryScript()) {
                 continue;
             }
@@ -154,6 +155,7 @@ class ViteScriptsHelper extends Helper
      * @param array|string $files the CSS files
      * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
      * @return void
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
     public function css(array|string $files = 'webroot_src/scss/style', array $options = []): void
     {
@@ -172,7 +174,7 @@ class ViteScriptsHelper extends Helper
 
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
         unset($options['plugin']);
-        foreach (ViteManifest::getInstance()->getRecords() as $record) {
+        foreach (ViteManifest::getRecords() as $record) {
             if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
                 continue;
             }
