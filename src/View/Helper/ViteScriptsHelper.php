@@ -9,7 +9,6 @@ use Nette\Utils\Arrays;
 use Nette\Utils\Strings;
 use ViteHelper\Exception\ConfigurationException;
 use ViteHelper\Utilities\ConfigDefaults;
-use ViteHelper\Utilities\ManifestRecords;
 use ViteHelper\Utilities\ViteHelperConfig;
 use ViteHelper\Utilities\ViteManifest;
 
@@ -66,13 +65,12 @@ class ViteScriptsHelper extends Helper
      * Adds scripts to the script view block
      *
      * @param array $options options for the script tag
-     * @param \ViteHelper\Utilities\ManifestRecords|null $records arbitrary records e.g. from a plugin's vite manifest
      * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    public function script(array $options = [], ?ManifestRecords $records = null, ?ViteHelperConfig $config = null): void
+    public function script(array $options = [], ?ViteHelperConfig $config = null): void
     {
         $config = $config ?: ViteHelperConfig::create();
         $options['block'] = $config->read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
@@ -83,7 +81,7 @@ class ViteScriptsHelper extends Helper
             return;
         }
 
-        $this->productionScript($options, $records, $config);
+        $this->productionScript($options, $config);
     }
 
     /**
@@ -114,18 +112,17 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
-     * @param array $options vite manifest records to use
-     * @param \ViteHelper\Utilities\ManifestRecords|null $records will be passed to script tag
+     * @param array $options will be passed to script tag
      * @param \ViteHelper\Utilities\ViteHelperConfig $config config instance
      * @return void
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    private function productionScript(array $options, ?ManifestRecords $records, ViteHelperConfig $config): void
+    private function productionScript(array $options, ViteHelperConfig $config): void
     {
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
         unset($options['plugin']);
 
-        $records = $records ?: ViteManifest::getRecords($config);
+        $records = ViteManifest::getRecords($config);
         foreach ($records as $record) {
             if (!$record->isEntryScript()) {
                 continue;
@@ -156,13 +153,12 @@ class ViteScriptsHelper extends Helper
      * The $options array is directly passed to the Html-Helper.
      *
      * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
-     * @param \ViteHelper\Utilities\ManifestRecords|null $records arbitrary records e.g. from a plugin's vite manifest
      * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
      * @return void
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      * @throws \ViteHelper\Exception\ConfigurationException
      */
-    public function css(array $options = [], ?ManifestRecords $records = null, ?ViteHelperConfig $config = null): void
+    public function css(array $options = [], ?ViteHelperConfig $config = null): void
     {
         $config = $config ?: ViteHelperConfig::create();
 
@@ -179,7 +175,7 @@ class ViteScriptsHelper extends Helper
             return;
         }
 
-        $records = $records ?: ViteManifest::getRecords($config);
+        $records = ViteManifest::getRecords($config);
         $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
         unset($options['plugin']);
         foreach ($records as $record) {
