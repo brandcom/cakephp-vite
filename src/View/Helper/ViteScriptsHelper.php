@@ -279,22 +279,26 @@ class ViteScriptsHelper extends Helper
         });
     }
 
-	private function updateOptionsForFiltersAndEntries(array $options): array
-	{
-		$options['filter'] = $options['filter'] ?? null;
-		$options['devEntries'] = $options['devEntries'] ?? null;
-		$files = $options['files'] ?? null;
-		if ($files) {
-			if (!empty($options['devEntries'])) {
-				trigger_error('"devEntries" passed to ViteHelper will be overridden by "files".');
-			}
-			if (!empty($options['filter'])) {
-				trigger_error('"filter" passed to ViteHelper will be overridden by "files".');
-			}
-			$options['devEntries'] = $files;
-			$options['filter'] = $files;
-		}
+    /**
+     * @param array $options options with `filter`, `devEntries`, or `files` key
+     * @return array
+     */
+    private function updateOptionsForFiltersAndEntries(array $options): array
+    {
+        $options['filter'] = $options['filter'] ?? null;
+        $options['devEntries'] = $options['devEntries'] ?? null;
+        $files = $options['files'] ?? null;
+        if ($files) {
+            if (!empty($options['devEntries'])) {
+                trigger_error('"devEntries" passed to ViteHelper will be overridden by "files".');
+            }
+            if (!empty($options['filter'])) {
+                trigger_error('"filter" passed to ViteHelper will be overridden by "files".');
+            }
+            $options['devEntries'] = $files;
+            $options['filter'] = $files;
+        }
 
-		return $options;
-	}
+        return $options;
+    }
 }
