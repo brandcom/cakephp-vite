@@ -163,8 +163,7 @@ class ManifestRecord
      */
     public function getFileUrl(): string
     {
-        return DS . ltrim($this->config->read('build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY), DS)
-            . DS . $this->chunk->file;
+        return $this->getLinkFromOutDirectory($this->chunk->file);
     }
 
     /**
@@ -183,9 +182,7 @@ class ManifestRecord
         }
 
         return array_map(function ($file) {
-            return DS .
-                ltrim($this->config->read('build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY), DS)
-                . DS . $file;
+			return $this->getLinkFromOutDirectory($file);
         }, $files);
     }
 
@@ -210,4 +207,24 @@ class ManifestRecord
     {
         return $this->isEntry() && $this->isJavascript() && !$this->isLegacy() && !$this->isPolyfill();
     }
+
+	/**
+	 * Enables users to set build.outDirectory in app_vite.php to false,
+	 * so that the outDir equals the webroot.
+	 *
+	 * @param string $assetLink
+	 * @return string
+	 */
+	private function getLinkFromOutDirectory(string $assetLink): string
+	{
+		$outDirectory = $this->config->read('build.outDirectory');
+		if (empty($outDirectory) && false !== $outDirectory) {
+			$outDirectory = ConfigDefaults::BUILD_OUT_DIRECTORY;
+		}
+
+		$outDirectory = ltrim((string)$outDirectory, DS);
+		$outDirectory = $outDirectory ? DS . $outDirectory : '';
+
+		return $outDirectory . DS . $assetLink;
+	}
 }
