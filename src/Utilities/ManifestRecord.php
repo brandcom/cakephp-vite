@@ -65,17 +65,53 @@ class ManifestRecord
     }
 
     /**
-     * Checks if a string matches with the filename
+     * Checks if a needle matches a property value.
      *
-     * @param string $name the name to check
+     * @param string $needle needle that must be contained in the respective property value
      * @param string $property the property of the chunk, defaults to `src`
      * @return bool
      */
-    public function match(string $name, string $property = 'src'): bool
+    public function match(string $needle, string $property = 'src'): bool
     {
 		$field = $this->getChunk($property);
-        return is_string($field) && Strings::contains($field, $name);
+        return is_string($field) && Strings::contains($field, $needle);
     }
+
+	/**
+	 * Checks if at least one needle matches a property value.
+	 *
+	 * @param array $needles needles whereof at least one must be contained in the respective property value
+	 * @param string $property the property of the chunk, defaults to `src`
+	 * @return bool
+	 */
+	public function matchMany(array $needles, string $property = 'src'): bool
+	{
+		foreach ($needles as $name) {
+			if ($this->match($name, $property)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if all needles matche a property value.
+	 *
+	 * @param array $names needles that must be contained in the respective property value
+	 * @param string $property the property of the chunk, defaults to `src`
+	 * @return bool
+	 */
+	public function matchAll(array $names, string $property = 'src'): bool
+	{
+		foreach ($names as $name) {
+			if (!$this->match($name, $property)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 
     /**
      * The current Record is legacy
