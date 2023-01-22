@@ -34,12 +34,12 @@ class ViteScriptsHelper extends Helper
      * Otherwise, it will look for a hint that the app
      *   is in development mode through the  `developmentHostNeedles`
      *
-	 * @param ViteHelperConfig|null $config config instance to use
+     * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance to use
      * @return bool
      */
     public function isDev(?ViteHelperConfig $config = null): bool
     {
-		$config = $config ?: ViteHelperConfig::create();
+        $config = $config ?: ViteHelperConfig::create();
         if ($config->read('forceProductionMode', ConfigDefaults::FORCE_PRODUCTION_MODE)) {
             return false;
         }
@@ -67,14 +67,14 @@ class ViteScriptsHelper extends Helper
      * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
-     * @throws \ViteHelper\Exception\ManifestNotFoundException|InvalidArgumentException
-	 */
+     * @throws \ViteHelper\Exception\ManifestNotFoundException|\ViteHelper\Exception\InvalidArgumentException
+     */
     public function script(array $options = [], ?ViteHelperConfig $config = null): void
     {
         $config = $config ?: ViteHelperConfig::create();
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options['cssBlock'] = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
-		$options['filter'] = $options['filter'] ?? false;
+        $options['filter'] = $options['filter'] ?? false;
 
         if ($this->isDev($config)) {
             $this->devScript($options, $config);
@@ -102,8 +102,8 @@ class ViteScriptsHelper extends Helper
             ]
         );
 
-		unset($options['cssBlock']);
-		unset($options['filter']);
+        unset($options['cssBlock']);
+        unset($options['filter']);
 
         $options['type'] = 'module';
         $files = $this->getFiles($config->read('development.scriptEntries', ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES));
@@ -115,22 +115,22 @@ class ViteScriptsHelper extends Helper
         }
     }
 
-	/**
-	 * @param array $options will be passed to script tag
-	 * @param \ViteHelper\Utilities\ViteHelperConfig $config config instance
-	 * @return void
-	 * @throws \ViteHelper\Exception\ManifestNotFoundException
-	 * @throws InvalidArgumentException
-	 */
+    /**
+     * @param array $options will be passed to script tag
+     * @param \ViteHelper\Utilities\ViteHelperConfig $config config instance
+     * @return void
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
+     * @throws \ViteHelper\Exception\InvalidArgumentException
+     */
     private function productionScript(array $options, ViteHelperConfig $config): void
     {
         $pluginPrefix = $config->read('plugin');
         $pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
 
         $records = $this->getFilteredRecords(ViteManifest::getRecords($config), $options);
-		$cssBlock = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
-		unset($options['filter']);
-		unset($options['cssBlock']);
+        $cssBlock = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
+        unset($options['filter']);
+        unset($options['cssBlock']);
 
         foreach ($records as $record) {
             if (!$record->isEntryScript()) {
@@ -161,23 +161,23 @@ class ViteScriptsHelper extends Helper
         }
     }
 
-	/**
-	 * Adds the gives CSS styles to the configured block
-	 * The $options array is directly passed to the Html-Helper.
-	 *
-	 * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
-	 * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
-	 * @return void
-	 * @throws \ViteHelper\Exception\ManifestNotFoundException
-	 * @throws \ViteHelper\Exception\ConfigurationException
-	 * @throws InvalidArgumentException
-	 */
+    /**
+     * Adds the gives CSS styles to the configured block
+     * The $options array is directly passed to the Html-Helper.
+     *
+     * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
+     * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
+     * @return void
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
+     * @throws \ViteHelper\Exception\ConfigurationException
+     * @throws \ViteHelper\Exception\InvalidArgumentException
+     */
     public function css(array $options = [], ?ViteHelperConfig $config = null): void
     {
         $config = $config ?: ViteHelperConfig::create();
 
-		$options['block'] = $options['block'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
-		$options['filter'] = $options['filter'] ?? false;
+        $options['block'] = $options['block'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
+        $options['filter'] = $options['filter'] ?? false;
 
         if ($this->isDev($config)) {
             $files = $this->getFiles($config->read('development.styleEntries', ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES));
@@ -194,7 +194,7 @@ class ViteScriptsHelper extends Helper
         $pluginPrefix = $config->read('plugin');
         $pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
         $records = $this->getFilteredRecords(ViteManifest::getRecords($config), $options);
-		unset($options['filter']);
+        unset($options['filter']);
         foreach ($records as $record) {
             if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
                 continue;
@@ -225,41 +225,40 @@ class ViteScriptsHelper extends Helper
         return $files;
     }
 
-	/**
-	 * @param ManifestRecords $records
-	 * @param array $options
-	 * @return ManifestRecords|CollectionInterface
-	 * @throws InvalidArgumentException
-	 */
-	private function getFilteredRecords(ManifestRecords $records, array $options): ManifestRecords|CollectionInterface
-	{
-		$filter = $options['filter'];
-		if (empty($filter)) {
-			return $records;
-		}
+    /**
+     * @param \ViteHelper\Utilities\ManifestRecords $records records to filter
+     * @param array $options method looks at the `filter`key
+     * @return \ViteHelper\Utilities\ManifestRecords|\Cake\Collection\CollectionInterface
+     * @throws \ViteHelper\Exception\InvalidArgumentException
+     */
+    private function getFilteredRecords(ManifestRecords $records, array $options): ManifestRecords|CollectionInterface
+    {
+        $filter = $options['filter'];
+        if (empty($filter)) {
+            return $records;
+        }
 
-		if (is_callable($filter)) {
-			return $records->filter($filter);
-		}
+        if (is_callable($filter)) {
+            return $records->filter($filter);
+        }
 
-		if (is_string($filter)) {
-			$filter = (array)$filter;
-		}
+        if (is_string($filter)) {
+            $filter = (array)$filter;
+        }
 
-		if (!is_array($filter)) {
-			throw new InvalidArgumentException('$options["filter"] must be empty or of type string, array, or callable.');
-		}
+        if (!is_array($filter)) {
+            throw new InvalidArgumentException('$options["filter"] must be empty or of type string, array, or callable.');
+        }
 
-		return $records->filter(function (ManifestRecord $record) use ($filter) {
-			foreach ($filter as $property => $file) {
-				$property = is_string($property) ? $property : 'src';
-				if ($record->match($file, $property)) {
+        return $records->filter(function (ManifestRecord $record) use ($filter) {
+            foreach ($filter as $property => $file) {
+                $property = is_string($property) ? $property : 'src';
+                if ($record->match($file, $property)) {
+                    return true;
+                }
+            }
 
-					return true;
-				}
-			}
-
-			return false;
-		});
-	}
+            return false;
+        });
+    }
 }

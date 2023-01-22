@@ -37,17 +37,17 @@ class ManifestRecord
         return $this->key;
     }
 
-	/**
-	 * @param string|null $property optional property of the chunk
-	 * @return mixed the chunk itself if $property is null
-	 */
+    /**
+     * @param string|null $property optional property of the chunk
+     * @return mixed the chunk itself if $property is null
+     */
     public function getChunk(?string $property = null): mixed
     {
-		if (empty($property)) {
-        	return $this->chunk;
-		}
+        if (empty($property)) {
+            return $this->chunk;
+        }
 
-		return $this->chunk->{$property} ?? null;
+        return $this->chunk->{$property} ?? null;
     }
 
     /**
@@ -73,45 +73,46 @@ class ManifestRecord
      */
     public function match(string $needle, string $property = 'src'): bool
     {
-		$field = $this->getChunk($property);
+        $field = $this->getChunk($property);
+
         return is_string($field) && Strings::contains($field, $needle);
     }
 
-	/**
-	 * Checks if at least one needle matches a property value.
-	 *
-	 * @param array $needles needles whereof at least one must be contained in the respective property value
-	 * @param string $property the property of the chunk, defaults to `src`
-	 * @return bool
-	 */
-	public function matchMany(array $needles, string $property = 'src'): bool
-	{
-		foreach ($needles as $name) {
-			if ($this->match($name, $property)) {
-				return true;
-			}
-		}
+    /**
+     * Checks if at least one needle matches a property value.
+     *
+     * @param array $needles needles whereof at least one must be contained in the respective property value
+     * @param string $property the property of the chunk, defaults to `src`
+     * @return bool
+     */
+    public function matchMany(array $needles, string $property = 'src'): bool
+    {
+        foreach ($needles as $name) {
+            if ($this->match($name, $property)) {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Checks if all needles matche a property value.
-	 *
-	 * @param array $names needles that must be contained in the respective property value
-	 * @param string $property the property of the chunk, defaults to `src`
-	 * @return bool
-	 */
-	public function matchAll(array $names, string $property = 'src'): bool
-	{
-		foreach ($names as $name) {
-			if (!$this->match($name, $property)) {
-				return false;
-			}
-		}
+    /**
+     * Checks if all needles matche a property value.
+     *
+     * @param array $names needles that must be contained in the respective property value
+     * @param string $property the property of the chunk, defaults to `src`
+     * @return bool
+     */
+    public function matchAll(array $names, string $property = 'src'): bool
+    {
+        foreach ($names as $name) {
+            if (!$this->match($name, $property)) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
     /**
      * The current Record is legacy
