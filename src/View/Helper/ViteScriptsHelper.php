@@ -75,6 +75,7 @@ class ViteScriptsHelper extends Helper
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options['cssBlock'] = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options['filter'] = $options['filter'] ?? false;
+		$options['devEntries'] = $options['devEntries'] ?? null;
 
         if ($this->isDev($config)) {
             $this->devScript($options, $config);
@@ -102,11 +103,13 @@ class ViteScriptsHelper extends Helper
             ]
         );
 
-        unset($options['cssBlock']);
-        unset($options['filter']);
+        $files = $this->getFilesForDevelopment($options, $config, 'scriptEntries');
 
+		unset($options['cssBlock']);
+        unset($options['filter']);
+        unset($options['devEntries']);
         $options['type'] = 'module';
-        $files = $this->getFilesForDevelopment($config, 'scriptEntries');
+
         foreach ($files as $file) {
             $this->Html->script(Text::insert(':host/:file', [
                 'host' => $config->read('development.url', ConfigDefaults::DEVELOPMENT_URL),
@@ -131,6 +134,7 @@ class ViteScriptsHelper extends Helper
         $cssBlock = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
         unset($options['filter']);
         unset($options['cssBlock']);
+        unset($options['devEntries']);
 
         foreach ($records as $record) {
             if (!$record->isEntryScript()) {
@@ -178,9 +182,11 @@ class ViteScriptsHelper extends Helper
 
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options['filter'] = $options['filter'] ?? false;
+		$options['devEntries'] = $options['devEntries'] ?? null;
 
         if ($this->isDev($config)) {
-            $files = $this->getFilesForDevelopment($config, 'styleEntries');
+            $files = $this->getFilesForDevelopment($options, $config, 'styleEntries');
+        	unset($options['devEntries']);
             foreach ($files as $file) {
                 $this->Html->css(Text::insert(':host/:file', [
                     'host' => $config->read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
@@ -195,6 +201,7 @@ class ViteScriptsHelper extends Helper
         $pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
         $records = $this->getFilteredRecords(ViteManifest::getRecords($config), $options);
         unset($options['filter']);
+        unset($options['devEntries']);
         foreach ($records as $record) {
             if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
                 continue;
@@ -205,14 +212,15 @@ class ViteScriptsHelper extends Helper
     }
 
 	/**
+	 * @param array $options entries can be passed through `devEntries`
 	 * @param ViteHelperConfig $config config instance
 	 * @param string $configOption key of the config
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-    private function getFilesForDevelopment(ViteHelperConfig $config, string $configOption): array
+    private function getFilesForDevelopment(array $options, ViteHelperConfig $config, string $configOption): array
     {
-		$files = $config->read('development.' . $configOption, ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES);
+		$files = $options['devEntries'] ?: $config->read('development.' . $configOption, ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES);
 
         if (empty($files)) {
             throw new ConfigurationException(
