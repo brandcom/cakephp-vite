@@ -80,7 +80,7 @@ class ViteScriptsHelper extends Helper
     {
         $config = $config ?: ViteHelperConfig::create();
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
-        $options['cssBlock'] = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
+        $options['cssBlock'] = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
         $options = $this->updateOptionsForFiltersAndEntries($options);
 
         if ($this->isDev($config)) {
@@ -137,7 +137,7 @@ class ViteScriptsHelper extends Helper
         $pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
 
         $records = $this->getFilteredRecords(ViteManifest::getRecords($config), $options);
-        $cssBlock = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
+        $cssBlock = $options['cssBlock'];
         unset($options['prodFilter']);
         unset($options['cssBlock']);
         unset($options['devEntries']);
