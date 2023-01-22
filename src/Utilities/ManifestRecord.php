@@ -73,7 +73,8 @@ class ManifestRecord
      */
     public function match(string $name, string $property = 'src'): bool
     {
-        return property_exists($this->chunk, $property) && Strings::contains($this->chunk->{$property}, $name);
+		$field = $this->getChunk($property);
+        return is_string($field) && Strings::contains($field, $name);
     }
 
     /**
