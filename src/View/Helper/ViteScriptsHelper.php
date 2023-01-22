@@ -128,7 +128,10 @@ class ViteScriptsHelper extends Helper
         $pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
 
         $records = $this->getFilteredRecords(ViteManifest::getRecords($config), $options);
+		$cssBlock = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
 		unset($options['filter']);
+		unset($options['cssBlock']);
+
         foreach ($records as $record) {
             if (!$record->isEntryScript()) {
                 continue;
