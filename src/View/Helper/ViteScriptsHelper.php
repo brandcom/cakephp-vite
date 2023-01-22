@@ -105,7 +105,7 @@ class ViteScriptsHelper extends Helper
         $files = $this->getFilesForDevelopment($options, $config, 'scriptEntries');
 
         unset($options['cssBlock']);
-        unset($options['filter']);
+        unset($options['prodFilter']);
         unset($options['devEntries']);
         $options['type'] = 'module';
 
@@ -131,7 +131,7 @@ class ViteScriptsHelper extends Helper
 
         $records = $this->getFilteredRecords(ViteManifest::getRecords($config), $options);
         $cssBlock = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
-        unset($options['filter']);
+        unset($options['prodFilter']);
         unset($options['cssBlock']);
         unset($options['devEntries']);
 
@@ -198,7 +198,7 @@ class ViteScriptsHelper extends Helper
         $pluginPrefix = $config->read('plugin');
         $pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
         $records = $this->getFilteredRecords(ViteManifest::getRecords($config), $options);
-        unset($options['filter']);
+        unset($options['prodFilter']);
         unset($options['devEntries']);
         foreach ($records as $record) {
             if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
@@ -237,14 +237,16 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
+     * Filter records from vite manifest for production
+     *
      * @param \ViteHelper\Utilities\ManifestRecords $records records to filter
-     * @param array $options method looks at the `filter`key
+     * @param array $options method looks at the `prodFilter`key
      * @return \ViteHelper\Utilities\ManifestRecords|\Cake\Collection\CollectionInterface
      * @throws \ViteHelper\Exception\InvalidArgumentException
      */
     private function getFilteredRecords(ManifestRecords $records, array $options): ManifestRecords|CollectionInterface
     {
-        $filter = $options['filter'];
+        $filter = $options['prodFilter'];
         if (empty($filter)) {
             return $records;
         }
@@ -258,7 +260,7 @@ class ViteScriptsHelper extends Helper
         }
 
         if (!is_array($filter)) {
-            throw new InvalidArgumentException('$options["filter"] must be empty or of type string, array, or callable.');
+            throw new InvalidArgumentException('$options["prodFilter"] must be empty or of type string, array, or callable.');
         }
 
         return $records->filter(function (ManifestRecord $record) use ($filter) {
@@ -274,23 +276,23 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
-     * @param array $options options with `filter`, `devEntries`, or `files` key
+     * @param array $options options with `prodFilter`, `devEntries`, or `files` key
      * @return array
      */
     private function updateOptionsForFiltersAndEntries(array $options): array
     {
-        $options['filter'] = $options['filter'] ?? null;
+        $options['prodFilter'] = $options['prodFilter'] ?? null;
         $options['devEntries'] = $options['devEntries'] ?? null;
         $files = $options['files'] ?? null;
         if ($files) {
             if (!empty($options['devEntries'])) {
                 trigger_error('"devEntries" passed to ViteHelper will be overridden by "files".');
             }
-            if (!empty($options['filter'])) {
-                trigger_error('"filter" passed to ViteHelper will be overridden by "files".');
+            if (!empty($options['prodFilter'])) {
+                trigger_error('"prodFilter" passed to ViteHelper will be overridden by "files".');
             }
             $options['devEntries'] = $files;
-            $options['filter'] = $files;
+            $options['prodFilter'] = $files;
         }
 
         return $options;
