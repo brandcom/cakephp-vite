@@ -213,7 +213,8 @@ class ViteScriptsHelper extends Helper
     {
         if (empty($files) || !Arrays::isList($files)) {
             throw new ConfigurationException(
-                'There are no valid entry points for the dev server. Be sure to set the ViteHelper.development.scriptEntries config.'
+                'There are no valid entry points for the dev server. '
+				. 'Be sure to set the ViteHelper.development.(script|css)Entries config or pass entries to the helper.'
             );
         }
         foreach ($files as $file) {
