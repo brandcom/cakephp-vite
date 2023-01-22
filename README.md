@@ -1,4 +1,4 @@
-# ViteHelper plugin for CakePHP v1.x
+# ViteHelper plugin for CakePHP 4
 
 The plugin provides a Helper Class for CakePHP to facilitate the use of [Vite JS](https://vitejs.dev/).
 
@@ -6,6 +6,8 @@ When running the Vite dev server, the Helper provides the right script tags for 
 
 In production mode, the Helper loads the bundled files. `@vitejs/plugin-legacy` is supported, which will
 insert `nomodule`-tags for older browsers, e.g. older iOS devices, which do not support js modules.
+
+> This readme is for **version 1.x.** If you are migrating from 0.x and something is unclear, read the Migration guide under `/docs`. Feel free to open an issue if you run into problems.
 
 ## Installation
 
@@ -55,7 +57,7 @@ In your php-template or in layout you can import javascript files with:
 If you imported CSS files inside your JavaScript files, this method automatically
 appends your css tags to the css view block.
 
-> If you don't have any css-entries defined in your vite-congif, you can skip the `::css()` method call.
+> If you don't have any css-entries defined in your vite-config, you can skip the `::css()` method call.
 
 In your php-template you can import css files with:
 
@@ -77,8 +79,8 @@ your own instance of `ViteHelperConfig` to a helper method as a second parameter
         'manifest' => WWW_ROOT . 'manifest.json', // absolute path to manifest
     ],
     'development' => [
-        'scriptEntries' => ['someFolter/myScriptEntry.ts'], // relative to project root
-        'styleEntries' =>  ['someFolter/myStyleEntry.scss'], // relative to project root. Unnecessary when using css-in-js.
+        'scriptEntries' => ['someFolder/myScriptEntry.ts'], // relative to project root
+        'styleEntries' =>  ['someFolder/myStyleEntry.scss'], // relative to project root. Unnecessary when using css-in-js.
         'hostNeedles' => ['.test', '.local'], // to check if the app is running locally
         'url' => 'http://localhost:3000', // url of the vite dev server
     ],
@@ -102,10 +104,10 @@ Example:
 return [
     'ViteHelper' => [
         'forceProductionMode' => 1,
-		'development' => [
+        'development' => [
             'hostNeedles' => ['.dev'], // if you don't use one of the defaults
-			'url' => 'https://192.168.0.88:3000',
-		],
+            'url' => 'https://192.168.0.88:3000',
+        ],
     ],
 ];
 ```
@@ -131,14 +133,14 @@ $this->ViteScripts->script([
         'webroot_src/main.ts',
     ],
 
+    // "devEntries" is like "files". If you set "files", it will override both "devEntries" and "prodFilters"
+    'devEntries' => ['webroot_src/main.ts']
+
     // "prodFilter" filters the entry files. Useful for code-splitting if you don't use dynamic imports
     'prodFilter' => 'webroot_src/main.ts' // as string if there's only one option
     'prodFilter' => 'main.ts' // also works - only looks for parts of the string
     'prodFilter' => ['main.ts'] // as array - same as above with multiple files
     'prodFilter' => function (ManifestRecord $record) { /* do something with the record and return true or false */ }
-
-    // "devEntries" is like "files". If you set "files", it will override both "devEntries" and "prodFilters"
-    'devEntries' => ['webroot_src/main.ts']
 ]);
 ```
 
