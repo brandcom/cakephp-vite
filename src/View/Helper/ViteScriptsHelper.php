@@ -106,7 +106,7 @@ class ViteScriptsHelper extends Helper
         unset($options['filter']);
 
         $options['type'] = 'module';
-        $files = $this->getFiles($config->read('development.scriptEntries', ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES));
+        $files = $this->getFilesForDevelopment($config, 'scriptEntries');
         foreach ($files as $file) {
             $this->Html->script(Text::insert(':host/:file', [
                 'host' => $config->read('development.url', ConfigDefaults::DEVELOPMENT_URL),
@@ -180,7 +180,7 @@ class ViteScriptsHelper extends Helper
         $options['filter'] = $options['filter'] ?? false;
 
         if ($this->isDev($config)) {
-            $files = $this->getFiles($config->read('development.styleEntries', ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES));
+            $files = $this->getFilesForDevelopment($config, 'styleEntries');
             foreach ($files as $file) {
                 $this->Html->css(Text::insert(':host/:file', [
                     'host' => $config->read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
@@ -204,17 +204,20 @@ class ViteScriptsHelper extends Helper
         }
     }
 
-    /**
-     * @param mixed $files entry points from config
-     * @return array
-     * @throws \ViteHelper\Exception\ConfigurationException
-     */
-    private function getFiles(mixed $files): array
+	/**
+	 * @param ViteHelperConfig $config config instance
+	 * @param string $configOption key of the config
+	 * @return array
+	 * @throws ConfigurationException
+	 */
+    private function getFilesForDevelopment(ViteHelperConfig $config, string $configOption): array
     {
+		$files = $config->read('development.' . $configOption, ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES);
+
         if (empty($files)) {
             throw new ConfigurationException(
                 'There are no valid entry points for the dev server. '
-				. 'Be sure to set the ViteHelper.development.(script|style)Entries config or pass entries to the helper.'
+				. 'Be sure to set the ViteHelper.development.' . $configOption . ' config or pass entries to the helper.'
             );
         }
 		if (!Arrays::isList($files)) {
