@@ -252,7 +252,7 @@ class ViteScriptsHelper extends Helper
 
 		return $records->filter(function (ManifestRecord $record) use ($filter) {
 			foreach ($filter as $property => $file) {
-				$property = is_string($property) ? $property : null;
+				$property = is_string($property) ? $property : 'src';
 				if ($record->match($file, $property)) {
 
 					return true;
