@@ -120,7 +120,7 @@ class ViteScriptsHelper extends Helper
     private function productionScript(array $options, ViteHelperConfig $config): void
     {
         $pluginPrefix = $config->read('plugin');
-		$pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
+        $pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
 
         $records = ViteManifest::getRecords($config);
         foreach ($records as $record) {
@@ -141,14 +141,14 @@ class ViteScriptsHelper extends Helper
             // the js files has css dependency ?
             $cssFiles = $record->getCss();
             if (!count($cssFiles)) {
-				continue;
+                continue;
             }
 
-			foreach ($cssFiles as $cssFile) {
-				$this->Html->css($pluginPrefix . $cssFile, [
-					'block' => $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS),
-				]);
-			}
+            foreach ($cssFiles as $cssFile) {
+                $this->Html->css($pluginPrefix . $cssFile, [
+                    'block' => $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS),
+                ]);
+            }
         }
     }
 
@@ -179,8 +179,8 @@ class ViteScriptsHelper extends Helper
             return;
         }
 
-		$pluginPrefix = $config->read('plugin');
-		$pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
+        $pluginPrefix = $config->read('plugin');
+        $pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
         $records = ViteManifest::getRecords($config);
         foreach ($records as $record) {
             if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
