@@ -74,8 +74,19 @@ class ViteScriptsHelper extends Helper
         $config = $config ?: ViteHelperConfig::create();
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options['cssBlock'] = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
-        $options['filter'] = $options['filter'] ?? false;
+        $options['filter'] = $options['filter'] ?? null;
         $options['devEntries'] = $options['devEntries'] ?? null;
+		$files = $options['files'] ?? null;
+		if ($files) {
+			if (!empty($options['devEntries'])) {
+				trigger_error('"devEntries" passed to ViteHelper will be overridden by "files".');
+			}
+			if (!empty($options['filter'])) {
+				trigger_error('"filter" passed to ViteHelper will be overridden by "files".');
+			}
+			$options['devEntries'] = $files;
+			$options['filter'] = $files;
+		}
 
         if ($this->isDev($config)) {
             $this->devScript($options, $config);
@@ -181,8 +192,19 @@ class ViteScriptsHelper extends Helper
         $config = $config ?: ViteHelperConfig::create();
 
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
-        $options['filter'] = $options['filter'] ?? false;
+        $options['filter'] = $options['filter'] ?? null;
         $options['devEntries'] = $options['devEntries'] ?? null;
+		$files = $options['files'] ?? null;
+		if ($files) {
+			if (!empty($options['devEntries'])) {
+				trigger_error('"devEntries" passed to ViteHelper will be overridden by "files".');
+			}
+			if (!empty($options['filter'])) {
+				trigger_error('"filter" passed to ViteHelper will be overridden by "files".');
+			}
+			$options['devEntries'] = $files;
+			$options['filter'] = $files;
+		}
 
         if ($this->isDev($config)) {
             $files = $this->getFilesForDevelopment($options, $config, 'styleEntries');
