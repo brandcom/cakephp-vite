@@ -50,7 +50,7 @@ class ViteScriptsHelper extends Helper
             return false;
         }
 
-        $needles = $config->read('developmentHostNeedles', ConfigDefaults::DEVELOPMENT_HOST_NEEDLES);
+        $needles = $config->read('development.hostNeedles', ConfigDefaults::DEVELOPMENT_HOST_NEEDLES);
         foreach ($needles as $needle) {
             if (Strings::contains((string)$this->getView()->getRequest()->host(), $needle)) {
                 return true;
@@ -94,7 +94,7 @@ class ViteScriptsHelper extends Helper
     private function devScript(array $options, ViteHelperConfig $config): void
     {
         $this->Html->script(
-            $config->read('developmentUrl', ConfigDefaults::DEVELOPMENT_URL)
+            $config->read('development.url', ConfigDefaults::DEVELOPMENT_URL)
             . '/@vite/client',
             [
                 'type' => 'module',
@@ -109,7 +109,7 @@ class ViteScriptsHelper extends Helper
         $files = $this->getFiles($config->read('development.scriptEntries', ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES));
         foreach ($files as $file) {
             $this->Html->script(Text::insert(':host/:file', [
-                'host' => $config->read('developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
+                'host' => $config->read('development.url', ConfigDefaults::DEVELOPMENT_URL),
                 'file' => ltrim($file, DS),
             ]), $options);
         }
