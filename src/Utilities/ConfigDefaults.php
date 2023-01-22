@@ -46,17 +46,11 @@ class ConfigDefaults
     public const DEVELOPMENT_STYLE_ENTRIES = [];
 
     /**
-     * If the project is not in the webroot, define a base directory as an absolute path.
-     * This is useful for plugins.
-     */
-    public const BASE_DIRECTORY = null;
-
-    /**
-     * Output directory (build.outDir)
+     * Output directory (build.outDir) - string (e.g. 'dist') or false
      *
      * @see https://vitejs.dev/config/build-options.html#build-outdir
      */
-    public const BUILD_OUT_DIRECTORY = 'dist';
+    public const BUILD_OUT_DIRECTORY = false;
 
     /**
      * The absolute path to the manifest file
