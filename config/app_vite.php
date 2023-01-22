@@ -12,8 +12,8 @@ return [
 		'development' => [
 			'scriptEntries' => ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES,
 			'styleEntries' => ConfigDefaults::DEVELOPMENT_STYLE_ENTRIES,
-			'HostNeedles' => ConfigDefaults::DEVELOPMENT_HOST_NEEDLES,
-			'Url' => ConfigDefaults::DEVELOPMENT_URL,
+			'hostNeedles' => ConfigDefaults::DEVELOPMENT_HOST_NEEDLES,
+			'url' => ConfigDefaults::DEVELOPMENT_URL,
 		],
 		'forceProductionMode' => ConfigDefaults::FORCE_PRODUCTION_MODE,
 		'productionHint' => ConfigDefaults::PRODUCTION_HINT,
