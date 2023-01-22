@@ -75,7 +75,7 @@ class ViteScriptsHelper extends Helper
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options['cssBlock'] = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options['filter'] = $options['filter'] ?? false;
-		$options['devEntries'] = $options['devEntries'] ?? null;
+        $options['devEntries'] = $options['devEntries'] ?? null;
 
         if ($this->isDev($config)) {
             $this->devScript($options, $config);
@@ -105,7 +105,7 @@ class ViteScriptsHelper extends Helper
 
         $files = $this->getFilesForDevelopment($options, $config, 'scriptEntries');
 
-		unset($options['cssBlock']);
+        unset($options['cssBlock']);
         unset($options['filter']);
         unset($options['devEntries']);
         $options['type'] = 'module';
@@ -182,11 +182,11 @@ class ViteScriptsHelper extends Helper
 
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options['filter'] = $options['filter'] ?? false;
-		$options['devEntries'] = $options['devEntries'] ?? null;
+        $options['devEntries'] = $options['devEntries'] ?? null;
 
         if ($this->isDev($config)) {
             $files = $this->getFilesForDevelopment($options, $config, 'styleEntries');
-        	unset($options['devEntries']);
+            unset($options['devEntries']);
             foreach ($files as $file) {
                 $this->Html->css(Text::insert(':host/:file', [
                     'host' => $config->read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
@@ -211,31 +211,31 @@ class ViteScriptsHelper extends Helper
         }
     }
 
-	/**
-	 * @param array $options entries can be passed through `devEntries`
-	 * @param ViteHelperConfig $config config instance
-	 * @param string $configOption key of the config
-	 * @return array
-	 * @throws ConfigurationException
-	 */
+    /**
+     * @param array $options entries can be passed through `devEntries`
+     * @param \ViteHelper\Utilities\ViteHelperConfig $config config instance
+     * @param string $configOption key of the config
+     * @return array
+     * @throws \ViteHelper\Exception\ConfigurationException
+     */
     private function getFilesForDevelopment(array $options, ViteHelperConfig $config, string $configOption): array
     {
-		$files = $options['devEntries'] ?: $config->read('development.' . $configOption, ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES);
+        $files = $options['devEntries'] ?: $config->read('development.' . $configOption, ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES);
 
         if (empty($files)) {
             throw new ConfigurationException(
                 'There are no valid entry points for the dev server. '
-				. 'Be sure to set the ViteHelper.development.' . $configOption . ' config or pass entries to the helper.'
+                . 'Be sure to set the ViteHelper.development.' . $configOption . ' config or pass entries to the helper.'
             );
         }
-		if (!Arrays::isList($files)) {
-			throw new ConfigurationException(sprintf(
-				'Expected entryPoints to be a List (array with int-keys) with at least one entry, but got %s.',
-				gettype($files) === 'array' ? 'a relational array' : gettype($files),
-			));
-		}
+        if (!Arrays::isList($files)) {
+            throw new ConfigurationException(sprintf(
+                'Expected entryPoints to be a List (array with int-keys) with at least one entry, but got %s.',
+                gettype($files) === 'array' ? 'a relational array' : gettype($files),
+            ));
+        }
         foreach ($files as $file) {
-			$path = ROOT . DS . ltrim($file, DS);
+            $path = ROOT . DS . ltrim($file, DS);
             if (!file_exists($path)) {
                 throw new ConfigurationException(sprintf('The entry file with path "%s" does not exist.', $path));
             }
