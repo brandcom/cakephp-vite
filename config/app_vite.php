@@ -17,6 +17,7 @@ return [
 		],
 		'forceProductionMode' => ConfigDefaults::FORCE_PRODUCTION_MODE,
 		'productionHint' => ConfigDefaults::PRODUCTION_HINT,
+		'plugin' => false,
 		'viewBlocks' => [
 			'css' => ConfigDefaults::VIEW_BLOCK_CSS,
 			'script' => ConfigDefaults::VIEW_BLOCK_SCRIPT,

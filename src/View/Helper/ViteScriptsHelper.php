@@ -119,8 +119,8 @@ class ViteScriptsHelper extends Helper
      */
     private function productionScript(array $options, ViteHelperConfig $config): void
     {
-        $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
-        unset($options['plugin']);
+        $pluginPrefix = $config->read('plugin');
+		$pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
 
         $records = ViteManifest::getRecords($config);
         foreach ($records as $record) {
@@ -136,15 +136,19 @@ class ViteScriptsHelper extends Helper
                 $options['nomodule'] = 'nomodule';
             }
 
-            $this->Html->script($record->getFileUrl($pluginPrefix), $options);
+            $this->Html->script($pluginPrefix . $record->getFileUrl(), $options);
 
             // the js files has css dependency ?
             $cssFiles = $record->getCss();
-            if (count($cssFiles)) {
-                $this->Html->css($cssFiles, [
-                    'block' => $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS),
-                ]);
+            if (!count($cssFiles)) {
+				continue;
             }
+
+			foreach ($cssFiles as $cssFile) {
+				$this->Html->css($pluginPrefix . $cssFile, [
+					'block' => $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS),
+				]);
+			}
         }
     }
 
@@ -175,15 +179,15 @@ class ViteScriptsHelper extends Helper
             return;
         }
 
+		$pluginPrefix = $config->read('plugin');
+		$pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
         $records = ViteManifest::getRecords($config);
-        $pluginPrefix = !empty($options['plugin']) ? $options['plugin'] . '.' : null;
-        unset($options['plugin']);
         foreach ($records as $record) {
             if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
                 continue;
             }
 
-            $this->Html->css($record->getFileUrl($pluginPrefix), $options);
+            $this->Html->css($pluginPrefix . $record->getFileUrl(), $options);
         }
     }
 

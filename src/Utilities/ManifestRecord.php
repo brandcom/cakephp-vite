@@ -108,10 +108,9 @@ class ManifestRecord
      *
      * todo support plugin build assets
      *
-     * @param string|null $pluginPrefix for plugin build assets
      * @return string
      */
-    public function getFileUrl(?string $pluginPrefix = null): string
+    public function getFileUrl(): string
     {
         return DS . ltrim($this->config->read('build.outDirectory', ConfigDefaults::BUILD_OUT_DIRECTORY), DS)
             . DS . $this->chunk->file;
