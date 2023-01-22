@@ -142,8 +142,6 @@ class ViteScriptsHelper extends Helper
                 $options['nomodule'] = 'nomodule';
             }
 
-			$cssBlock = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
-            unset($options['cssBlock']);
             $this->Html->script($pluginPrefix . $record->getFileUrl(), $options);
 
             // the js files has css dependency ?
