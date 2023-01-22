@@ -62,8 +62,15 @@ class ViteScriptsHelper extends Helper
 
     /**
      * Adds scripts to the script view block
+	 *
+	 * Options:
+	 * * block (string): name of the view block to render the scripts in
+	 * * files (string[]): files to serve in development and production - overrides prodFilter and devEntries
+	 * * prodFilter (string, array, callable): to filter manifest entries in production mode
+	 * * devEntries (string[]): entry files in development mode
+	 * * other options are rendered as attributes to the html tag
      *
-     * @param array $options options for the script tag
+     * @param array $options see above
      * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
@@ -165,10 +172,18 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
-     * Adds the gives CSS styles to the configured block
-     * The $options array is directly passed to the Html-Helper.
+     * Adds CSS tags to the configured block
+	 *
+	 * Note: This method might be unnecessary if you import your css in javascript.
+	 *
+	 * Options:
+	 * * block (string): name of the view block to render the html tags in
+	 * * files (string[]): files to serve in development and production - overrides prodFilter and devEntries
+	 * * prodFilter (string, array, callable): to filter manifest entries in production mode
+	 * * devEntries (string[]): entry files in development mode
+	 * * other options are rendered as attributes to the html tag
      *
-     * @param array $options are passed to the <link> tags as parameters, e.g. for media="screen" etc.
+     * @param array $options see above
      * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
      * @return void
      * @throws \ViteHelper\Exception\ManifestNotFoundException
