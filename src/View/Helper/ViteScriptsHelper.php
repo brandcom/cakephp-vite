@@ -217,8 +217,9 @@ class ViteScriptsHelper extends Helper
             );
         }
         foreach ($files as $file) {
-            if (!file_exists(ROOT . DS . ltrim($file, DS))) {
-                throw new ConfigurationException(sprintf('The entry file "%s" does not exist.', $file));
+			$path = ROOT . DS . ltrim($file, DS);
+            if (!file_exists($path)) {
+                throw new ConfigurationException(sprintf('The entry file with path "%s" does not exist.', $path));
             }
         }
 
