@@ -211,12 +211,18 @@ class ViteScriptsHelper extends Helper
      */
     private function getFiles(mixed $files): array
     {
-        if (empty($files) || !Arrays::isList($files)) {
+        if (empty($files)) {
             throw new ConfigurationException(
                 'There are no valid entry points for the dev server. '
-				. 'Be sure to set the ViteHelper.development.(script|css)Entries config or pass entries to the helper.'
+				. 'Be sure to set the ViteHelper.development.(script|style)Entries config or pass entries to the helper.'
             );
         }
+		if (!Arrays::isList($files)) {
+			throw new ConfigurationException(sprintf(
+				'Expected entryPoints to be a List (array with int-keys) with at least one entry, but got %s.',
+				gettype($files) === 'array' ? 'a relational array' : gettype($files),
+			));
+		}
         foreach ($files as $file) {
 			$path = ROOT . DS . ltrim($file, DS);
             if (!file_exists($path)) {
