@@ -37,6 +37,19 @@ class ManifestRecord
         return $this->key;
     }
 
+	/**
+	 * @param string|null $property optional property of the chunk
+	 * @return mixed the chunk itself if $property is null
+	 */
+    public function getChunk(?string $property = null): mixed
+    {
+		if (empty($property)) {
+        	return $this->chunk;
+		}
+
+		return $this->chunk->{$property} ?? null;
+    }
+
     /**
      * The current Record is an entry
      *
