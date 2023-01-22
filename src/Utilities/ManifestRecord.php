@@ -182,7 +182,7 @@ class ManifestRecord
         }
 
         return array_map(function ($file) {
-			return $this->getLinkFromOutDirectory($file);
+            return $this->getLinkFromOutDirectory($file);
         }, $files);
     }
 
@@ -208,23 +208,23 @@ class ManifestRecord
         return $this->isEntry() && $this->isJavascript() && !$this->isLegacy() && !$this->isPolyfill();
     }
 
-	/**
-	 * Enables users to set build.outDirectory in app_vite.php to false,
-	 * so that the outDir equals the webroot.
-	 *
-	 * @param string $assetLink
-	 * @return string
-	 */
-	private function getLinkFromOutDirectory(string $assetLink): string
-	{
-		$outDirectory = $this->config->read('build.outDirectory');
-		if (empty($outDirectory) && false !== $outDirectory) {
-			$outDirectory = ConfigDefaults::BUILD_OUT_DIRECTORY;
-		}
+    /**
+     * Enables users to set build.outDirectory in app_vite.php to false,
+     * so that the outDir equals the webroot.
+     *
+     * @param string $assetLink link to asset from manifest inside outDir
+     * @return string
+     */
+    private function getLinkFromOutDirectory(string $assetLink): string
+    {
+        $outDirectory = $this->config->read('build.outDirectory');
+        if (empty($outDirectory) && $outDirectory !== false) {
+            $outDirectory = ConfigDefaults::BUILD_OUT_DIRECTORY;
+        }
 
-		$outDirectory = ltrim((string)$outDirectory, DS);
-		$outDirectory = $outDirectory ? DS . $outDirectory : '';
+        $outDirectory = ltrim((string)$outDirectory, DS);
+        $outDirectory = $outDirectory ? DS . $outDirectory : '';
 
-		return $outDirectory . DS . $assetLink;
-	}
+        return $outDirectory . DS . $assetLink;
+    }
 }
