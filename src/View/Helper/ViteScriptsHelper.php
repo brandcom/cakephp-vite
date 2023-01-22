@@ -187,7 +187,7 @@ class ViteScriptsHelper extends Helper
             unset($options['devEntries']);
             foreach ($files as $file) {
                 $this->Html->css(Text::insert(':host/:file', [
-                    'host' => $config->read('ViteHelper.developmentUrl', ConfigDefaults::DEVELOPMENT_URL),
+                    'host' => $config->read('development.url', ConfigDefaults::DEVELOPMENT_URL),
                     'file' => ltrim($file, '/'),
                 ]), $options);
             }
@@ -231,12 +231,6 @@ class ViteScriptsHelper extends Helper
                 'Expected entryPoints to be a List (array with int-keys) with at least one entry, but got %s.',
                 gettype($files) === 'array' ? 'a relational array' : gettype($files),
             ));
-        }
-        foreach ($files as $file) {
-            $path = ROOT . DS . ltrim($file, DS);
-            if (!file_exists($path)) {
-                throw new ConfigurationException(sprintf('The entry file with path "%s" does not exist.', $path));
-            }
         }
 
         return $files;
