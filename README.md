@@ -96,7 +96,7 @@ your own instance of `ViteHelperConfig` to a helper method as a second parameter
 
 You can override the defaults in your `app.php`, `app_local.php`, or `app_vite.php`.
 
-See the plugin's [app_vite.php](https://github.com/passchn/cakephp-vite/blob/main/config/app_vite.php) for reference.
+See the plugin's [app_vite.php](https://github.com/brandcom/cakephp-vite/blob/master/config/app_vite.php) for reference.
 
 Example:
 
@@ -116,7 +116,7 @@ return [
 
 You can pass an `$options` array to override config or to completely skip the necessity to have a ViteHelper config.
 
-The options mostly the same for `::script()` and `::css()`.
+The options are mostly the same for `::script()` and `::css()`.
 
 ### Example
 
