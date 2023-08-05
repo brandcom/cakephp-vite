@@ -23,7 +23,7 @@ use ViteHelper\Utilities\ViteManifest;
  */
 class ViteScriptsHelper extends Helper
 {
-    public $helpers = ['Html'];
+    public array $helpers = ['Html'];
 
     /**
      * Check if the app is currently in development state.
