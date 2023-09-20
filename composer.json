@@ -9,8 +9,8 @@
 	},
 	"require-dev": {
 		"cakedc/cakephp-phpstan": "3.next-cake5-dev",
-		"cakephp/cakephp-codesniffer": "^5.0",
-		"phpunit/phpunit": "^8.5 || ^9.3"
+		"cakephp/cakephp-codesniffer": "^5.0.0",
+		"phpunit/phpunit": "^10.1.0"
 	},
 	"autoload": {
 		"psr-4": {
