@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
-use Nette\Utils\FileSystem;
-use Nette\Utils\Json;
 use ViteHelper\Exception\ManifestNotFoundException;
 
 /**
@@ -12,53 +10,61 @@ use ViteHelper\Exception\ManifestNotFoundException;
  */
 class ViteManifest
 {
-    /**
-     * Returns the manifest records as a Collection
-     *
-     * @param \ViteHelper\Utilities\ViteHelperConfig $config plugin config instance
-     * @return \ViteHelper\Utilities\ManifestRecords|\ViteHelper\Utilities\ManifestRecord[]
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
-     * @internal
-     */
-    public static function getRecords(ViteHelperConfig $config): ManifestRecords
-    {
-        $manifestPath = $config->read('build.manifest', ConfigDefaults::BUILD_MANIFEST);
+	/**
+	 * Returns the manifest records as a Collection
+	 *
+	 * @param \ViteHelper\Utilities\ViteHelperConfig $config plugin config instance
+	 * @return \ViteHelper\Utilities\ManifestRecords|\ViteHelper\Utilities\ManifestRecord[]
+	 * @throws \ViteHelper\Exception\ManifestNotFoundException
+	 * @internal
+	 */
+	public static function getRecords(ViteHelperConfig $config): ManifestRecords
+	{
+		$manifestPath = $config->read('build.manifest', ConfigDefaults::BUILD_MANIFEST);
 
-        try {
-            $json = FileSystem::read($manifestPath);
+		if (!is_readable($manifestPath)) {
+			throw new ManifestNotFoundException(
+				"No valid manifest.json found at path {$manifestPath}. Did you build your js?",
+			);
+		}
 
-            $json = str_replace([
-                "\u0000",
-            ], '', $json);
+		$json = @file_get_contents($manifestPath);
 
-            $manifest = Json::decode($json);
-        } catch (\Exception $e) {
-            throw new ManifestNotFoundException(
-                "No valid manifest.json found at path {$manifestPath}. Did you build your js? Error: {$e->getMessage()}"
-            );
-        }
+		if ($json === false) {
+			throw new ManifestNotFoundException('Could not parse manifest.json');
+		}
 
-        $manifestArray = [];
-        foreach (get_object_vars($manifest) as $property => $value) {
-            $manifestArray[$property] = new ManifestRecord($property, $value, $config);
-        }
+		$json = str_replace(
+			[
+				"\u0000",
+			],
+			'',
+			$json
+		);
 
-        /**
-         * Legacy Polyfills must come first.
-         */
-        usort($manifestArray, function ($file) {
-            /** @var \ViteHelper\Utilities\ManifestRecord $file */
-            return $file->isPolyfill() ? 0 : 1;
-        });
+		$manifest = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 
-        /**
-         * ES-module scripts must come last.
-         */
-        usort($manifestArray, function ($file) {
-            /** @var \ViteHelper\Utilities\ManifestRecord $file */
-            return !$file->isPolyfill() && !$file->isLegacy() ? 1 : 0;
-        });
+		$manifestArray = [];
+		foreach (get_object_vars($manifest) as $property => $value) {
+			$manifestArray[$property] = new ManifestRecord($property, $value, $config);
+		}
 
-        return new ManifestRecords($manifestArray, $manifestPath);
-    }
+		/**
+		 * Legacy Polyfills must come first.
+		 */
+		usort($manifestArray, function ($file) {
+			/** @var \ViteHelper\Utilities\ManifestRecord $file */
+			return $file->isPolyfill() ? 0 : 1;
+		});
+
+		/**
+		 * ES-module scripts must come last.
+		 */
+		usort($manifestArray, function ($file) {
+			/** @var \ViteHelper\Utilities\ManifestRecord $file */
+			return !$file->isPolyfill() && !$file->isLegacy() ? 1 : 0;
+		});
+
+		return new ManifestRecords($manifestArray, $manifestPath);
+	}
 }
