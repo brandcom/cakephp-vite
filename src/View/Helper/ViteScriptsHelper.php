@@ -240,12 +240,12 @@ class ViteScriptsHelper extends Helper
             );
         }
 
-		$arrayIsList = static function (mixed $value) : bool {
-			return is_array($value) && (PHP_VERSION_ID < 80100
-				? !$value || array_keys($value) === range(0, count($value) - 1)
-				: array_is_list($value)
-			);
-		};
+        $arrayIsList = static function (mixed $value): bool {
+            return is_array($value) && (PHP_VERSION_ID < 80100
+                ? !$value || array_keys($value) === range(0, count($value) - 1)
+                : array_is_list($value)
+            );
+        };
 
         if (!$arrayIsList($files)) {
             throw new ConfigurationException(sprintf(
