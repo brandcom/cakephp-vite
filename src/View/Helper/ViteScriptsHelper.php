@@ -240,14 +240,7 @@ class ViteScriptsHelper extends Helper
             );
         }
 
-        $arrayIsList = static function (mixed $value): bool {
-            return is_array($value) && (PHP_VERSION_ID < 80100
-                ? !$value || array_keys($value) === range(0, count($value) - 1)
-                : array_is_list($value)
-            );
-        };
-
-        if (!$arrayIsList($files)) {
+        if (!array_is_list($files)) {
             throw new ConfigurationException(sprintf(
                 'Expected entryPoints to be a List (array with int-keys) with at least one entry, but got %s.',
                 gettype($files) === 'array' ? 'a relational array' : gettype($files),
