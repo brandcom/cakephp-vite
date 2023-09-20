@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
-use Nette\Utils\FileSystem;
-use Nette\Utils\Json;
 use ViteHelper\Exception\ManifestNotFoundException;
 
 /**
@@ -24,19 +22,28 @@ class ViteManifest
     {
         $manifestPath = $config->read('build.manifest', ConfigDefaults::BUILD_MANIFEST);
 
-        try {
-            $json = FileSystem::read($manifestPath);
-
-            $json = str_replace([
-                "\u0000",
-            ], '', $json);
-
-            $manifest = Json::decode($json);
-        } catch (\Exception $e) {
+        if (!is_readable($manifestPath)) {
             throw new ManifestNotFoundException(
-                "No valid manifest.json found at path {$manifestPath}. Did you build your js? Error: {$e->getMessage()}"
+                "No valid manifest.json found at path {$manifestPath}. Did you build your js?",
             );
         }
+
+		// phpcs:ignore
+        $json = @file_get_contents($manifestPath);
+
+        if ($json === false) {
+            throw new ManifestNotFoundException('Could not parse manifest.json');
+        }
+
+        $json = str_replace(
+            [
+                "\u0000",
+            ],
+            '',
+            $json
+        );
+
+        $manifest = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 
         $manifestArray = [];
         foreach (get_object_vars($manifest) as $property => $value) {

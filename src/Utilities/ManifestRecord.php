@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
-use Nette\Utils\Strings;
 use stdClass;
 
 class ManifestRecord
@@ -75,7 +74,7 @@ class ManifestRecord
     {
         $field = $this->getChunk($property);
 
-        return is_string($field) && Strings::contains($field, $needle);
+        return is_string($field) && str_contains($field, $needle);
     }
 
     /**
@@ -121,7 +120,7 @@ class ManifestRecord
      */
     public function isLegacy(): bool
     {
-        return Strings::contains($this->chunk->file, 'legacy');
+        return str_contains($this->chunk->file, 'legacy');
     }
 
     /**
@@ -131,7 +130,7 @@ class ManifestRecord
      */
     public function isPolyfill(): bool
     {
-        return Strings::contains($this->chunk->file, 'polyfills');
+        return str_contains($this->chunk->file, 'polyfills');
     }
 
     /**
@@ -141,7 +140,7 @@ class ManifestRecord
      */
     public function isJavascript(): bool
     {
-        return Strings::endsWith($this->chunk->file, '.js');
+        return str_ends_with($this->chunk->file, '.js');
     }
 
     /**
@@ -151,7 +150,7 @@ class ManifestRecord
      */
     public function isStylesheet(): bool
     {
-        return Strings::endsWith((string)$this->chunk->file, '.css');
+        return str_ends_with((string)$this->chunk->file, '.css');
     }
 
     /**

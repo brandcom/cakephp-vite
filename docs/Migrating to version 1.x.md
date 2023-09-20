@@ -75,6 +75,10 @@ You can now also pass an instance of the new `ViteHelperConfig` to the methods t
 
 ## Other breaking changes
 
+### php ^8.0 required 
+
+You will now need to run `php >=8.0` to use the plugin. 
+
 ### Configuration
 
 The configuration structure has changed, e.g., some config keys have been renamed

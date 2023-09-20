@@ -6,8 +6,6 @@ namespace ViteHelper\View\Helper;
 use Cake\Collection\CollectionInterface;
 use Cake\Utility\Text;
 use Cake\View\Helper;
-use Nette\Utils\Arrays;
-use Nette\Utils\Strings;
 use ViteHelper\Exception\ConfigurationException;
 use ViteHelper\Exception\InvalidArgumentException;
 use ViteHelper\Utilities\ConfigDefaults;
@@ -52,7 +50,7 @@ class ViteScriptsHelper extends Helper
 
         $needles = $config->read('development.hostNeedles', ConfigDefaults::DEVELOPMENT_HOST_NEEDLES);
         foreach ($needles as $needle) {
-            if (Strings::contains((string)$this->getView()->getRequest()->host(), $needle)) {
+            if (str_contains((string)$this->getView()->getRequest()->host(), $needle)) {
                 return true;
             }
         }
@@ -241,7 +239,8 @@ class ViteScriptsHelper extends Helper
                 . 'Be sure to set the ViteHelper.development.' . $configOption . ' config or pass entries to the helper.'
             );
         }
-        if (!Arrays::isList($files)) {
+
+        if (!array_is_list($files)) {
             throw new ConfigurationException(sprintf(
                 'Expected entryPoints to be a List (array with int-keys) with at least one entry, but got %s.',
                 gettype($files) === 'array' ? 'a relational array' : gettype($files),
