@@ -28,6 +28,7 @@ class ViteManifest
             );
         }
 
+		// phpcs:ignore
         $json = @file_get_contents($manifestPath);
 
         if ($json === false) {
