@@ -1,19 +1,30 @@
-# ViteHelper plugin for CakePHP 4
+# ViteHelper plugin for CakePHP 5
 
 The plugin provides a Helper Class for CakePHP to facilitate the use of [Vite JS](https://vitejs.dev/).
 
-When running the Vite dev server, the Helper provides the right script tags for hot module replacement and page reloading.
+When running the Vite dev server, the Helper provides the right script tags for hot module replacement and page
+reloading.
 
 In production mode, the Helper loads the bundled files. `@vitejs/plugin-legacy` is supported, which will
 insert `nomodule`-tags for older browsers, e.g. older iOS devices, which do not support js modules.
 
-> This readme is for **version 1.x.** If you are migrating from 0.x and something is unclear, read the Migration guide under `/docs`. Feel free to open an issue if you run into problems.
+> This readme is for **version 1.x.** If you are migrating from 0.x and something is unclear, read the Migration guide
+> under `/docs`. Feel free to open an issue if you run into problems.
 
 ## Installation
 
 You can install this plugin into your CakePHP application using [composer](https://getcomposer.org).
 
-The recommended way to install composer packages is:
+### CakePHP Version Map
+
+| CakePHP version | Plugin Version | Branch | min. PHP Version |
+|-----------------|----------------|--------|------------------|
+| ^3.10           | /              | cake3  | ^7.4             |
+| ^4.2            | 0.x            | master | ^7.4             |
+| ^4.2            | 1.x            | master | ^8.0             |
+| ^5.0            | 2.x            | cake5  | ^8.1             |
+
+The recommended way to install the plugin is:
 
 ```shell
 composer require passchn/cakephp-vite
@@ -67,7 +78,8 @@ In your php-template you can import css files with:
 
 ## Configuration
 
-The plugin comes with some default configuration. You may need to change it depending on your setup. Or you might not need any config at all.
+The plugin comes with some default configuration. You may need to change it depending on your setup. Or you might not
+need any config at all.
 
 You can override some of these config settings through the `$options` of the helper methods. Or you can pass
 your own instance of `ViteHelperConfig` to a helper method as a second parameter.
@@ -145,9 +157,11 @@ $this->ViteScripts->script([
 ```
 
 **Note:** You need to set `devEntries` when running the dev server. They have to either be set in the config or
-through the helper method. In contrast, you only need `files` or `prodFilter` if you are interested in php-side code-splitting and don't use dynamic imports in js.
+through the helper method. In contrast, you only need `files` or `prodFilter` if you are interested in php-side
+code-splitting and don't use dynamic imports in js.
 
-It depends on your project and use case how you define entries. If you don't use `prodFilter` or `files`, the plugin will serve all your entry files which might just be the case you want. So don't overconfigure it ;)
+It depends on your project and use case how you define entries. If you don't use `prodFilter` or `files`, the plugin
+will serve all your entry files which might just be the case you want. So don't overconfigure it ;)
 
 ## Vite JS bundler / Dev server
 
@@ -163,19 +177,24 @@ It is recommended to add the legacy plugin:
 yarn add -D @vitejs/plugin-legacy
 ```
 
-> See [Scaffolding Your First Vite Project](https://vitejs.dev/guide/#scaffolding-your-first-vite-project) on vitejs.dev for more information.
+> See [Scaffolding Your First Vite Project](https://vitejs.dev/guide/#scaffolding-your-first-vite-project) on vitejs.dev
+> for more information.
 
 ### Configuration
 
-After installing, you will need to refactor the files a bit to make sense of it in a php project. The default config of this plugin assumes that you put your js, ts, scss etc. in `/webroot_src`.
+After installing, you will need to refactor the files a bit to make sense of it in a php project. The default config of
+this plugin assumes that you put your js, ts, scss etc. in `/webroot_src`.
 
-The build files will end up in `/webroot/assets` by default. Your `vite.config.js or *.ts` file for vite stays in the project root.
+The build files will end up in `/webroot/assets` by default. Your `vite.config.js or *.ts` file for vite stays in the
+project root.
 
-> Wanted: Examples for vite/plugin configs and directory structures. Feel free to contribute with a PR to show how your project uses this plugin.
+> Wanted: Examples for vite/plugin configs and directory structures. Feel free to contribute with a PR to show how your
+> project uses this plugin.
 
 #### Recommended configuration:
 
-See the example [vite.config.ts content here](https://github.com/brandcom/cakephp-vite/wiki/example-vite-config). Note that the config changes when upgrading to vite version `2.9.0` or higher.
+See the example [vite.config.ts content here](https://github.com/brandcom/cakephp-vite/wiki/example-vite-config). Note
+that the config changes when upgrading to vite version `2.9.0` or higher.
 
 A difference to other dev servers, e.g. webpack or gulp is that you won't access your
 local site via the port where Vite is serving. This does not work with php.
