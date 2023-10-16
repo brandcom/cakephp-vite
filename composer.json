@@ -8,7 +8,7 @@
 		"cakephp/cakephp": "^5.0"
 	},
 	"require-dev": {
-		"cakedc/cakephp-phpstan": "3.next-cake5-dev",
+		"cakedc/cakephp-phpstan": "^3.0",
 		"cakephp/cakephp-codesniffer": "^5.0.0",
 		"phpunit/phpunit": "^10.1.0"
 	},
@@ -39,6 +39,5 @@
 		"stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^1.7.0 && mv composer.backup composer.json",
 		"lowest-setup": "composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction && cp composer.json composer.backup && composer require --dev dereuromark/composer-prefer-lowest && mv composer.backup composer.json"
 	},
-	"minimum-stability": "dev",
 	"prefer-stable": true
 }
