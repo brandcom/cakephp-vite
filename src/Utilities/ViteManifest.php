@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
+use Cake\Core\Plugin;
 use ViteHelper\Exception\ManifestNotFoundException;
 
 /**
@@ -14,13 +15,17 @@ class ViteManifest
      * Returns the manifest records as a Collection
      *
      * @param \ViteHelper\Utilities\ViteHelperConfig $config plugin config instance
-     * @return \ViteHelper\Utilities\ManifestRecords|\ViteHelper\Utilities\ManifestRecord[]
+     * @return \ViteHelper\Utilities\ManifestRecords|array<\ViteHelper\Utilities\ManifestRecord>
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      * @internal
      */
     public static function getRecords(ViteHelperConfig $config): ManifestRecords
     {
-        $manifestPath = $config->read('build.manifest', ConfigDefaults::BUILD_MANIFEST);
+        if ($config->read('plugin') && $config->read('build.manifest') === null) {
+            $manifestPath = static::getPluginManifestPath($config->read('plugin'));
+        } else {
+            $manifestPath = $config->read('build.manifest', ConfigDefaults::BUILD_MANIFEST);
+        }
 
         if (!is_readable($manifestPath)) {
             throw new ManifestNotFoundException(
@@ -29,7 +34,7 @@ class ViteManifest
         }
 
 		// phpcs:ignore
-        $json = @file_get_contents($manifestPath);
+		$json = @file_get_contents($manifestPath);
 
         if ($json === false) {
             throw new ManifestNotFoundException('Could not parse manifest.json');
@@ -67,5 +72,10 @@ class ViteManifest
         });
 
         return new ManifestRecords($manifestArray, $manifestPath);
+    }
+
+    protected static function getPluginManifestPath(string $pluginName): string
+    {
+        return Plugin::path($pluginName) . 'webroot' . DS . 'manifest.json';
     }
 }
