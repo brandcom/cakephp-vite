@@ -8,22 +8,27 @@ use Cake\Utility\Hash;
 
 class ViteHelperConfig
 {
+    public const DEFAULT_CONFIG_KEY = 'ViteHelper';
+
     public readonly array $config;
 
     /**
-     * @param array|null $config config array - leave empty to read from app_vite etc.
+     * @param array|string|null $config config array or config key - leave empty for default
      */
-    public function __construct(?array $config = null)
+    public function __construct(array|string|null $config = null)
     {
-        $config = $config ?: Configure::read('ViteHelper');
-        $this->config = (array)$config;
+        if ($config === null) {
+            $config = self::DEFAULT_CONFIG_KEY;
+        }
+
+        $this->config = is_array($config) ? $config : Configure::readOrFail($config);
     }
 
     /**
-     * @param array|null $config config array
+     * @param array|string|null $config config array or key
      * @return self
      */
-    public static function create(?array $config = null): self
+    public static function create(array|string|null $config = null): self
     {
         return new self($config);
     }
@@ -42,11 +47,11 @@ class ViteHelperConfig
      * Merge two configs
      *
      * @param \ViteHelper\Utilities\ViteHelperConfig $config
-     * @return static
+     * @return self
      */
-    public function merge(ViteHelperConfig $config): static
+    public function merge(ViteHelperConfig $config): self
     {
-        return static::create(array_merge(
+        return self::create(array_merge(
             $this->config,
             $config->config,
         ));

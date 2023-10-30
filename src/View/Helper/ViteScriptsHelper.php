@@ -32,12 +32,12 @@ class ViteScriptsHelper extends Helper
      * Otherwise, it will look for a hint that the app
      *   is in development mode through the  `developmentHostNeedles`
      *
-     * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance to use
+     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config config key or instance to use
      * @return bool
      */
-    public function isDev(?ViteHelperConfig $config = null): bool
+    public function isDev(ViteHelperConfig|string|null $config = null): bool
     {
-        $config = $config ?: ViteHelperConfig::create();
+        $config = $this->createConfig($config);
         if ($config->read('forceProductionMode', ConfigDefaults::FORCE_PRODUCTION_MODE)) {
             return false;
         }
@@ -69,14 +69,14 @@ class ViteScriptsHelper extends Helper
      * * other options are rendered as attributes to the html tag
      *
      * @param array $options see above
-     * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
+     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config config key or instance to use
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
      * @throws \ViteHelper\Exception\ManifestNotFoundException|\ViteHelper\Exception\InvalidArgumentException
      */
-    public function script(array $options = [], ?ViteHelperConfig $config = null): void
+    public function script(array $options = [], ViteHelperConfig|string|null $config = null): void
     {
-        $config = $config ?: ViteHelperConfig::create();
+        $config = $this->createConfig($config);
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options['cssBlock'] = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
         $options = $this->updateOptionsForFiltersAndEntries($options);
@@ -96,15 +96,15 @@ class ViteScriptsHelper extends Helper
      * @param string $pluginName e.g. MyPlugin
      * @param bool $devMode set to true during development
      * @param array $options helper options
-     * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config like in your app_vite.php, just for the plugin specifically
+     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config config key or instance to use
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
      * @throws \ViteHelper\Exception\InvalidArgumentException
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    public function pluginScript(string $pluginName, bool $devMode = false, array $options = [], ?ViteHelperConfig $config = null): void
+    public function pluginScript(string $pluginName, bool $devMode = false, array $options = [], ViteHelperConfig|string|null $config = null): void
     {
-        $config = $config ?: ViteHelperConfig::create();
+        $config = $this->createConfig($config);
         $config = $config->merge(ViteHelperConfig::create([
             'plugin' => $pluginName,
             'forceProductionMode' => !$devMode,
@@ -205,15 +205,15 @@ class ViteScriptsHelper extends Helper
      * * other options are rendered as attributes to the html tag
      *
      * @param array $options see above
-     * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
+     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config config key or instance to use
      * @return void
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      * @throws \ViteHelper\Exception\ConfigurationException
      * @throws \ViteHelper\Exception\InvalidArgumentException
      */
-    public function css(array $options = [], ?ViteHelperConfig $config = null): void
+    public function css(array $options = [], ViteHelperConfig|string|null $config = null): void
     {
-        $config = $config ?: ViteHelperConfig::create();
+        $config = $this->createConfig($config);
 
         // TODO the default should be css. This is a bug but might break in production.
         // So this should be replaced in a major release.
@@ -253,15 +253,15 @@ class ViteScriptsHelper extends Helper
      * @param string $pluginName e.g. MyPlugin
      * @param bool $devMode set to true during development
      * @param array $options helper options
-     * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config like in your app_vite.php, just for the plugin specifically
+     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config config key or instance to use
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
      * @throws \ViteHelper\Exception\InvalidArgumentException
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      */
-    public function pluginCss(string $pluginName, bool $devMode = false, array $options = [], ?ViteHelperConfig $config = null): void
+    public function pluginCss(string $pluginName, bool $devMode = false, array $options = [], ViteHelperConfig|string|null $config = null): void
     {
-        $config = $config ?: ViteHelperConfig::create();
+        $config = $this->createConfig($config);
         $config = $config->merge(ViteHelperConfig::create([
             'plugin' => $pluginName,
             'forceProductionMode' => !$devMode,
@@ -358,5 +358,20 @@ class ViteScriptsHelper extends Helper
         }
 
         return $options;
+    }
+
+    /**
+     * Helper method to create a new config or the defined config
+     *
+     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config can be a config key, a config instance or null for the default
+     * @return \ViteHelper\Utilities\ViteHelperConfig
+     */
+    private function createConfig(ViteHelperConfig|string|null $config): ViteHelperConfig
+    {
+        if ($config instanceof ViteHelperConfig) {
+            return $config;
+        }
+
+        return ViteHelperConfig::create($config);
     }
 }
