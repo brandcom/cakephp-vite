@@ -163,6 +163,26 @@ code-splitting and don't use dynamic imports in js.
 It depends on your project and use case how you define entries. If you don't use `prodFilter` or `files`, the plugin
 will serve all your entry files which might just be the case you want. So don't overconfigure it ;)
 
+## Opt out of global config + Plugin development
+
+You can use the helper methods with multiple configurations through the `$config` argument.
+
+> **New in version 2.3:** You can pass a config key instead of a config instance to the helper. The default config key
+> is `ViteHelper`.
+
+This might be useful when using plugin scripts or when developing plugins:
+
+```php
+<?php $this->ViteScripts->pluginScript('MyPlugin', devMode: true, config: 'MyPlugin.ViteConfig'); ?>
+```
+
+The example above uses a convenience method to load plugin scripts for `MyPlugin`. DevMode is enabled and the helper
+will use a CakePHP config under the key `MyPlugin.ViteConfig`. In this way, you can scope your App's and your plugin's
+config.
+
+It is assumed that the `manifest.json` is available directly in your plugin's `webroot`. If this is not the case, you
+should define the absolute path throuh the `build.manifest` config option.
+
 ## Vite JS bundler / Dev server
 
 Install Vite e.g. via yarn:

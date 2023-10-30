@@ -15,7 +15,7 @@ class ViteManifest
      * Returns the manifest records as a Collection
      *
      * @param \ViteHelper\Utilities\ViteHelperConfig $config plugin config instance
-     * @return \ViteHelper\Utilities\ManifestRecords|array<\ViteHelper\Utilities\ManifestRecord>
+     * @return \ViteHelper\Utilities\ManifestRecords<\ViteHelper\Utilities\ManifestRecord>
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      * @internal
      */

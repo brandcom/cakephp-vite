@@ -21,7 +21,7 @@ class ViteHelperConfig
             $config = self::DEFAULT_CONFIG_KEY;
         }
 
-        $this->config = is_array($config) ? $config : Configure::readOrFail($config);
+        $this->config = is_array($config) ? $config : (array)Configure::read($config);
     }
 
     /**

@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.3.0
+
+### Changed
+
+* An instance of `ViteHelperConfig` can now be initialized only with a config key (`string`)
+* The `ViteScriptsHelper` accepts `string` for the `$config` argument
+
 ## v2.2.0
 
 ### Added
