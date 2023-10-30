@@ -8,7 +8,7 @@ use Cake\Utility\Hash;
 
 class ViteHelperConfig
 {
-    private array $config;
+    public readonly array $config;
 
     /**
      * @param array|null $config config array - leave empty to read from app_vite etc.
@@ -36,5 +36,19 @@ class ViteHelperConfig
     public function read(string $path, mixed $default = null): mixed
     {
         return Hash::get($this->config, $path, $default);
+    }
+
+    /**
+     * Merge two configs
+     *
+     * @param \ViteHelper\Utilities\ViteHelperConfig $config
+     * @return static
+     */
+    public function merge(ViteHelperConfig $config): static
+    {
+        return static::create(array_merge(
+            $this->config,
+            $config->config,
+        ));
     }
 }

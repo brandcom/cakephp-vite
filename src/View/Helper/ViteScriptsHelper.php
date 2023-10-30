@@ -91,6 +91,29 @@ class ViteScriptsHelper extends Helper
     }
 
     /**
+     * Convenience method to render a plugin's scripts
+     *
+     * @param string $pluginName e.g. MyPlugin
+     * @param bool $devMode set to true during development
+     * @param array $options helper options
+     * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config like in your app_vite.php, just for the plugin specifically
+     * @return void
+     * @throws \ViteHelper\Exception\ConfigurationException
+     * @throws \ViteHelper\Exception\InvalidArgumentException
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
+     */
+    public function pluginScript(string $pluginName, bool $devMode = false, array $options = [], ?ViteHelperConfig $config = null): void
+    {
+        $config = $config ?: ViteHelperConfig::create();
+        $config = $config->merge(ViteHelperConfig::create([
+            'plugin' => $pluginName,
+            'forceProductionMode' => !$devMode,
+        ]));
+
+        $this->script($options, $config);
+    }
+
+    /**
      * @param array $options passed to script tag
      * @param \ViteHelper\Utilities\ViteHelperConfig $config config instance
      * @return void
@@ -192,6 +215,8 @@ class ViteScriptsHelper extends Helper
     {
         $config = $config ?: ViteHelperConfig::create();
 
+        // TODO the default should be css. This is a bug but might break in production.
+        // So this should be replaced in a major release.
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options = $this->updateOptionsForFiltersAndEntries($options);
 
@@ -220,6 +245,29 @@ class ViteScriptsHelper extends Helper
 
             $this->Html->css($pluginPrefix . $record->getFileUrl(), $options);
         }
+    }
+
+    /**
+     * Convenience method to render a plugin's styles
+     *
+     * @param string $pluginName e.g. MyPlugin
+     * @param bool $devMode set to true during development
+     * @param array $options helper options
+     * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config like in your app_vite.php, just for the plugin specifically
+     * @return void
+     * @throws \ViteHelper\Exception\ConfigurationException
+     * @throws \ViteHelper\Exception\InvalidArgumentException
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
+     */
+    public function pluginCss(string $pluginName, bool $devMode = false, array $options = [], ?ViteHelperConfig $config = null): void
+    {
+        $config = $config ?: ViteHelperConfig::create();
+        $config = $config->merge(ViteHelperConfig::create([
+            'plugin' => $pluginName,
+            'forceProductionMode' => !$devMode,
+        ]));
+
+        $this->css($options, $config);
     }
 
     /**
