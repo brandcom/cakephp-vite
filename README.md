@@ -65,6 +65,12 @@ In your php-template or in layout you can import javascript files with:
 <?php $this->ViteScripts->script($options) ?>
 ```
 
+or using this shourtcut for a single entrypoint:
+
+```php
+<?php $this->ViteScripts->script('webroot_src/main.ts') ?>
+```
+
 If you imported CSS files inside your JavaScript files, this method automatically
 appends your css tags to the css view block.
 
@@ -74,6 +80,12 @@ In your php-template you can import css files with:
 
 ```php
 <?php $this->ViteScripts->css($options) ?>
+```
+
+or using this shourtcut for a single entrypoint:
+
+```php
+<?php $this->ViteScripts->script('webroot_src/style.css') ?>
 ```
 
 ## Configuration
