@@ -68,15 +68,18 @@ class ViteScriptsHelper extends Helper
      * * devEntries (string[]): entry files in development mode
      * * other options are rendered as attributes to the html tag
      *
-     * @param array $options see above
+     * @param string|array $options file entrypoint or script options
      * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
      * @throws \ViteHelper\Exception\ManifestNotFoundException|\ViteHelper\Exception\InvalidArgumentException
      */
-    public function script(array $options = [], ?ViteHelperConfig $config = null): void
+    public function script(string|array $options = [], ?ViteHelperConfig $config = null): void
     {
         $config = $config ?: ViteHelperConfig::create();
+        if (is_string($options)) {
+            $options = ['files' => [$options]];
+        }
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options['cssBlock'] = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
         $options = $this->updateOptionsForFiltersAndEntries($options);
@@ -181,17 +184,19 @@ class ViteScriptsHelper extends Helper
      * * devEntries (string[]): entry files in development mode
      * * other options are rendered as attributes to the html tag
      *
-     * @param array $options see above
+     * @param string|array $options file entrypoint or css options
      * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
      * @return void
      * @throws \ViteHelper\Exception\ManifestNotFoundException
      * @throws \ViteHelper\Exception\ConfigurationException
      * @throws \ViteHelper\Exception\InvalidArgumentException
      */
-    public function css(array $options = [], ?ViteHelperConfig $config = null): void
+    public function css(string|array $options = [], ?ViteHelperConfig $config = null): void
     {
         $config = $config ?: ViteHelperConfig::create();
-
+        if (is_string($options)) {
+            $options = ['files' => [$options]];
+        }
         $options['block'] = $options['block'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
         $options = $this->updateOptionsForFiltersAndEntries($options);
 
