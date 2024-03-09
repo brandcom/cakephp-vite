@@ -75,6 +75,8 @@ class ViteManifest
     }
 
     /**
+     * Get the default location of a plugin's vite manifest.json
+     *
      * @param string $pluginName e.g. "MyPlugin"
      * @return string filesystem path to the Plugin's manifest.json
      */
