@@ -68,7 +68,7 @@ class ViteScriptsHelper extends Helper
      * * devEntries (string[]): entry files in development mode
      * * other options are rendered as attributes to the html tag
      *
-     * @param string|array $options file entrypoint or script options
+     * @param array|string $options file entrypoint or script options
      * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
      * @return void
      * @throws \ViteHelper\Exception\ConfigurationException
@@ -184,7 +184,7 @@ class ViteScriptsHelper extends Helper
      * * devEntries (string[]): entry files in development mode
      * * other options are rendered as attributes to the html tag
      *
-     * @param string|array $options file entrypoint or css options
+     * @param array|string $options file entrypoint or css options
      * @param \ViteHelper\Utilities\ViteHelperConfig|null $config config instance
      * @return void
      * @throws \ViteHelper\Exception\ManifestNotFoundException

@@ -74,6 +74,10 @@ class ViteManifest
         return new ManifestRecords($manifestArray, $manifestPath);
     }
 
+    /**
+     * @param string $pluginName e.g. "MyPlugin"
+     * @return string filesystem path to the Plugin's manifest.json
+     */
     protected static function getPluginManifestPath(string $pluginName): string
     {
         return Plugin::path($pluginName) . 'webroot' . DS . 'manifest.json';
