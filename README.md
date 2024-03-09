@@ -54,7 +54,7 @@ In your php-template or in layout you can import javascript files with:
 <?php $this->ViteScripts->script($options) ?>
 ```
 
-or using this shourtcut for a single entrypoint:
+… or by using this shortcut for a single entrypoint:
 
 ```php
 <?php $this->ViteScripts->script('webroot_src/main.ts') ?>
@@ -71,10 +71,10 @@ In your php-template you can import css files with:
 <?php $this->ViteScripts->css($options) ?>
 ```
 
-or using this shourtcut for a single entrypoint:
+… or by using this shortcut for a single entrypoint:
 
 ```php
-<?php $this->ViteScripts->script('webroot_src/style.css') ?>
+<?php $this->ViteScripts->css('webroot_src/style.css') ?>
 ```
 
 ## Configuration
