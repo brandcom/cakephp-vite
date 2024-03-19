@@ -12,6 +12,7 @@ return [
 			'scriptEntries' => ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES,
 			'styleEntries' => ConfigDefaults::DEVELOPMENT_STYLE_ENTRIES,
 			'hostNeedles' => ConfigDefaults::DEVELOPMENT_HOST_NEEDLES,
+			'checkManifest' => ConfigDefaults::DEVELOPMENT_CHECK_MANIFEST,
 			'url' => ConfigDefaults::DEVELOPMENT_URL,
 		],
 		'forceProductionMode' => ConfigDefaults::FORCE_PRODUCTION_MODE,

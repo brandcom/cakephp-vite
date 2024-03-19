@@ -8,6 +8,7 @@ use Cake\Utility\Text;
 use Cake\View\Helper;
 use ViteHelper\Exception\ConfigurationException;
 use ViteHelper\Exception\InvalidArgumentException;
+use ViteHelper\Exception\ManifestNotFoundException;
 use ViteHelper\Utilities\ConfigDefaults;
 use ViteHelper\Utilities\ManifestRecord;
 use ViteHelper\Utilities\ManifestRecords;
@@ -51,6 +52,14 @@ class ViteScriptsHelper extends Helper
         $needles = $config->read('development.hostNeedles', ConfigDefaults::DEVELOPMENT_HOST_NEEDLES);
         foreach ($needles as $needle) {
             if (str_contains((string)$this->getView()->getRequest()->host(), $needle)) {
+                return true;
+            }
+        }
+
+        if ($config->read('development.checkManifest', ConfigDefaults::DEVELOPMENT_CHECK_MANIFEST)) {
+            try {
+                ViteManifest::getRecords($config);
+            } catch (ManifestNotFoundException $e) {
                 return true;
             }
         }

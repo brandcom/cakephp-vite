@@ -95,6 +95,7 @@ your own instance of `ViteHelperConfig` to a helper method as a second parameter
         'styleEntries' =>  ['someFolder/myStyleEntry.scss'], // relative to project root. Unnecessary when using css-in-js.
         'hostNeedles' => ['.test', '.local'], // to check if the app is running locally
         'url' => 'http://localhost:3000', // url of the vite dev server
+        'checkManifest' => false, // check if the manifest file does not exist and enable dev mode
     ],
     'forceProductionMode' => false, // or true to always serve build assets
     'plugin' => false, // or string 'MyPlugin' to serve plugin build assets

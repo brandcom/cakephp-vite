@@ -26,6 +26,11 @@ class ConfigDefaults
     ];
 
     /**
+     * If true, the manifest file will be checked for existence and readability in order to detect development mode
+     */
+    public const DEVELOPMENT_CHECK_MANIFEST = false;
+
+    /**
      * for Cookies or URL-params to force production mode
      */
     public const PRODUCTION_HINT = 'vprod';
