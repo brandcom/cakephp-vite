@@ -261,7 +261,7 @@ class ViteScriptsHelper extends Helper
 	 */
 	private function outputProductionScripts(): void
 	{
-		$files = $this->entries->filter(function ($record) {
+		$files = array_filter($this->entries, function ($record) {
 			return
 				$record instanceof ScriptRecord &&
 				!$record->is_rendered &&
@@ -280,9 +280,9 @@ class ViteScriptsHelper extends Helper
 
 			$options = $record->getMetadata();
 			if ($record->isModuleEntryScript()) {
-				$options['type'] = 'module';
+				$options['options']['type'] = 'module';
 			} else {
-				$options['nomodule'] = 'nomodule';
+				$options['options']['nomodule'] = 'nomodule';
 			}
 
 			$recordPluginPrefix = $pluginPrefix;
@@ -290,7 +290,7 @@ class ViteScriptsHelper extends Helper
 				$recordPluginPrefix = $options['plugin'] . '.';
 				unset($options['plugin']);
 			}
-			$this->Html->script($recordPluginPrefix . $record->getFileUrl(), $options);
+			$this->Html->script($recordPluginPrefix . $record->getFileUrl(), $options['options']);
 
 			// the js files has css dependency ?
 			$cssFiles = $record->getCss();
@@ -316,10 +316,14 @@ class ViteScriptsHelper extends Helper
 	{
 		$pluginPrefix = $this->getConfig('plugin');
 		$pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
-		$records = $this->getManifestRecords(array_merge(
-			$this->getConfig('styleEntries.prod'),
-			$this->getConfig('styleEntries.' . self::COMMON_ENTRIES_ARRAY_KEY),
-		));
+		$files = array_filter($this->entries, function ($record) {
+			return
+				$record instanceof StyleRecord &&
+				!$record->is_rendered &&
+				Environment::PRODUCTION === $record->environment;
+		});
+
+		$records = $this->getManifestRecords($files);
 
 		foreach ($records as $record) {
 			if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
@@ -332,7 +336,7 @@ class ViteScriptsHelper extends Helper
 				unset($options['plugin']);
 			}
 
-			$this->Html->css($pluginPrefix . $record->getFileUrl(), $options);
+			$this->Html->css($pluginPrefix . $record->getFileUrl(), $options['options']);
 			unset($recordPluginPrefix);
 		}
 	}
@@ -353,18 +357,20 @@ class ViteScriptsHelper extends Helper
 
 		try {
 			$records = ViteManifest::getRecords($manifestPath, $this->getConfig('build.outDirectory'));
-			$records = $records->map(function (ManifestRecord $record) use ($files) {
+			$records = $records->filter(function (ManifestRecord $record) use ($files) {
 				/** @var \ViteHelper\Model\Entity\StyleRecord|\ViteHelper\Model\Entity\ScriptRecord $file */
 				foreach ($files as $file) {
-					if ($record->match($file->file)) {
+					if ($record->match($file->file, 'src')) {
 						$record->setMetadata([
 							'options' => $file->elementOptions,
 							'plugin' => $file->plugin,
 						]);
+
+						return $record;
 					}
 				}
 
-				return $record;
+				return false;
 			});
 		} catch (ManifestNotFoundException|\JsonException $e) {
 			$records = [];
