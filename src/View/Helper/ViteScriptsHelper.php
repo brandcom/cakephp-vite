@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace ViteHelper\View\Helper;
 
-use Cake\Collection\Collection;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
-use Cake\Event\EventInterface;
 use Cake\Utility\Text;
 use Cake\View\Helper;
 use ViteHelper\Enum\Environment;
