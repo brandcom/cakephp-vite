@@ -138,6 +138,7 @@ class ViteScriptsHelper extends Helper
         unset($options['cssBlock']);
         unset($options['prodFilter']);
         unset($options['devEntries']);
+        unset($options['files']);
         $options['type'] = 'module';
 
         foreach ($files as $file) {
@@ -165,6 +166,7 @@ class ViteScriptsHelper extends Helper
         unset($options['prodFilter']);
         unset($options['cssBlock']);
         unset($options['devEntries']);
+        unset($options['files']);
 
         foreach ($records as $record) {
             if (!$record->isEntryScript()) {
