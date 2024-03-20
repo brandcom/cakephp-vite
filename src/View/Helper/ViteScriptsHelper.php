@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ViteHelper\View\Helper;
 
+use Cake\Collection\Collection;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Event\EventInterface;
@@ -11,6 +12,8 @@ use Cake\View\Helper;
 use ViteHelper\Enum\Environment;
 use ViteHelper\Exception\ConfigurationException;
 use ViteHelper\Exception\ManifestNotFoundException;
+use ViteHelper\Model\Entity\ScriptRecord;
+use ViteHelper\Model\Entity\StyleRecord;
 use ViteHelper\Utilities\ManifestRecord;
 use ViteHelper\Utilities\ViteManifest;
 
@@ -25,7 +28,9 @@ class ViteScriptsHelper extends Helper
 
 	private const COMMON_ENTRIES_ARRAY_KEY = 'all';
 
-    public array $helpers = ['Html'];
+	public array $helpers = ['Html'];
+
+	protected Collection $entries;
 
 	public array $_defaultConfig = [
 		'plugin' => false,
@@ -40,16 +45,6 @@ class ViteScriptsHelper extends Helper
 		],
 		'development' => [
 			'url' => 'http://localhost:3000',
-		],
-		'scriptEntries' => [
-			'prod' => [],
-			'dev' => [],
-			'all' => [],
-		],
-		'styleEntries' => [
-			'prod' => [],
-			'dev' => [],
-			'all' => [],
 		],
 	];
 
@@ -78,25 +73,59 @@ class ViteScriptsHelper extends Helper
 					Environment::PRODUCTION : Environment::DEVELOPMENT
 			);
 		}
+
+		if ($env === Environment::DEVELOPMENT) {
+			$this->Html->script(
+				$this->getConfig('development.url')
+				. '/@vite/client',
+				[
+					'type' => 'module',
+					'block' => $this->getConfig('viewBlocks.css'),
+				]
+			);
+		}
+
+		$this->entries = new Collection([]);
+		$this->getView()->getEventManager()->on('Vite.render', [$this, 'render']);
 	}
 
 	/**
-	 * The beforeRender method is called after the controller’s beforeRender method but before the controller renders
-	 * view and layout. Receives the file being rendered as an argument.
+	 * Adds styles and scripts to the blocks
 	 *
-	 * @param \Cake\Event\EventInterface $event
-	 * @param $viewFile
 	 * @return void
 	 */
-	public function beforeRender(EventInterface $event, $viewFile): void
+	public function render(): void
 	{
 		if ($this->getConfig('environment', Environment::PRODUCTION) === Environment::DEVELOPMENT) {
 			$this->outputDevelopmentScripts();
 			$this->outputDevelopmentStyles();
+			foreach ($this->entries as $entry) {
+				if ($entry->environment === Environment::DEVELOPMENT) {
+					$entry->is_rendered = true;
+				}
+			}
 		} else {
 			$this->outputProductionScripts();
 			$this->outputProductionStyles();
+			foreach ($this->entries as $entry) {
+				if ($entry->environment === Environment::PRODUCTION) {
+					$entry->is_rendered = true;
+				}
+			}
 		}
+	}
+
+	/**
+	 * Is called after each view file is rendered. This includes elements, views, parent views and layouts.
+	 * A callback can modify and return $content to change how the rendered content will be displayed in the browser.
+	 *
+	 * @param \Cake\Event\EventInterface $event
+	 * @param $viewFile
+	 * @param $content
+	 * @return void
+	 */
+	public function afterRenderFile(EventInterface $event, $viewFile, $content): void
+	{
 	}
 
 	/**
@@ -106,30 +135,45 @@ class ViteScriptsHelper extends Helper
 	 * @param \ViteHelper\Enum\Environment|null|string $environment the files will be served only in this environment, null on both
 	 * @param string|null $block name of the view block to render the scripts in
 	 * @param string|null $plugin
-	 * @param array $attr attributes to the html tag
+	 * @param array $elementOptions options to the html tag
 	 * @return void
 	 */
-    public function script(
+	public function script(
 		array|string $files = [],
 		Environment|null|string $environment = null,
 		string|null $block = null,
 		string|null $plugin = null,
-		array $attr = [],
+		array $elementOptions = [],
 	): void {
 		if (is_string($environment)) {
 			$environment = Environment::tryFrom($environment);
 		}
-		$config_key = 'scriptEntries.' . $environment?->value ?? self::COMMON_ENTRIES_ARRAY_KEY;
-		$attr += ['type' => 'module'];
-		$attr['block'] = $block;
+		$elementOptions['block'] = $block ?? $this->getConfig('viewBlocks.script');
 		$files = (array)$files;
 		foreach ($files as $file) {
-			$this->_config->{$config_key}[$file] = [
-				'attr' => $attr,
-				'plugin' => $plugin,
-			];
+			switch ($environment) {
+				case Environment::DEVELOPMENT:
+					$this->entries[] = new ScriptRecord(
+						$file,Environment::DEVELOPMENT, $block, $plugin, $elementOptions,
+					);
+					break;
+				case Environment::PRODUCTION:
+					$this->entries[] = new ScriptRecord(
+						$file,Environment::PRODUCTION, $block, $plugin, $elementOptions,
+					);
+					break;
+				default:
+					$this->entries[] = new ScriptRecord(
+						$file,Environment::DEVELOPMENT, $block, $plugin, $elementOptions,
+					);
+					$this->entries[] = new ScriptRecord(
+						$file,Environment::PRODUCTION, $block, $plugin, $elementOptions,
+					);
+					break;
+			}
 		}
-    }
+		$this->render();
+	}
 
 	/**
 	 * Adds style to the css view block
@@ -138,29 +182,45 @@ class ViteScriptsHelper extends Helper
 	 * @param \ViteHelper\Enum\Environment|null|string $environment the files will be served only in this environment, null on both
 	 * @param string|null $block name of the view block to render the scripts in
 	 * @param string|null $plugin
-	 * @param array $attr attributes to the html tag
+	 * @param array $elementOptions options to the html tag
 	 * @return void
 	 */
-    public function css(
+	public function css(
 		array|string $files = [],
 		Environment|null|string $environment = null,
 		string|null $block = null,
 		string|null $plugin = null,
-		array $attr = [],
+		array $elementOptions = [],
 	): void {
 		if (is_string($environment)) {
 			$environment = Environment::tryFrom($environment);
 		}
-		$config_key = 'styleEntries.' . $environment?->value ?? self::COMMON_ENTRIES_ARRAY_KEY;
-		$attr['block'] = $block;
+		$elementOptions['block'] = $block ?? $this->getConfig('viewBlocks.css');
 		$files = (array)$files;
 		foreach ($files as $file) {
-			$this->_config->{$config_key}[$file] = [
-				'attr' => $attr,
-				'plugin' => $plugin,
-			];
+			switch ($environment) {
+				case Environment::DEVELOPMENT:
+					$this->entries[] = new StyleRecord(
+						$file,Environment::DEVELOPMENT, $block, $plugin, $elementOptions,
+					);
+					break;
+				case Environment::PRODUCTION:
+					$this->entries[] = new StyleRecord(
+						$file,Environment::PRODUCTION, $block, $plugin, $elementOptions,
+					);
+					break;
+				default:
+					$this->entries[] = new StyleRecord(
+						$file,Environment::DEVELOPMENT, $block, $plugin, $elementOptions,
+					);
+					$this->entries[] = new StyleRecord(
+						$file,Environment::PRODUCTION, $block, $plugin, $elementOptions,
+					);
+					break;
+			}
 		}
-    }
+		$this->render();
+	}
 
 	/**
 	 * Appends development script tags to configured block
@@ -169,23 +229,20 @@ class ViteScriptsHelper extends Helper
 	 */
 	private function outputDevelopmentScripts(): void
 	{
-		$files = array_merge(
-			$this->getConfig('scriptEntries.dev'),
-			$this->getConfig('scriptEntries.' . self::COMMON_ENTRIES_ARRAY_KEY),
-		);
-		$this->Html->script(
-			$this->getConfig('development.url')
-			. '/@vite/client',
-			[
-				'type' => 'module',
-				'block' => $this->getConfig('viewBlocks.css'),
-			]
-		);
-		foreach ($files as $file => $attr) {
+		$files = $this->entries->filter(function ($record) {
+			return
+				$record instanceof ScriptRecord &&
+				!$record->is_rendered &&
+				Environment::DEVELOPMENT === $record->environment;
+		});
+
+		/** @var \ViteHelper\Model\Entity\ScriptRecord $record */
+		foreach ($files as $record) {
+			$record->elementOptions['type'] = 'module';
 			$this->Html->script(Text::insert(':host/:file', [
 				'host' => $this->getConfig('development.url'),
-				'file' => ltrim($file, DS),
-			]), $attr);
+				'file' => ltrim($record->file, DS),
+			]), $record->elementOptions);
 		}
 	}
 
@@ -196,15 +253,19 @@ class ViteScriptsHelper extends Helper
 	 */
 	private function outputDevelopmentStyles(): void
 	{
-		$files = array_merge(
-			$this->getConfig('styleEntries.dev'),
-			$this->getConfig('styleEntries.' . self::COMMON_ENTRIES_ARRAY_KEY),
-		);
-		foreach ($files as $file => $options) {
+		$files = $this->entries->filter(function ($record) {
+			return
+				$record instanceof StyleRecord &&
+				!$record->is_rendered &&
+				Environment::DEVELOPMENT === $record->environment;
+		});
+
+		/** @var \ViteHelper\Model\Entity\StyleRecord $record */
+		foreach ($files as $record) {
 			$this->Html->css(Text::insert(':host/:file', [
 				'host' => $this->getConfig('development.url'),
-				'file' => ltrim($file, '/'),
-			]), $options);
+				'file' => ltrim($record->file, '/'),
+			]), $record->elementOptions);
 		}
 	}
 
@@ -215,10 +276,14 @@ class ViteScriptsHelper extends Helper
 	 */
 	private function outputProductionScripts(): void
 	{
-		$records = $this->getManifestRecords(array_merge(
-			$this->getConfig('scriptEntries.prod'),
-			$this->getConfig('scriptEntries.' . self::COMMON_ENTRIES_ARRAY_KEY),
-		));
+		$files = $this->entries->filter(function ($record) {
+			return
+				$record instanceof ScriptRecord &&
+				!$record->is_rendered &&
+				Environment::PRODUCTION === $record->environment;
+		});
+
+		$records = $this->getManifestRecords($files);
 
 		$pluginPrefix = $this->getConfig('plugin');
 		$pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
@@ -293,7 +358,7 @@ class ViteScriptsHelper extends Helper
 	 * @param array $files
 	 * @return iterable
 	 */
-	private function getManifestRecords(array $files): iterable
+	private function getManifestRecords(iterable $files): iterable
 	{
 		if ($this->getConfig('plugin') && $this->getConfig('build.manifest') === null) {
 			$manifestPath = Plugin::path($this->getConfig('plugin')) . 'webroot' . DS . 'manifest.json';
@@ -304,9 +369,13 @@ class ViteScriptsHelper extends Helper
 		try {
 			$records = ViteManifest::getRecords($manifestPath, $this->getConfig('build.outDirectory'));
 			$records = $records->map(function (ManifestRecord $record) use ($files) {
-				foreach ($files as $file => $attributes) {
-					if ($record->match($file)) {
-						$record->setMetadata($attributes);
+				/** @var \ViteHelper\Model\Entity\StyleRecord|\ViteHelper\Model\Entity\ScriptRecord $file */
+				foreach ($files as $file) {
+					if ($record->match($file->file)) {
+						$record->setMetadata([
+							'options' => $file->elementOptions,
+							'plugin' => $file->plugin,
+						]);
 					}
 				}
 
