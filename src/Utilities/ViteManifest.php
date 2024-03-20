@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ViteHelper\Utilities;
 
-use Cake\Core\Plugin;
 use ViteHelper\Exception\ManifestNotFoundException;
 
 /**
@@ -11,22 +10,18 @@ use ViteHelper\Exception\ManifestNotFoundException;
  */
 class ViteManifest
 {
-    /**
-     * Returns the manifest records as a Collection
-     *
-     * @param \ViteHelper\Utilities\ViteHelperConfig $config plugin config instance
-     * @return \ViteHelper\Utilities\ManifestRecords<\ViteHelper\Utilities\ManifestRecord>
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
-     * @internal
-     */
-    public static function getRecords(ViteHelperConfig $config): ManifestRecords
+	/**
+	 * Returns the manifest records as a Collection
+	 *
+	 * @param string $manifestPath
+	 * @param string $outDirectory
+	 * @return \ViteHelper\Utilities\ManifestRecords<\ViteHelper\Utilities\ManifestRecord>
+	 * @throws \JsonException
+	 * @throws \ViteHelper\Exception\ManifestNotFoundException
+	 * @internal
+	 */
+    public static function getRecords(string $manifestPath, string $outDirectory): ManifestRecords
     {
-        if ($config->read('plugin') && $config->read('build.manifest') === null) {
-            $manifestPath = static::getPluginManifestPath($config->read('plugin'));
-        } else {
-            $manifestPath = $config->read('build.manifest', ConfigDefaults::BUILD_MANIFEST);
-        }
-
         if (!is_readable($manifestPath)) {
             throw new ManifestNotFoundException(
                 "No valid manifest.json found at path {$manifestPath}. Did you build your js?",
@@ -52,7 +47,7 @@ class ViteManifest
 
         $manifestArray = [];
         foreach (get_object_vars($manifest) as $property => $value) {
-            $manifestArray[$property] = new ManifestRecord($property, $value, $config);
+            $manifestArray[$property] = new ManifestRecord($property, $value, $outDirectory);
         }
 
         /**
@@ -72,16 +67,5 @@ class ViteManifest
         });
 
         return new ManifestRecords($manifestArray, $manifestPath);
-    }
-
-    /**
-     * Get the default location of a plugin's vite manifest.json
-     *
-     * @param string $pluginName e.g. "MyPlugin"
-     * @return string filesystem path to the Plugin's manifest.json
-     */
-    protected static function getPluginManifestPath(string $pluginName): string
-    {
-        return Plugin::path($pluginName) . 'webroot' . DS . 'manifest.json';
     }
 }
