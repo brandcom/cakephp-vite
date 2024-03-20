@@ -161,7 +161,7 @@ $this->ViteScripts->script(
 );
 ```
 
-// TODO pluginScript
+// TODO pluginScript should be removed, devEntries and prodFilter makes no-sense anymore
 
 **Note:** You need to set `devEntries` when running the dev server. They have to either be set in the config or
 through the helper method. In contrast, you only need `files` or `prodFilter` if you are interested in php-side
