@@ -30,14 +30,14 @@ class ViteScriptsHelper extends Helper
 
 	public array $helpers = ['Html'];
 
-	protected Collection $entries;
+	protected array $entries;
 
 	public array $_defaultConfig = [
 		'plugin' => false,
 		'environment' => Environment::PRODUCTION,
 		'build' => [
-			'outDirectory' => false,
-			'manifest' => WWW_ROOT . 'manifest.json',
+			'outDirectory' => 'build',
+			'manifest' => WWW_ROOT . 'build' . DS . '.vite' . DS . 'manifest.json',
 		],
 		'viewBlocks' => [
 			'css' => 'css',
@@ -55,8 +55,8 @@ class ViteScriptsHelper extends Helper
 	public function initialize(array $config): void
 	{
 		parent::initialize($config);
-		$this->setConfig(Configure::read('ViteHelper'), true);
-		$this->setConfig($config, true);
+		$this->setConfig($config);
+		$this->setConfig(Configure::read('ViteHelper'));
 		$env = $this->getConfig('environment', 'prod');
 		if (is_string($env)) {
 			$env = Environment::from($env);
@@ -84,8 +84,6 @@ class ViteScriptsHelper extends Helper
 				]
 			);
 		}
-
-		$this->entries = new Collection([]);
 		$this->getView()->getEventManager()->on('Vite.render', [$this, 'render']);
 	}
 
@@ -99,33 +97,20 @@ class ViteScriptsHelper extends Helper
 		if ($this->getConfig('environment', Environment::PRODUCTION) === Environment::DEVELOPMENT) {
 			$this->outputDevelopmentScripts();
 			$this->outputDevelopmentStyles();
-			foreach ($this->entries as $entry) {
-				if ($entry->environment === Environment::DEVELOPMENT) {
+			foreach ($this->entries as &$entry) {
+				if (!$entry->is_rendered && $entry->environment === Environment::DEVELOPMENT) {
 					$entry->is_rendered = true;
 				}
 			}
 		} else {
 			$this->outputProductionScripts();
 			$this->outputProductionStyles();
-			foreach ($this->entries as $entry) {
-				if ($entry->environment === Environment::PRODUCTION) {
+			foreach ($this->entries as &$entry) {
+				if (!$entry->is_rendered && $entry->environment === Environment::PRODUCTION) {
 					$entry->is_rendered = true;
 				}
 			}
 		}
-	}
-
-	/**
-	 * Is called after each view file is rendered. This includes elements, views, parent views and layouts.
-	 * A callback can modify and return $content to change how the rendered content will be displayed in the browser.
-	 *
-	 * @param \Cake\Event\EventInterface $event
-	 * @param $viewFile
-	 * @param $content
-	 * @return void
-	 */
-	public function afterRenderFile(EventInterface $event, $viewFile, $content): void
-	{
 	}
 
 	/**
@@ -229,7 +214,7 @@ class ViteScriptsHelper extends Helper
 	 */
 	private function outputDevelopmentScripts(): void
 	{
-		$files = $this->entries->filter(function ($record) {
+		$files = array_filter($this->entries, function ($record) {
 			return
 				$record instanceof ScriptRecord &&
 				!$record->is_rendered &&
@@ -253,7 +238,7 @@ class ViteScriptsHelper extends Helper
 	 */
 	private function outputDevelopmentStyles(): void
 	{
-		$files = $this->entries->filter(function ($record) {
+		$files = array_filter($this->entries, function ($record) {
 			return
 				$record instanceof StyleRecord &&
 				!$record->is_rendered &&
