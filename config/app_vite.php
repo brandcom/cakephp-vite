@@ -1,25 +1,16 @@
 <?php
 
-use \ViteHelper\Utilities\ConfigDefaults;
-
 return [
 	'ViteHelper' => [
+		'plugin' => false,
+		'render_mode' => \ViteHelper\Enum\RenderMode::AUTO,
+		'environment' => \ViteHelper\Enum\Environment::PRODUCTION,
 		'build' => [
-			'outDirectory' => ConfigDefaults::BUILD_OUT_DIRECTORY,
-			'manifest' => ConfigDefaults::BUILD_MANIFEST,
+			'outDirectory' => 'build',
+			'manifest' => WWW_ROOT . 'build' . DS . '.vite' . DS . 'manifest.json',
 		],
 		'development' => [
-			'scriptEntries' => ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES,
-			'styleEntries' => ConfigDefaults::DEVELOPMENT_STYLE_ENTRIES,
-			'hostNeedles' => ConfigDefaults::DEVELOPMENT_HOST_NEEDLES,
-			'url' => ConfigDefaults::DEVELOPMENT_URL,
-		],
-		'forceProductionMode' => ConfigDefaults::FORCE_PRODUCTION_MODE,
-		'plugin' => false,
-		'productionHint' => ConfigDefaults::PRODUCTION_HINT,
-		'viewBlocks' => [
-			'css' => ConfigDefaults::VIEW_BLOCK_CSS,
-			'script' => ConfigDefaults::VIEW_BLOCK_SCRIPT,
+			'url' => 'http://localhost:3000',
 		],
 	],
 ];

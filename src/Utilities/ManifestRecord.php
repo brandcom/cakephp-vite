@@ -7,25 +7,24 @@ use stdClass;
 
 class ManifestRecord
 {
-    private string $key;
-
-    private stdClass $chunk;
-
-    private ViteHelperConfig $config;
+    /**
+     * @var array Record metadata
+     */
+    private array $metadata = [];
 
     /**
      * Default constructor
      *
      * @param string $key The unique key for this record
      * @param \stdClass $chunk The chunks
-     * @param \ViteHelper\Utilities\ViteHelperConfig $config config instance
+     * @param string|bool $outDirectory
      * @see https://vitejs.dev/guide/backend-integration.html
      */
-    public function __construct(string $key, stdClass $chunk, ViteHelperConfig $config)
-    {
-        $this->key = $key;
-        $this->chunk = $chunk;
-        $this->config = $config;
+    public function __construct(
+        private readonly string $key,
+        private readonly stdClass $chunk,
+        private readonly string|bool $outDirectory
+    ) {
     }
 
     /**
@@ -208,6 +207,44 @@ class ManifestRecord
     }
 
     /**
+     * Adds a key value to metadata (if exists overwrites)
+     *
+     * @param string $key
+     * @param string $value
+     * @return void
+     */
+    public function addMetadata(string $key, string $value): void
+    {
+        $this->metadata[$key] = $value;
+    }
+
+    /**
+     * Replaces the metadata array
+     *
+     * @param array $metadata
+     * @return void
+     */
+    public function setMetadata(array $metadata): void
+    {
+        $this->metadata = $metadata;
+    }
+
+    /**
+     * Returns a metadata value
+     *
+     * @param string|null $key
+     * @return mixed
+     */
+    public function getMetadata(?string $key = null): mixed
+    {
+        if (is_null($key)) {
+            return $this->metadata;
+        }
+
+        return array_key_exists($key, $this->metadata) ? $this->metadata[$key] : null;
+    }
+
+    /**
      * Enables users to set build.outDirectory in app_vite.php to false,
      * so that the outDir equals the webroot.
      *
@@ -216,14 +253,15 @@ class ManifestRecord
      */
     private function getLinkFromOutDirectory(string $assetLink): string
     {
-        $outDirectory = $this->config->read('build.outDirectory');
+        $outDirectory = $this->outDirectory;
         if (empty($outDirectory) && $outDirectory !== false) {
-            $outDirectory = ConfigDefaults::BUILD_OUT_DIRECTORY;
+            // TODO Needs to be verified
+            $outDirectory = false;
         }
 
         $outDirectory = ltrim((string)$outDirectory, DS);
-        $outDirectory = $outDirectory ? DS . $outDirectory : '';
+        $outDirectory = $outDirectory ? '/' . $outDirectory : '';
 
-        return $outDirectory . DS . $assetLink;
+        return $outDirectory . '/' . $assetLink;
     }
 }

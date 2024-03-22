@@ -3,15 +3,18 @@ declare(strict_types=1);
 
 namespace ViteHelper\View\Helper;
 
-use Cake\Collection\CollectionInterface;
+use Cake\Core\Configure;
+use Cake\Core\Plugin;
 use Cake\Utility\Text;
 use Cake\View\Helper;
+use JsonException;
+use ViteHelper\Enum\Environment;
+use ViteHelper\Enum\RenderMode;
 use ViteHelper\Exception\ConfigurationException;
-use ViteHelper\Exception\InvalidArgumentException;
-use ViteHelper\Utilities\ConfigDefaults;
+use ViteHelper\Exception\ManifestNotFoundException;
+use ViteHelper\Model\Entity\ScriptRecord;
+use ViteHelper\Model\Entity\StyleRecord;
 use ViteHelper\Utilities\ManifestRecord;
-use ViteHelper\Utilities\ManifestRecords;
-use ViteHelper\Utilities\ViteHelperConfig;
 use ViteHelper\Utilities\ViteManifest;
 
 /**
@@ -21,165 +24,296 @@ use ViteHelper\Utilities\ViteManifest;
  */
 class ViteScriptsHelper extends Helper
 {
+    public const VITESCRIPT_DETECTOR_NAME = 'vite_in_production';
+
     public array $helpers = ['Html'];
 
+    protected array $entries;
+
+    protected array $_defaultConfig = [
+        'plugin' => false,
+        'render_mode' => RenderMode::AUTO,
+        'environment' => Environment::PRODUCTION,
+        'build' => [
+            'outDirectory' => 'build',
+            'manifest' => WWW_ROOT . 'build' . DS . '.vite' . DS . 'manifest.json',
+        ],
+        'viewBlocks' => [
+            'css' => 'css',
+            'script' => 'script',
+        ],
+        'development' => [
+            'url' => 'http://localhost:3000',
+        ],
+    ];
+
     /**
-     * Check if the app is currently in development state.
-     *
-     * Production mode can be forced in config through `forceProductionMode`,
-     *   or by setting a cookie or a url-parameter.
-     *
-     * Otherwise, it will look for a hint that the app
-     *   is in development mode through the  `developmentHostNeedles`
-     *
-     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config config key or instance to use
-     * @return bool
+     * @inheritDoc
      */
-    public function isDev(ViteHelperConfig|string|null $config = null): bool
+    public function initialize(array $config): void
     {
-        $config = $this->createConfig($config);
-        if ($config->read('forceProductionMode', ConfigDefaults::FORCE_PRODUCTION_MODE)) {
-            return false;
+        parent::initialize($config);
+        $this->setConfig(Configure::read('ViteHelper'));
+        $this->setConfig($config);
+        $env = $this->getConfig('environment', 'prod');
+        if (is_string($env)) {
+            $env = Environment::from($env);
         }
 
-        $productionHint = $config->read('productionHint', ConfigDefaults::PRODUCTION_HINT);
-        $hasCookieOrQuery = $this->getView()->getRequest()->getCookie($productionHint) || $this->getView()->getRequest()->getQuery($productionHint);
-        if ($hasCookieOrQuery) {
-            return false;
+        if (!($env instanceof Environment)) {
+            throw new ConfigurationException('Invalid environment config!');
         }
 
-        $needles = $config->read('development.hostNeedles', ConfigDefaults::DEVELOPMENT_HOST_NEEDLES);
-        foreach ($needles as $needle) {
-            if (str_contains((string)$this->getView()->getRequest()->host(), $needle)) {
-                return true;
-            }
+        if ($env === Environment::FROM_DETECTOR) {
+            $this->setConfig(
+                'environment',
+                $this->getView()->getRequest()->is(self::VITESCRIPT_DETECTOR_NAME) ?
+                    Environment::PRODUCTION : Environment::DEVELOPMENT
+            );
         }
 
-        return false;
+        if ($env === Environment::DEVELOPMENT) {
+            $this->Html->script(
+                $this->getConfig('development.url')
+                . '/@vite/client',
+                [
+                    'type' => 'module',
+                    'block' => $this->getConfig('viewBlocks.css'),
+                ]
+            );
+        }
+        $this->getView()->getEventManager()->on('Vite.render', [$this, 'render']);
+    }
+
+    /**
+     * Adds styles and scripts to the blocks
+     *
+     * @return void
+     */
+    public function render(): void
+    {
+        if ($this->getConfig('environment', Environment::PRODUCTION) === Environment::DEVELOPMENT) {
+            $this->outputDevelopmentScripts();
+            $this->outputDevelopmentStyles();
+        } else {
+            $this->outputProductionScripts();
+            $this->outputProductionStyles();
+        }
     }
 
     /**
      * Adds scripts to the script view block
      *
-     * Options:
-     * * block (string): name of the view block to render the scripts in
-     * * files (string[]): files to serve in development and production - overrides prodFilter and devEntries
-     * * prodFilter (string, array, callable): to filter manifest entries in production mode
-     * * devEntries (string[]): entry files in development mode
-     * * other options are rendered as attributes to the html tag
-     *
-     * @param array|string $options file entrypoint or script options
-     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config config key or instance to use
+     * @param array|string $files files to serve
+     * @param \ViteHelper\Enum\Environment|string|null $environment the files will be served only in this environment, null on both
+     * @param string|null $block name of the view block to render the scripts in
+     * @param string|null $plugin
+     * @param array $elementOptions options to the html tag
      * @return void
-     * @throws \ViteHelper\Exception\ConfigurationException
-     * @throws \ViteHelper\Exception\ManifestNotFoundException|\ViteHelper\Exception\InvalidArgumentException
      */
-    public function script(array|string $options = [], ViteHelperConfig|string|null $config = null): void
-    {
-        $config = $this->createConfig($config);
-        if (is_string($options)) {
-            $options = ['files' => [$options]];
+    public function script(
+        array|string $files = [],
+        Environment|string|null $environment = null,
+        ?string $block = null,
+        ?string $plugin = null,
+        array $elementOptions = [],
+    ): void {
+        if (is_string($environment)) {
+            $environment = Environment::tryFrom($environment);
         }
-        $options['block'] = $options['block'] ?? $config->read('viewBlocks.script', ConfigDefaults::VIEW_BLOCK_SCRIPT);
-        $options['cssBlock'] = $options['cssBlock'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_CSS);
-        $options = $this->updateOptionsForFiltersAndEntries($options);
-
-        if ($this->isDev($config)) {
-            $this->devScript($options, $config);
-
-            return;
-        }
-
-        $this->productionScript($options, $config);
-    }
-
-    /**
-     * Convenience method to render a plugin's scripts
-     *
-     * @param string $pluginName e.g. MyPlugin
-     * @param bool $devMode set to true during development
-     * @param array $options helper options
-     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config config key or instance to use
-     * @return void
-     * @throws \ViteHelper\Exception\ConfigurationException
-     * @throws \ViteHelper\Exception\InvalidArgumentException
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
-     */
-    public function pluginScript(string $pluginName, bool $devMode = false, array $options = [], ViteHelperConfig|string|null $config = null): void
-    {
-        $config = $this->createConfig($config);
-        $config = $config->merge(ViteHelperConfig::create([
-            'plugin' => $pluginName,
-            'forceProductionMode' => !$devMode,
-        ]));
-
-        $this->script($options, $config);
-    }
-
-    /**
-     * @param array $options passed to script tag
-     * @param \ViteHelper\Utilities\ViteHelperConfig $config config instance
-     * @return void
-     * @throws \ViteHelper\Exception\ConfigurationException
-     */
-    private function devScript(array $options, ViteHelperConfig $config): void
-    {
-        $this->Html->script(
-            $config->read('development.url', ConfigDefaults::DEVELOPMENT_URL)
-            . '/@vite/client',
-            [
-                'type' => 'module',
-                'block' => $options['cssBlock'],
-            ]
-        );
-
-        $files = $this->getFilesForDevelopment($options, $config, 'scriptEntries');
-
-        unset($options['cssBlock']);
-        unset($options['prodFilter']);
-        unset($options['devEntries']);
-        $options['type'] = 'module';
-
+        $elementOptions['block'] = $block ?? $this->getConfig('viewBlocks.script');
+        $files = (array)$files;
         foreach ($files as $file) {
-            $this->Html->script(Text::insert(':host/:file', [
-                'host' => $config->read('development.url', ConfigDefaults::DEVELOPMENT_URL),
-                'file' => ltrim($file, DS),
-            ]), $options);
+            switch ($environment) {
+                case Environment::DEVELOPMENT:
+                    $this->entries[] = new ScriptRecord(
+                        $file,
+                        Environment::DEVELOPMENT,
+                        $block,
+                        $plugin,
+                        $elementOptions,
+                    );
+                    break;
+                case Environment::PRODUCTION:
+                    $this->entries[] = new ScriptRecord(
+                        $file,
+                        Environment::PRODUCTION,
+                        $block,
+                        $plugin,
+                        $elementOptions,
+                    );
+                    break;
+                default:
+                    $this->entries[] = new ScriptRecord(
+                        $file,
+                        Environment::DEVELOPMENT,
+                        $block,
+                        $plugin,
+                        $elementOptions,
+                    );
+                    $this->entries[] = new ScriptRecord(
+                        $file,
+                        Environment::PRODUCTION,
+                        $block,
+                        $plugin,
+                        $elementOptions,
+                    );
+                    break;
+            }
+        }
+        if ($this->getConfig('render_mode') === RenderMode::AUTO) {
+            $this->render();
         }
     }
 
     /**
-     * @param array $options will be passed to script tag
-     * @param \ViteHelper\Utilities\ViteHelperConfig $config config instance
+     * Adds style to the css view block
+     *
+     * @param array|string $files files to serve
+     * @param \ViteHelper\Enum\Environment|string|null $environment the files will be served only in this environment, null on both
+     * @param string|null $block name of the view block to render the scripts in
+     * @param string|null $plugin
+     * @param array $elementOptions options to the html tag
      * @return void
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
-     * @throws \ViteHelper\Exception\InvalidArgumentException
      */
-    private function productionScript(array $options, ViteHelperConfig $config): void
+    public function css(
+        array|string $files = [],
+        Environment|string|null $environment = null,
+        ?string $block = null,
+        ?string $plugin = null,
+        array $elementOptions = [],
+    ): void {
+        if (is_string($environment)) {
+            $environment = Environment::tryFrom($environment);
+        }
+        $elementOptions['block'] = $block ?? $this->getConfig('viewBlocks.css');
+        $files = (array)$files;
+        foreach ($files as $file) {
+            switch ($environment) {
+                case Environment::DEVELOPMENT:
+                    $this->entries[] = new StyleRecord(
+                        $file,
+                        Environment::DEVELOPMENT,
+                        $block,
+                        $plugin,
+                        $elementOptions,
+                    );
+                    break;
+                case Environment::PRODUCTION:
+                    $this->entries[] = new StyleRecord(
+                        $file,
+                        Environment::PRODUCTION,
+                        $block,
+                        $plugin,
+                        $elementOptions,
+                    );
+                    break;
+                default:
+                    $this->entries[] = new StyleRecord(
+                        $file,
+                        Environment::DEVELOPMENT,
+                        $block,
+                        $plugin,
+                        $elementOptions,
+                    );
+                    $this->entries[] = new StyleRecord(
+                        $file,
+                        Environment::PRODUCTION,
+                        $block,
+                        $plugin,
+                        $elementOptions,
+                    );
+                    break;
+            }
+        }
+        if ($this->getConfig('render_mode') === RenderMode::AUTO) {
+            $this->render();
+        }
+    }
+
+    /**
+     * Appends development script tags to configured block
+     *
+     * @return void
+     */
+    private function outputDevelopmentScripts(): void
     {
-        $pluginPrefix = $config->read('plugin');
+        $files = array_filter($this->entries, function ($record) {
+            return $record instanceof ScriptRecord &&
+                !$record->is_rendered &&
+                $record->environment === Environment::DEVELOPMENT;
+        });
+
+        /** @var \ViteHelper\Model\Entity\ScriptRecord $record */
+        foreach ($files as $record) {
+            $record->is_rendered = true;
+            $record->elementOptions['type'] = 'module';
+            $this->Html->script(Text::insert(':host/:file', [
+                'host' => $this->getConfig('development.url'),
+                'file' => ltrim($record->file, DS),
+            ]), $record->elementOptions);
+        }
+    }
+
+    /**
+     * Appends development style tags to configured block
+     *
+     * @return void
+     */
+    private function outputDevelopmentStyles(): void
+    {
+        $files = array_filter($this->entries, function ($record) {
+            return $record instanceof StyleRecord &&
+                !$record->is_rendered &&
+                $record->environment === Environment::DEVELOPMENT;
+        });
+
+        /** @var \ViteHelper\Model\Entity\StyleRecord $record */
+        foreach ($files as $record) {
+            $record->is_rendered = true;
+            $this->Html->css(Text::insert(':host/:file', [
+                'host' => $this->getConfig('development.url'),
+                'file' => ltrim($record->file, '/'),
+            ]), $record->elementOptions);
+        }
+    }
+
+    /**
+     * Appends production script tags to configured block
+     *
+     * @return void
+     */
+    private function outputProductionScripts(): void
+    {
+        $files = array_filter($this->entries, function ($record) {
+            return $record instanceof ScriptRecord &&
+                !$record->is_rendered &&
+                $record->environment === Environment::PRODUCTION;
+        });
+
+        $records = $this->getManifestRecords($files);
+
+        $pluginPrefix = $this->getConfig('plugin');
         $pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
-
-        $records = $this->getFilteredRecords(ViteManifest::getRecords($config), $options);
-        $cssBlock = $options['cssBlock'];
-        unset($options['prodFilter']);
-        unset($options['cssBlock']);
-        unset($options['devEntries']);
-
+        /** @var \ViteHelper\Utilities\ManifestRecord $record */
         foreach ($records as $record) {
             if (!$record->isEntryScript()) {
                 continue;
             }
 
-            unset($options['type']);
-            unset($options['nomodule']);
+            $options = $record->getMetadata();
             if ($record->isModuleEntryScript()) {
-                $options['type'] = 'module';
+                $options['options']['type'] = 'module';
             } else {
-                $options['nomodule'] = 'nomodule';
+                $options['options']['nomodule'] = 'nomodule';
             }
 
-            $this->Html->script($pluginPrefix . $record->getFileUrl(), $options);
+            $recordPluginPrefix = $pluginPrefix;
+            if (isset($options['plugin'])) {
+                $recordPluginPrefix = $options['plugin'] . '.';
+                unset($options['plugin']);
+            }
+            $this->Html->script($recordPluginPrefix . $record->getFileUrl(), $options['options']);
 
             // the js files has css dependency ?
             $cssFiles = $record->getCss();
@@ -188,195 +322,87 @@ class ViteScriptsHelper extends Helper
             }
 
             foreach ($cssFiles as $cssFile) {
-                $this->Html->css($pluginPrefix . $cssFile, [
-                    'block' => $cssBlock,
+                $this->Html->css($recordPluginPrefix . $cssFile, [
+                    'block' => $this->getConfig('viewBlocks.css'),
                 ]);
             }
+            unset($recordPluginPrefix);
         }
+
+        array_map(fn ($file) => $file->is_rendered = true, $files);
     }
 
     /**
-     * Adds CSS tags to the configured block
+     * Appends production style tags to configured block
      *
-     * Note: This method might be unnecessary if you import your css in javascript.
-     *
-     * Options:
-     * * block (string): name of the view block to render the html tags in
-     * * files (string[]): files to serve in development and production - overrides prodFilter and devEntries
-     * * prodFilter (string, array, callable): to filter manifest entries in production mode
-     * * devEntries (string[]): entry files in development mode
-     * * other options are rendered as attributes to the html tag
-     *
-     * @param array|string $options file entrypoint or css options
-     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config config key or instance to use
      * @return void
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
-     * @throws \ViteHelper\Exception\ConfigurationException
-     * @throws \ViteHelper\Exception\InvalidArgumentException
      */
-    public function css(array|string $options = [], ViteHelperConfig|string|null $config = null): void
+    private function outputProductionStyles(): void
     {
-        $config = $this->createConfig($config);
-        if (is_string($options)) {
-            $options = ['files' => [$options]];
-        }
-        // TODO the default should be css. This is a bug but might break in production.
-        // So this should be replaced in a major release.
-        $options['block'] = $options['block'] ?? $config->read('viewBlocks.css', ConfigDefaults::VIEW_BLOCK_SCRIPT);
-        $options = $this->updateOptionsForFiltersAndEntries($options);
-
-        if ($this->isDev($config)) {
-            $files = $this->getFilesForDevelopment($options, $config, 'styleEntries');
-            unset($options['devEntries']);
-            foreach ($files as $file) {
-                $this->Html->css(Text::insert(':host/:file', [
-                    'host' => $config->read('development.url', ConfigDefaults::DEVELOPMENT_URL),
-                    'file' => ltrim($file, '/'),
-                ]), $options);
-            }
-
-            return;
-        }
-
-        $pluginPrefix = $config->read('plugin');
+        $pluginPrefix = $this->getConfig('plugin');
         $pluginPrefix = $pluginPrefix ? $pluginPrefix . '.' : null;
-        $records = $this->getFilteredRecords(ViteManifest::getRecords($config), $options);
-        unset($options['prodFilter']);
-        unset($options['devEntries']);
+        $files = array_filter($this->entries, function ($record) {
+            return $record instanceof StyleRecord &&
+                !$record->is_rendered &&
+                $record->environment === Environment::PRODUCTION;
+        });
+
+        $records = $this->getManifestRecords($files);
+
         foreach ($records as $record) {
             if (!$record->isEntry() || !$record->isStylesheet() || $record->isLegacy()) {
                 continue;
             }
+            $options = $record->getMetadata();
+            $recordPluginPrefix = $pluginPrefix;
+            if (isset($options['plugin'])) {
+                $recordPluginPrefix = $options['plugin'] . '.';
+                unset($options['plugin']);
+            }
 
-            $this->Html->css($pluginPrefix . $record->getFileUrl(), $options);
+            $this->Html->css($pluginPrefix . $record->getFileUrl(), $options['options']);
+            unset($recordPluginPrefix);
         }
+
+        array_map(fn ($file) => $file->is_rendered = true, $files);
     }
 
     /**
-     * Convenience method to render a plugin's styles
+     * Returns manifest records with the correct metadata
      *
-     * @param string $pluginName e.g. MyPlugin
-     * @param bool $devMode set to true during development
-     * @param array $options helper options
-     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config config key or instance to use
-     * @return void
-     * @throws \ViteHelper\Exception\ConfigurationException
-     * @throws \ViteHelper\Exception\InvalidArgumentException
-     * @throws \ViteHelper\Exception\ManifestNotFoundException
+     * @param array $files
+     * @return iterable
      */
-    public function pluginCss(string $pluginName, bool $devMode = false, array $options = [], ViteHelperConfig|string|null $config = null): void
+    private function getManifestRecords(iterable $files): iterable
     {
-        $config = $this->createConfig($config);
-        $config = $config->merge(ViteHelperConfig::create([
-            'plugin' => $pluginName,
-            'forceProductionMode' => !$devMode,
-        ]));
-
-        $this->css($options, $config);
-    }
-
-    /**
-     * @param array $options entries can be passed through `devEntries`
-     * @param \ViteHelper\Utilities\ViteHelperConfig $config config instance
-     * @param string $configOption key of the config
-     * @return array
-     * @throws \ViteHelper\Exception\ConfigurationException
-     */
-    private function getFilesForDevelopment(array $options, ViteHelperConfig $config, string $configOption): array
-    {
-        $files = $options['devEntries'] ?: $config->read('development.' . $configOption, ConfigDefaults::DEVELOPMENT_SCRIPT_ENTRIES);
-
-        if (empty($files)) {
-            throw new ConfigurationException(
-                'There are no valid entry points for the dev server. '
-                . 'Be sure to set the ViteHelper.development.' . $configOption . ' config or pass entries to the helper.'
-            );
+        if ($this->getConfig('plugin') && $this->getConfig('build.manifest') === null) {
+            $manifestPath = Plugin::path($this->getConfig('plugin')) . 'webroot' . DS . 'manifest.json';
+        } else {
+            $manifestPath = $this->getConfig('build.manifest');
         }
 
-        if (!array_is_list($files)) {
-            throw new ConfigurationException(sprintf(
-                'Expected entryPoints to be a List (array with int-keys) with at least one entry, but got %s.',
-                gettype($files) === 'array' ? 'a relational array' : gettype($files),
-            ));
-        }
+        try {
+            // TODO: Cache ?!
+            $records = ViteManifest::getRecords($manifestPath, $this->getConfig('build.outDirectory'));
+            $records = $records->filter(function (ManifestRecord $record) use ($files) {
+                /** @var \ViteHelper\Model\Entity\StyleRecord|\ViteHelper\Model\Entity\ScriptRecord $file */
+                foreach ($files as $file) {
+                    if ($record->match($file->file, 'src')) {
+                        $record->setMetadata([
+                            'options' => $file->elementOptions,
+                            'plugin' => $file->plugin,
+                        ]);
 
-        return $files;
-    }
-
-    /**
-     * Filter records from vite manifest for production
-     *
-     * @param \ViteHelper\Utilities\ManifestRecords $records records to filter
-     * @param array $options method looks at the `prodFilter`key
-     * @return \ViteHelper\Utilities\ManifestRecords|\Cake\Collection\CollectionInterface
-     * @throws \ViteHelper\Exception\InvalidArgumentException
-     */
-    private function getFilteredRecords(ManifestRecords $records, array $options): ManifestRecords|CollectionInterface
-    {
-        $filter = $options['prodFilter'];
-        if (empty($filter)) {
-            return $records;
-        }
-
-        if (is_callable($filter)) {
-            return $records->filter($filter);
-        }
-
-        if (is_string($filter)) {
-            $filter = (array)$filter;
-        }
-
-        if (!is_array($filter)) {
-            throw new InvalidArgumentException('$options["prodFilter"] must be empty or of type string, array, or callable.');
-        }
-
-        return $records->filter(function (ManifestRecord $record) use ($filter) {
-            foreach ($filter as $property => $file) {
-                $property = is_string($property) ? $property : 'src';
-                if ($record->match($file, $property)) {
-                    return true;
+                        return $record;
+                    }
                 }
-            }
 
-            return false;
-        });
-    }
-
-    /**
-     * @param array $options options with `prodFilter`, `devEntries`, or `files` key
-     * @return array
-     */
-    private function updateOptionsForFiltersAndEntries(array $options): array
-    {
-        $options['prodFilter'] = $options['prodFilter'] ?? null;
-        $options['devEntries'] = $options['devEntries'] ?? null;
-        $files = $options['files'] ?? null;
-        if ($files) {
-            if (!empty($options['devEntries'])) {
-                trigger_error('"devEntries" passed to ViteHelper will be overridden by "files".');
-            }
-            if (!empty($options['prodFilter'])) {
-                trigger_error('"prodFilter" passed to ViteHelper will be overridden by "files".');
-            }
-            $options['devEntries'] = $files;
-            $options['prodFilter'] = $files;
+                return false;
+            });
+        } catch (ManifestNotFoundException | JsonException $e) {
+            $records = [];
         }
 
-        return $options;
-    }
-
-    /**
-     * Helper method to create a new config or the defined config
-     *
-     * @param \ViteHelper\Utilities\ViteHelperConfig|string|null $config can be a config key, a config instance or null for the default
-     * @return \ViteHelper\Utilities\ViteHelperConfig
-     */
-    private function createConfig(ViteHelperConfig|string|null $config): ViteHelperConfig
-    {
-        if ($config instanceof ViteHelperConfig) {
-            return $config;
-        }
-
-        return ViteHelperConfig::create($config);
+        return $records;
     }
 }

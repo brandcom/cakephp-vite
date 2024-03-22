@@ -8,7 +8,7 @@ reloading.
 In production mode, the Helper loads the bundled files. `@vitejs/plugin-legacy` is supported, which will
 insert `nomodule`-tags for older browsers, e.g. older iOS devices, which do not support js modules.
 
-> This readme is for **version 1.x.** If you are migrating from 0.x and something is unclear, read the Migration guide
+> This readme is for **version 3.x.** If you are migrating from 0.x and something is unclear, read the Migration guide
 > under `/docs`. Feel free to open an issue if you run into problems.
 
 ## Installation
@@ -23,6 +23,7 @@ You can install this plugin into your CakePHP application using [composer](https
 | ^4.2            | 0.x            | master | ^7.4             |
 | ^4.2            | 1.x            | master | ^8.0             |
 | ^5.0            | 2.x            | cake5  | ^8.1             |
+| ^5.0            | 3.x            | cake5  | ^8.1             |
 
 The recommended way to install the plugin is:
 
@@ -62,13 +63,13 @@ These are the default view blocks in CakePHP.
 In your php-template or in layout you can import javascript files with:
 
 ```php
-<?php $this->ViteScripts->script($options) ?>
+<?php $this->ViteScripts->script('resources/main.ts') ?>
 ```
 
-… or by using this shortcut for a single entrypoint:
+… or multiple files
 
 ```php
-<?php $this->ViteScripts->script('webroot_src/main.ts') ?>
+<?php $this->ViteScripts->script(['resources/main.ts', 'resources/main2.ts', 'resources/main3.ts']) ?>
 ```
 
 If you imported CSS files inside your JavaScript files, this method automatically
@@ -79,13 +80,13 @@ appends your css tags to the css view block.
 In your php-template you can import css files with:
 
 ```php
-<?php $this->ViteScripts->css($options) ?>
+<?php $this->ViteScripts->css('resources/style.css') ?>
 ```
 
-… or by using this shortcut for a single entrypoint:
+… or multiple files
 
 ```php
-<?php $this->ViteScripts->css('webroot_src/style.css') ?>
+<?php $this->ViteScripts->css(['resources/style.css', 'resources/style2.css', 'resources/style3.css']) ?>
 ```
 
 ## Configuration
@@ -93,80 +94,115 @@ In your php-template you can import css files with:
 The plugin comes with some default configuration. You may need to change it depending on your setup. Or you might not
 need any config at all.
 
-You can override some of these config settings through the `$options` of the helper methods. Or you can pass
-your own instance of `ViteHelperConfig` to a helper method as a second parameter.
+The default configuration is:
 
 ```php
 'ViteHelper' => [
-    'build' => [
-        'outDirectory' => false, // output directory of build assets. string (e.g. 'dist') or false.
-        'manifest' => WWW_ROOT . 'manifest.json', // absolute path to manifest
-    ],
+    'plugin' => false, // or string 'MyPlugin' to serve plugin build assets
+    'render_mode' => \ViteHelper\Enum\RenderMode::AUTO, // how/when the styles and scripts should be added to view blocks. available options AUTO, MANUAL
+    'environment' => \ViteHelper\Enum\Environment::PRODUCTION, // available options PRODUCTION, DEVELOPMENT, FROM_DETECTOR
     'development' => [
-        'scriptEntries' => ['someFolder/myScriptEntry.ts'], // relative to project root
-        'styleEntries' =>  ['someFolder/myStyleEntry.scss'], // relative to project root. Unnecessary when using css-in-js.
-        'hostNeedles' => ['.test', '.local'], // to check if the app is running locally
         'url' => 'http://localhost:3000', // url of the vite dev server
     ],
-    'forceProductionMode' => false, // or true to always serve build assets
-    'plugin' => false, // or string 'MyPlugin' to serve plugin build assets
-    'productionHint' => 'vprod', // can be a true-ish cookie or url-param to serve build assets without changing the forceProductionMode config
-    'viewBlocks' => [
-        'css' => 'css', // name of the css view block
-        'script' => 'script', // name of the script view block
+    'build' => [
+        'outDirectory' => 'build', // output directory of build assets. string (e.g. 'dist') or false.
+        'manifest' => WWW_ROOT . 'build' . DS . '.vite' . DS . 'manifest.json', // absolute path to manifest
     ],
 ],
 ```
 
-You can override the defaults in your `app.php`, `app_local.php`, or `app_vite.php`.
-
-See the plugin's [app_vite.php](https://github.com/brandcom/cakephp-vite/blob/master/config/app_vite.php) for reference.
-
-Example:
+You can override the defaults in your `app.php`, `app_local.php`, or `app_vite.php`, also you can override in
+`AppView.php` when you are loading the helper.
 
 ```php
-return [
-    'ViteHelper' => [
-        'forceProductionMode' => 1,
-        'development' => [
-            'hostNeedles' => ['.dev'], // if you don't use one of the defaults
-            'url' => 'https://192.168.0.88:3000',
-        ],
-    ],
-];
+$this->loadHelper('ViteHelper.ViteScripts', [
+    // ...your config goes here
+]);
+```
+
+## Environment
+
+The plugin MUST accurately determine whether you are in development or production mode. You must explicitly set in the
+config that you are in either `\ViteHelper\Enum\Environment::PRODUCTION` or `\ViteHelper\Enum\Environment::DEVELOPMENT`.
+To enhance the flexibility of the plugin, you can utilize `\ViteHelper\Enum\Environment::FROM_DETECTOR`. This setting
+will employ a [detector](https://book.cakephp.org/5/en/controllers/request-response.html#Cake\Http\ServerRequest::is)
+to automatically detect the environment.
+
+```php
+$this->request->addDetector(
+    \ViteHelper\View\Helper\ViteScriptsHelper::VITESCRIPT_DETECTOR_NAME,
+    function ($serverRequest) {
+        // your logic goes here
+        // return true for prod, false for dev
+    }
+);
 ```
 
 ## Helper method usage with options
 
-You can pass an `$options` array to override config or to completely skip the necessity to have a ViteHelper config.
-
-The options are mostly the same for `::script()` and `::css()`.
+The options are the same for `::script()` and `::css()`.
 
 ### Example
 
 ```php
-$this->ViteScripts->script([
+$this->ViteScripts->script(
+    // files for the block
+    files: ['resource/file1.js', 'resource/file2.js'], // can be also a string
 
-    // this would append both the scripts and the css to a block named 'myCustomBlock'
-    // don't forget to use the block through $this->fetch('myCustomBlock')
-    'block' => 'myCustomBlock',
-    'cssBlock' => 'myCustomBlock', // for ::script() only – if you use css imports inside js.
+    // filter for environment
+    // default: null
+    // in case of null the file(s) will be rendered both on prod and dev
+    // possible values: \ViteHelper\Enum\Environment::PRODUCTION, \ViteHelper\Enum\Environment::DEVELOPMENT, null
+    environment: null,
 
-    // files that are entry files during development and that should be served during production
-    'files' => [
-        'webroot_src/main.ts',
-    ],
+    // name of the view block to render the scripts in
+    // default null
+    // on null uses `css` for style, `script` for javascript files
+    block: null,
 
-    // "devEntries" is like "files". If you set "files", it will override both "devEntries" and "prodFilters"
-    'devEntries' => ['webroot_src/main.ts']
+    // plugin prefix
+    // default null
+    // on null uses the plugin used in default config
+    plugin: null,
+);
+```
 
-    // "prodFilter" filters the entry files. Useful for code-splitting if you don't use dynamic imports
-    'prodFilter' => 'webroot_src/main.ts' // as string if there's only one option
-    'prodFilter' => 'main.ts' // also works - only looks for parts of the string
-    'prodFilter' => ['main.ts'] // as array - same as above with multiple files
-    'prodFilter' => function (ManifestRecord $record) { /* do something with the record and return true or false */ }
+## Performance
+
+In production, it's possible that the manifest.json file is too large. If the default render mode is set to `AUTO`,
+every `::script()` and `::css()` call automatically and instantly adds the HTML tag to the block. You can disable this
+feature by setting render mode `MANUAL`.
+
+```php
+$this->loadHelper('ViteHelper.ViteScripts', [
+    'render_mode' => \ViteHelper\Enum\RenderMode::MANUAL
 ]);
 ```
+
+In your php-layout, right before the `viewBlocks` you should manually call the `::render()` method or dispatch
+the `Vite.render` event.
+
+```php
+$this->ViteScripts->script('resource/myscript1.js');
+$this->ViteScripts->script('resource/myscript2.js');
+// ... + a lot of script
+$this->ViteScripts->script('resource/myscriptN.js');
+$this->ViteScripts->render();
+<?= $this->fetch('css') ?>
+```
+or
+
+```php
+$this->ViteScripts->script('resource/myscript1.js');
+$this->ViteScripts->script('resource/myscript2.js');
+// ... + a lot of script
+$this->ViteScripts->script('resource/myscriptN.js');
+// dispatch 'Vite.render' event
+$this->getEventManager()->dispatch('Vite.render');
+<?= $this->fetch('css') ?>
+```
+
+// TODO pluginScript should be removed, devEntries and prodFilter makes no-sense anymore
 
 **Note:** You need to set `devEntries` when running the dev server. They have to either be set in the config or
 through the helper method. In contrast, you only need `files` or `prodFilter` if you are interested in php-side
@@ -215,9 +251,9 @@ yarn add -D @vitejs/plugin-legacy
 ### Configuration
 
 After installing, you will need to refactor the files a bit to make sense of it in a php project. The default config of
-this plugin assumes that you put your js, ts, scss etc. in `/webroot_src`.
+this plugin assumes that you put your js, ts, scss etc. in `/resources`.
 
-The build files will end up in `/webroot/assets` by default. Your `vite.config.js or *.ts` file for vite stays in the
+The build files will end up in `/webroot/build` by default. Your `vite.config.js or *.ts` file for vite stays in the
 project root.
 
 > Wanted: Examples for vite/plugin configs and directory structures. Feel free to contribute with a PR to show how your
