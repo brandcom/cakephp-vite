@@ -23,9 +23,7 @@ use ViteHelper\Utilities\ViteManifest;
 class ViteScriptsHelper extends Helper
 {
 	public const VITESCRIPT_DETECTOR_NAME = 'vite_in_production';
-
-	private const COMMON_ENTRIES_ARRAY_KEY = 'all';
-
+	
 	public array $helpers = ['Html'];
 
 	protected array $entries;
