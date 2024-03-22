@@ -3,6 +3,7 @@
 return [
 	'ViteHelper' => [
 		'plugin' => false,
+		'render_mode' => \ViteHelper\Enum\RenderMode::AUTO,
 		'environment' => \ViteHelper\Enum\Environment::PRODUCTION,
 		'build' => [
 			'outDirectory' => 'build',

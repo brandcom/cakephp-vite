@@ -9,6 +9,7 @@ use Cake\Utility\Text;
 use Cake\View\Helper;
 use JsonException;
 use ViteHelper\Enum\Environment;
+use ViteHelper\Enum\RenderMode;
 use ViteHelper\Exception\ConfigurationException;
 use ViteHelper\Exception\ManifestNotFoundException;
 use ViteHelper\Model\Entity\ScriptRecord;
@@ -31,6 +32,7 @@ class ViteScriptsHelper extends Helper
 
     protected array $_defaultConfig = [
         'plugin' => false,
+        'render_mode' => RenderMode::AUTO,
         'environment' => Environment::PRODUCTION,
         'build' => [
             'outDirectory' => 'build',
@@ -93,19 +95,9 @@ class ViteScriptsHelper extends Helper
         if ($this->getConfig('environment', Environment::PRODUCTION) === Environment::DEVELOPMENT) {
             $this->outputDevelopmentScripts();
             $this->outputDevelopmentStyles();
-            foreach ($this->entries as &$entry) {
-                if (!$entry->is_rendered && $entry->environment === Environment::DEVELOPMENT) {
-                    $entry->is_rendered = true;
-                }
-            }
         } else {
             $this->outputProductionScripts();
             $this->outputProductionStyles();
-            foreach ($this->entries as &$entry) {
-                if (!$entry->is_rendered && $entry->environment === Environment::PRODUCTION) {
-                    $entry->is_rendered = true;
-                }
-            }
         }
     }
 
@@ -169,7 +161,9 @@ class ViteScriptsHelper extends Helper
                     break;
             }
         }
-        $this->render();
+        if ($this->getConfig('render_mode') === RenderMode::AUTO) {
+            $this->render();
+        }
     }
 
     /**
@@ -232,7 +226,9 @@ class ViteScriptsHelper extends Helper
                     break;
             }
         }
-        $this->render();
+        if ($this->getConfig('render_mode') === RenderMode::AUTO) {
+            $this->render();
+        }
     }
 
     /**
@@ -250,6 +246,7 @@ class ViteScriptsHelper extends Helper
 
         /** @var \ViteHelper\Model\Entity\ScriptRecord $record */
         foreach ($files as $record) {
+            $record->is_rendered = true;
             $record->elementOptions['type'] = 'module';
             $this->Html->script(Text::insert(':host/:file', [
                 'host' => $this->getConfig('development.url'),
@@ -273,6 +270,7 @@ class ViteScriptsHelper extends Helper
 
         /** @var \ViteHelper\Model\Entity\StyleRecord $record */
         foreach ($files as $record) {
+            $record->is_rendered = true;
             $this->Html->css(Text::insert(':host/:file', [
                 'host' => $this->getConfig('development.url'),
                 'file' => ltrim($record->file, '/'),
@@ -330,6 +328,8 @@ class ViteScriptsHelper extends Helper
             }
             unset($recordPluginPrefix);
         }
+
+        array_map(fn ($file) => $file->is_rendered = true, $files);
     }
 
     /**
@@ -363,6 +363,8 @@ class ViteScriptsHelper extends Helper
             $this->Html->css($pluginPrefix . $record->getFileUrl(), $options['options']);
             unset($recordPluginPrefix);
         }
+
+        array_map(fn ($file) => $file->is_rendered = true, $files);
     }
 
     /**
@@ -380,6 +382,7 @@ class ViteScriptsHelper extends Helper
         }
 
         try {
+            // TODO: Cache ?!
             $records = ViteManifest::getRecords($manifestPath, $this->getConfig('build.outDirectory'));
             $records = $records->filter(function (ManifestRecord $record) use ($files) {
                 /** @var \ViteHelper\Model\Entity\StyleRecord|\ViteHelper\Model\Entity\ScriptRecord $file */
