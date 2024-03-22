@@ -23,7 +23,7 @@ use ViteHelper\Utilities\ViteManifest;
 class ViteScriptsHelper extends Helper
 {
 	public const VITESCRIPT_DETECTOR_NAME = 'vite_in_production';
-	
+
 	public array $helpers = ['Html'];
 
 	protected array $entries;
@@ -51,8 +51,8 @@ class ViteScriptsHelper extends Helper
 	public function initialize(array $config): void
 	{
 		parent::initialize($config);
-		$this->setConfig($config);
 		$this->setConfig(Configure::read('ViteHelper'));
+		$this->setConfig($config);
 		$env = $this->getConfig('environment', 'prod');
 		if (is_string($env)) {
 			$env = Environment::from($env);
