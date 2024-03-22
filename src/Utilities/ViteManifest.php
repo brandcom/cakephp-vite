@@ -10,16 +10,16 @@ use ViteHelper\Exception\ManifestNotFoundException;
  */
 class ViteManifest
 {
-	/**
-	 * Returns the manifest records as a Collection
-	 *
-	 * @param string $manifestPath
-	 * @param string $outDirectory
-	 * @return \ViteHelper\Utilities\ManifestRecords<\ViteHelper\Utilities\ManifestRecord>
-	 * @throws \JsonException
-	 * @throws \ViteHelper\Exception\ManifestNotFoundException
-	 * @internal
-	 */
+    /**
+     * Returns the manifest records as a Collection
+     *
+     * @param string $manifestPath
+     * @param string $outDirectory
+     * @return \ViteHelper\Utilities\ManifestRecords<\ViteHelper\Utilities\ManifestRecord>
+     * @throws \JsonException
+     * @throws \ViteHelper\Exception\ManifestNotFoundException
+     * @internal
+     */
     public static function getRecords(string $manifestPath, string $outDirectory): ManifestRecords
     {
         if (!is_readable($manifestPath)) {

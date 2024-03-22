@@ -8,7 +8,7 @@ namespace ViteHelper\Enum;
  */
 enum Environment: string
 {
-	case PRODUCTION = 'prod';
-	case DEVELOPMENT = 'dev';
-	case FROM_DETECTOR = 'detector';
+    case PRODUCTION = 'prod';
+    case DEVELOPMENT = 'dev';
+    case FROM_DETECTOR = 'detector';
 }

@@ -7,19 +7,25 @@ use ViteHelper\Enum\RecordType;
 
 abstract class Record
 {
-	protected RecordType $type;
+    protected RecordType $type;
 
-	public function __construct(RecordType $type) {
-		$this->type = $type;
-	}
+    /**
+     * Default constructor
+     *
+     * @param \ViteHelper\Enum\RecordType $type
+     */
+    public function __construct(RecordType $type)
+    {
+        $this->type = $type;
+    }
 
-	/**
-	 * returns the record type
-	 *
-	 * @return \ViteHelper\Enum\RecordType
-	 */
-	public function getType(): RecordType
-	{
-		return $this->type;
-	}
+    /**
+     * returns the record type
+     *
+     * @return \ViteHelper\Enum\RecordType
+     */
+    public function getType(): RecordType
+    {
+        return $this->type;
+    }
 }

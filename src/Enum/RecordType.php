@@ -5,7 +5,7 @@ namespace ViteHelper\Enum;
 
 enum RecordType: string
 {
-	case STYLE = 'style';
+    case STYLE = 'style';
 
-	case SCRIPT = 'script';
+    case SCRIPT = 'script';
 }

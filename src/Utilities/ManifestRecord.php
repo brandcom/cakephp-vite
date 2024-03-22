@@ -7,22 +7,25 @@ use stdClass;
 
 class ManifestRecord
 {
-	/**
-	 * @var array Record metadata
-	 */
-	private array $metadata = [];
+    /**
+     * @var array Record metadata
+     */
+    private array $metadata = [];
 
-	/**
-	 * Default constructor
-	 *
-	 * @param string $key The unique key for this record
-	 * @param \stdClass $chunk The chunks
-	 * @param string|bool $outDirectory
-	 * @see https://vitejs.dev/guide/backend-integration.html
-	 */
+    /**
+     * Default constructor
+     *
+     * @param string $key The unique key for this record
+     * @param \stdClass $chunk The chunks
+     * @param string|bool $outDirectory
+     * @see https://vitejs.dev/guide/backend-integration.html
+     */
     public function __construct(
-		private readonly string $key, private readonly stdClass $chunk, private readonly string|bool $outDirectory
-	) {}
+        private readonly string $key,
+        private readonly stdClass $chunk,
+        private readonly string|bool $outDirectory
+    ) {
+    }
 
     /**
      * @return string
@@ -203,43 +206,43 @@ class ManifestRecord
         return $this->isEntry() && $this->isJavascript() && !$this->isLegacy() && !$this->isPolyfill();
     }
 
-	/**
-	 * Adds a key value to metadata (if exists overwrites)
-	 *
-	 * @param string $key
-	 * @param string $value
-	 * @return void
-	 */
-	public function addMetadata(string $key, string $value): void
-	{
-		$this->metadata[$key] = $value;
-	}
+    /**
+     * Adds a key value to metadata (if exists overwrites)
+     *
+     * @param string $key
+     * @param string $value
+     * @return void
+     */
+    public function addMetadata(string $key, string $value): void
+    {
+        $this->metadata[$key] = $value;
+    }
 
-	/**
-	 * Replaces the metadata array
-	 *
-	 * @param array $metadata
-	 * @return void
-	 */
-	public function setMetadata(array $metadata): void
-	{
-		$this->metadata = $metadata;
-	}
+    /**
+     * Replaces the metadata array
+     *
+     * @param array $metadata
+     * @return void
+     */
+    public function setMetadata(array $metadata): void
+    {
+        $this->metadata = $metadata;
+    }
 
-	/**
-	 * Returns a metadata value
-	 *
-	 * @param string|null $key
-	 * @return mixed
-	 */
-	public function getMetadata(string|null $key = null): mixed
-	{
-		if (is_null($key)) {
-			return $this->metadata;
-		}
+    /**
+     * Returns a metadata value
+     *
+     * @param string|null $key
+     * @return mixed
+     */
+    public function getMetadata(?string $key = null): mixed
+    {
+        if (is_null($key)) {
+            return $this->metadata;
+        }
 
-		return  array_key_exists($key, $this->metadata) ? $this->metadata[$key] : null;
-	}
+        return array_key_exists($key, $this->metadata) ? $this->metadata[$key] : null;
+    }
 
     /**
      * Enables users to set build.outDirectory in app_vite.php to false,
@@ -252,7 +255,7 @@ class ManifestRecord
     {
         $outDirectory = $this->outDirectory;
         if (empty($outDirectory) && $outDirectory !== false) {
-			// TODO Needs to be verified
+            // TODO Needs to be verified
             $outDirectory = false;
         }
 
