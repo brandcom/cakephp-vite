@@ -73,7 +73,7 @@ class ManifestRecord
     {
         $field = $this->getChunk($property);
 
-        return is_string($field) && str_contains($field, $needle);
+        return is_string($field) && str_contains($field, trim($needle, '/'));
     }
 
     /**
@@ -241,7 +241,7 @@ class ManifestRecord
             return $this->metadata;
         }
 
-        return array_key_exists($key, $this->metadata) ? $this->metadata[$key] : null;
+        return $this->metadata[$key] ?? null;
     }
 
     /**

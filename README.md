@@ -17,13 +17,13 @@ You can install this plugin into your CakePHP application using [composer](https
 
 ### CakePHP Version Map
 
-| CakePHP version | Plugin Version | Branch | min. PHP Version |
-|-----------------|----------------|--------|------------------|
-| ^3.10           | /              | cake3  | ^7.4             |
-| ^4.2            | 0.x            | master | ^7.4             |
-| ^4.2            | 1.x            | master | ^8.0             |
-| ^5.0            | 2.x            | cake5  | ^8.1             |
-| ^5.0            | 3.x            | cake5  | ^8.1             |
+| CakePHP version | Plugin Version | Branch      | min. PHP Version |
+|-----------------|----------------|-------------|------------------|
+| ^3.10           | /              | cake3       | ^7.4             |
+| ^4.2            | 0.x            | master      | ^7.4             |
+| ^4.2            | 1.x            | master      | ^8.0             |
+| ^5.0            | 2.x            | cake5       | ^8.1             |
+| ^5.0            | 3.x            | cake5-next  | ^8.3             |
 
 The recommended way to install the plugin is:
 
@@ -98,15 +98,17 @@ The default configuration is:
 
 ```php
 'ViteHelper' => [
-    'plugin' => false, // or string 'MyPlugin' to serve plugin build assets
-    'render_mode' => \ViteHelper\Enum\RenderMode::AUTO, // how/when the styles and scripts should be added to view blocks. available options AUTO, MANUAL
     'environment' => \ViteHelper\Enum\Environment::PRODUCTION, // available options PRODUCTION, DEVELOPMENT, FROM_DETECTOR
     'development' => [
         'url' => 'http://localhost:3000', // url of the vite dev server
     ],
-    'build' => [
-        'outDirectory' => 'build', // output directory of build assets. string (e.g. 'dist') or false.
-        'manifest' => WWW_ROOT . 'build' . DS . '.vite' . DS . 'manifest.json', // absolute path to manifest
+    'builds' => [
+        [
+            'plugin' => null, // the plugin name or null if it doesn't exist. Default: null
+            'outputDirectory' => 'build', // the output directory relative to `webroot`. Default: 'build'
+            'manifest' => 'build' . DS . '.vite' . DS . 'manifest.json', // the relative path to the manifest file. Default: 'build' . DS . '.vite' . DS . 'manifest.json'
+            'environment' => \ViteHelper\Enum\Environment::PRODUCTION, // the forced environment, all files what 'falls' in this manifest file will be rendered this way. Default: the globally set environment
+        ],
     ],
 ],
 ```
@@ -119,6 +121,24 @@ $this->loadHelper('ViteHelper.ViteScripts', [
     // ...your config goes here
 ]);
 ```
+
+Since every build option has a default value:
+
+```php
+'ViteHelper' => [
+    'environment' => \ViteHelper\Enum\Environment::DEVELOPMENT, // available options PRODUCTION, DEVELOPMENT, FROM_DETECTOR
+    'development' => [
+        'url' => 'http://localhost:3000', // url of the vite dev server
+    ],
+    'builds' => [
+        [],
+        ['plugin' => 'MyAwesomePlugin', 'environment' => 'prod']
+    ],
+],
+```
+
+These are valid builds. Assets from `MyAwesomePlugin` will be loaded like in production, the assets from root in development mode.
+
 
 ## Environment
 
@@ -138,6 +158,8 @@ $this->request->addDetector(
 );
 ```
 
+In the development mode the plugins adds the necessary tags for development, in production this isn't happening.
+
 ## Helper method usage with options
 
 The options are the same for `::script()` and `::css()`.
@@ -146,24 +168,13 @@ The options are the same for `::script()` and `::css()`.
 
 ```php
 $this->ViteScripts->script(
-    // files for the block
-    files: ['resource/file1.js', 'resource/file2.js'], // can be also a string
+    files: ['resource/file1.js', 'resource/file2.js'], // Files as array/file as string
+    block: null, // name of the view block to render the scripts in. Default: null
+    plugin: null, // Plugin's name. Default: null
 
-    // filter for environment
-    // default: null
-    // in case of null the file(s) will be rendered both on prod and dev
+    // Filter for environment. Default: null (in case of null the file(s) will be rendered both on prod and dev)
     // possible values: \ViteHelper\Enum\Environment::PRODUCTION, \ViteHelper\Enum\Environment::DEVELOPMENT, null
     environment: null,
-
-    // name of the view block to render the scripts in
-    // default null
-    // on null uses `css` for style, `script` for javascript files
-    block: null,
-
-    // plugin prefix
-    // default null
-    // on null uses the plugin used in default config
-    plugin: null,
 );
 ```
 
@@ -201,35 +212,6 @@ $this->ViteScripts->script('resource/myscriptN.js');
 $this->getEventManager()->dispatch('Vite.render');
 <?= $this->fetch('css') ?>
 ```
-
-// TODO pluginScript should be removed, devEntries and prodFilter makes no-sense anymore
-
-**Note:** You need to set `devEntries` when running the dev server. They have to either be set in the config or
-through the helper method. In contrast, you only need `files` or `prodFilter` if you are interested in php-side
-code-splitting and don't use dynamic imports in js.
-
-It depends on your project and use case how you define entries. If you don't use `prodFilter` or `files`, the plugin
-will serve all your entry files which might just be the case you want. So don't overconfigure it ;)
-
-## Opt out of global config + Plugin development
-
-You can use the helper methods with multiple configurations through the `$config` argument.
-
-> **New in version 2.3:** You can pass a config key instead of a config instance to the helper. The default config key
-> is `ViteHelper`.
-
-This might be useful when using plugin scripts or when developing plugins:
-
-```php
-<?php $this->ViteScripts->pluginScript('MyPlugin', devMode: true, config: 'MyPlugin.ViteConfig'); ?>
-```
-
-The example above uses a convenience method to load plugin scripts for `MyPlugin`. DevMode is enabled and the helper
-will use a CakePHP config under the key `MyPlugin.ViteConfig`. In this way, you can scope your App's and your plugin's
-config.
-
-It is assumed that the `manifest.json` is available directly in your plugin's `webroot`. If this is not the case, you
-should define the absolute path throuh the `build.manifest` config option.
 
 ## Vite JS bundler / Dev server
 

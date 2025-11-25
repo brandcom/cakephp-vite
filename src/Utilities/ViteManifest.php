@@ -24,7 +24,7 @@ class ViteManifest
     {
         if (!is_readable($manifestPath)) {
             throw new ManifestNotFoundException(
-                "No valid manifest.json found at path {$manifestPath}. Did you build your js?",
+                "No valid manifest.json found at path $manifestPath. Did you build your js?",
             );
         }
 
@@ -36,9 +36,7 @@ class ViteManifest
         }
 
         $json = str_replace(
-            [
-                "\u0000",
-            ],
+            "\u0000",
             '',
             $json
         );
@@ -53,7 +51,7 @@ class ViteManifest
         /**
          * Legacy Polyfills must come first.
          */
-        usort($manifestArray, function ($file) {
+        usort($manifestArray, static function ($file) {
             /** @var \ViteHelper\Utilities\ManifestRecord $file */
             return $file->isPolyfill() ? 0 : 1;
         });
@@ -61,7 +59,7 @@ class ViteManifest
         /**
          * ES-module scripts must come last.
          */
-        usort($manifestArray, function ($file) {
+        usort($manifestArray, static function ($file) {
             /** @var \ViteHelper\Utilities\ManifestRecord $file */
             return !$file->isPolyfill() && !$file->isLegacy() ? 1 : 0;
         });
