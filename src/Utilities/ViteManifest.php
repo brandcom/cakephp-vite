@@ -45,7 +45,7 @@ class ViteManifest
                 "\u0000",
             ],
             '',
-            $json
+            $json,
         );
 
         $manifest = json_decode($json, false, 512, JSON_THROW_ON_ERROR);

@@ -10,7 +10,7 @@ use Cake\Core\PluginApplicationInterface;
 /**
  * Plugin for ViteHelper
  */
-class Plugin extends BasePlugin
+class ViteHelperPlugin extends BasePlugin
 {
     /**
      * @inheritDoc

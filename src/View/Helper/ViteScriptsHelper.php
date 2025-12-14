@@ -130,7 +130,7 @@ class ViteScriptsHelper extends Helper
             [
                 'type' => 'module',
                 'block' => $options['cssBlock'],
-            ]
+            ],
         );
 
         $files = $this->getFilesForDevelopment($options, $config, 'scriptEntries');
@@ -289,7 +289,7 @@ class ViteScriptsHelper extends Helper
         if (empty($files)) {
             throw new ConfigurationException(
                 'There are no valid entry points for the dev server. '
-                . 'Be sure to set the ViteHelper.development.' . $configOption . ' config or pass entries to the helper.'
+                . 'Be sure to set the ViteHelper.development.' . $configOption . ' config or pass entries to the helper.',
             );
         }
 
