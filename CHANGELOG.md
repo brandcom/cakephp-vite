@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.0.0
+
+The new version changes the plugin architecture and requires some modifications. It's highly recommended to check the
+README.md
+
+* Updated the plugin's configuration array
+* The methods `$this->ViteScripts->pluginScript($pluginName)` and `pluginCss()` were removed
+* The `$this->ViteScripts->css()` and `$this->ViteScripts->script()` were updated
+* The running environment MUST be defined explicitly or a detector should be used
+
 ## v2.3.0
 
 ### Changed

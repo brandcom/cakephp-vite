@@ -5,6 +5,8 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+	root: '',
+    publicDir: 'resources/assets',
     plugins: [
         basicSsl(),
         vue(),
@@ -26,23 +28,28 @@ export default defineConfig({
             protocol: 'wss',
         },
         watch: {
-            ignored: [/bin/, /config/, /plugins/, /resources/, /tests/, /vendor/, /logs/, /tmp/],
-            depth: 5,
+            ignored: [/bin/, /config/, /plugins/, /tests/, /vendor/, /logs/, /tmp/],
+            depth: 15,
         }
     },
     build: {
         emptyOutDir: true,
         outDir: './webroot/build',
-        assetsDir: 'assets',
+        assetsDir: './assets',
         manifest: true,
         rollupOptions: {
             input: [
-                './webroot_src/js/main.js',
-                './webroot_src/js/timetables.js',
-                './webroot_src/scss/style.scss',
+                './resources/js/main.js',
+                './resources/js/timetables.js',
+                './resources/scss/style.scss',
             ],
             output: {
                 entryFileNames: '[name].[hash].min.js',
+                manualChunks(id) {
+					if (id.includes('node_modules')) {
+						return id.toString().split('node_modules/')[1].split('/')[0].toString();
+					}
+				}
             }
         }
     },
